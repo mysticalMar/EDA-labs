@@ -1,11 +1,61 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define INFINITO 99999999
+#define MAXPRESTADORES 110
 
 typedef struct {
-int dni;
-char nya[80];
-char serv[120];
-char dom[80];
-char cor[50];
-char num[30];
-} prestadores;
+    int DNI;
+    char nombre[80];
+    char apellido[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+} Prestador;
+
+Prestador LSO[MAXPRESTADORES + 1]; // +1 para el elemento del infinito
+
+int CantElem = 0;
+
+void inicializarLSO() {
+    LSO[MAXPRESTADORES].DNI = INFINITO;
+}
+
+void Localizar(Prestador Elem, int *exito, int *pos) {
+    int i = 0;
+    while ((LSO[i].DNI != INFINITO) && (LSO[i].DNI != Elem.DNI) && (i < CantElem)) {
+        i++;
+    }
+    *pos = i;
+
+    if (LSO[i].DNI == Elem.DNI) {
+        *exito = 1; // Se encontró el DNI
+    } else {
+        *exito = 0; // No se encontró el DNI
+    }
+}
+
+void Alta(Prestador Elem, int *exito) {
+    int pos, exitoLocalizar = 0;
+    int i;
+    Localizar(Elem, &exitoLocalizar, &pos);
+
+    if (!exitoLocalizar) {
+        if (CantElem <= MAXPRESTADORES) { // Hay espacio disponible
+            for(i=CantElem ; i > pos; i--) {
+                LSO[i] = LSO[i - 1];
+            }
+            // Insertamos el elemento en la posición correcta
+            LSO[pos] = Elem;
+            CantElem++;
+            *exito = 1;
+
+        } else {
+            *exito = 0;
+
+        }
+    }
+}
+
