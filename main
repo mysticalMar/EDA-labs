@@ -1,0 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+int dni;
+char nya[80];
+char serv[120];
+char dom[80];
+char cor[50];
+char num[30];
+} prestadores;
