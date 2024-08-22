@@ -109,4 +109,29 @@ if(exitoLocalizar){
     *exito=0;
 }
 }
+int Baja(Prestador *x, int dni, int *exitoB){
+int exL, pos, exC;
+Localizar (*x, &pos, &exL);
+    if (exL){
+         confirma(*x, pos, &exC);
+         if (exC){//confirmar que el elemento es el que corresponde
+         //suppress(*x, pos);
+         exitoB=1;
+         }
+            else
+            exitoB=0;
+    }
+    else exitoB=0;
+    return exitoB;
+}
 
+int Modificacion (Prestador *e, int dni){
+int pos, eL, eM;
+Localizar (*e, &pos, &eL);
+    if (&eL) {
+        //asignar al campo que se quiera modificar el valor ingresado
+        eM=0;
+    }
+        else eM=1;
+    return eM;
+}
