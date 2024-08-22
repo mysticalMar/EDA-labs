@@ -58,4 +58,55 @@ void Alta(Prestador Elem, int *exito) {
         }
     }
 }
+void Baja(int DNI, int *exito){
+int pos, exitoLocalizar=0;
+int i;
+
+Prestador ElemBusqueda;
+ElemBusqueda.DNI = DNI;
+Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+
+if(exitoLocalizar){
+   int confirmacion;
+
+   printf("¿Esta seguro que quiere dar de baja al presetador con DNI %d?\n", LSO[pos].DNI);
+   printf("Nombre y Apellido: %s %s\n", LSO[pos].nombre, LSO[pos].apellido);
+   printf("Domicilio: %s\n", LSO[pos].domicilio);
+   printf("Correo: %s\n", LSO[pos].correo);
+   printf("Servicios: %s\n", LSO[pos].servicios);
+   printf("Telefono: %s\n", LSO[pos].telefono);
+   printf("Ingrese un 1 para confirmar, o cualquier otro numero para cancelar: ");
+   scanf(" %d", &confirmacion);
+
+   if(confirmacion == 1){
+    for(i=pos; i<CantElem-1; i++){
+        LSO[i] = LSO[i+1];
+    }
+    CantElem--;//Reducimos el numero de elementos
+    *exito=1; //Se dio de baja correctamente
+   } else{
+   *exito=0;
+   }
+
+
+}
+
+
+}
+
+
+void Evocar(Prestador *Elem, int DNI, int *exito){
+int pos, exitoLocalizar=0;
+
+Prestador ElemBusqueda;
+ElemBusqueda.DNI = DNI;
+Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+
+if(exitoLocalizar){
+    *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
+    *exito = 1;//Evocacion exitosa
+}else{
+    *exito=0;
+}
+}
 
