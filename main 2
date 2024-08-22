@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define INFINITO 99999999
+#define MAXPRESTADORES 110
+typedef struct {
+    int DNI;
+    char nya[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+} Prestador;
+Prestador LSO[MAXPRESTADORES + 1]; // +1 para el elemento del infinito
+int CantElem = 0;
+void inicializarLSO() {
+    LSO[0].DNI = INFINITO;
+}
+
+
+void Localizar(Prestador Elem, int *exito, int *pos) {
+    int i = 0;
+    while (LSO[i].DNI < Elem.DNI) {
+        i++;
+    }
+    *pos = i;
+    if (LSO[i].DNI == Elem.DNI) {
+        *exito = 1; // Se encontró el DNI
+    } else {
+        *exito = 0; // No se encontró el DNI
+    }
+}
+
+void Alta(Prestador Elem, int *exito) {
+    int pos, exitoLocalizar = 0;
+    int i;
+    Localizar(Elem, &exitoLocalizar, &pos);
+    if (!exitoLocalizar) {
+        if (CantElem <= MAXPRESTADORES) { // Hay espacio disponible
+            for(i=CantElem ; i > pos; i--) {
+                LSO[i] = LSO[i - 1];
+            }
+            // Insertamos el elemento en la posición correcta
+            LSO[pos] = Elem;
+            CantElem++;
+            *exito = 1;
+        } else {
+            *exito = 0;
+        }
+    }
+}
+
+void Baja(int DNI, int *exito){
+int pos, exitoLocalizar=0;
+int i;
+Prestador ElemBusqueda;
+ElemBusqueda.DNI = DNI;
+Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+    if(exitoLocalizar){
+       int confirmacion;
+       printf("¿Esta seguro que quiere dar de baja al presetador con DNI %d?\n", LSO[pos].DNI);
+       printf("Nombre y Apellido: %s \n", LSO[pos].nya);
+       printf("Domicilio: %s\n", LSO[pos].domicilio);
+       printf("Correo: %s\n", LSO[pos].correo);
+       printf("Servicios: %s\n", LSO[pos].servicios);
+       printf("Telefono: %s\n", LSO[pos].telefono);
+       printf("Ingrese un 1 para confirmar, o cualquier otro numero para cancelar: ");
+       scanf(" %d", &confirmacion);
+       if(confirmacion == 1){
+        for(i=pos; i<CantElem-1; i++){
+            LSO[i] = LSO[i+1];
+        }
+        CantElem--;//Reducimos el numero de elementos
+        *exito=1; //Se dio de baja correctamente
+       } else{
+       *exito=0;
+       }
+    }
+}
+
+void Evocar(Prestador *Elem, int DNI, int *exito){
+    int pos, exitoLocalizar=0;
+    Prestador ElemBusqueda;
+    ElemBusqueda.DNI = DNI;
+    Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+    if(exitoLocalizar){
+        *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
+        *exito = 1;//Evocacion exitosa
+    }else{
+        *exito=0;
+    }
+}
+
+int Modificacion (Prestador *e, int dni, int *exito){
+int pos, eL, eM;
+Localizar (*e, &pos, &eL);
+    if (&eL) {
+        modaux(pos);
+        //asignar al campo que se quiera modificar el valor ingresado
+        eM=0;
+    }
+        else eM=1;
+    return eM;
+}
+
+    void modaux(int pos){
+    char nya[80], s[120], dom[80], c[50], t[30];
+    int op;
+    printf("¿Que desea modificar? 1: Nombre y apellido, 2: Servicios, 3: Domicilio, 4: Correo, 5: Telefono \n");
+    scanf("%d", &op);
+    getchar();
+    do {
+    switch (op) {
+        1: {
+            printf("Ingrese el nombre nuevo \n");
+            scanf(" %s", &LS([pos].nya;
+                   }
+        2: { printf("Ingrese el nuevo servicio \n");
+             scanf(" %s", &LSO[pos].servicios);
+            }
+        3: { printf("Ingrese el nuevo domicilio \n");
+             scanf(" %s", &LSO[pos].domicilio);
+        }
+        4: { printf("Ingrese el nuevo correo \n");
+             scanf(" %s", &LSO[pos].correo);
+        }
+        5: { printf("Ingrese el nuevo telefono \n");
+            scanf(" %s", &LSO[pos].telefono);
+        }
+        default: printf("Saliendo del programa \n");
+        exit(1);
+    }
+    while (op<=5)};
+}
+
+void muestra(){
+int i;
+    for (i=0; i<CantElem; i++){
+        printf("Nombre y Apellido: %s \n", LSO[i].nya);
+        printf("Servicios: %s \n", LSO[i].servicios);
+        printf("Domicilio: %s \n", LSO[i].domicilio);
+        printf("Correo: %s \n", LSO[i].correo);
+        printf("Telefono: %s \n", LSO[i].telefono);
+    }
+}
