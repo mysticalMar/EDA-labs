@@ -14,15 +14,14 @@ typedef struct {
     char telefono[30];
 } Prestador;
 
-Prestador LSO[MAXPRESTADORES + 1]; // +1 para el elemento del infinito
 
 int CantElem = 0;
 
-void inicializarLSO() {
+void inicializarLSO(Prestador LSO[]) {
     LSO[0].DNI = INFINITO;
 }
 
-void Localizar(Prestador Elem, int *exito, int *pos) {
+void Localizar(Prestador LSO[], Prestador Elem, int *exito, int *pos) {
     int i = 0;
     while  (LSO[i].DNI < Elem.DNI) {
         i++;
@@ -36,14 +35,19 @@ void Localizar(Prestador Elem, int *exito, int *pos) {
     }
 }
 
-void Alta(Prestador Elem, int *exito) {
+void Alta(Prestador LSO[], Prestador Elem, int *exito) {
+    if(Elem.DNI == INFINITO){
+        printf("Error eliga un DNI distinto. \n");
+        *exito=0;
+        return;
+    }
     int pos, exitoLocalizar = 0;
     int i;
-    Localizar(Elem, &exitoLocalizar, &pos);
+    Localizar(LSO, Elem, &exitoLocalizar, &pos);
 
     if (!exitoLocalizar) {
-        if (CantElem <= MAXPRESTADORES) { // Hay espacio disponible
-            for(i=CantElem ; i > pos; i--) {
+        if (CantElem < MAXPRESTADORES) { // Hay espacio disponible
+            for(i= CantElem ; i > pos; i--) {
                 LSO[i] = LSO[i - 1];
             }
             // Insertamos el elemento en la posición correcta
@@ -57,13 +61,13 @@ void Alta(Prestador Elem, int *exito) {
         }
     }
 }
-void Baja(int DNI, int *exito){
+void Baja(Prestador LSO[], int DNI, int *exito){
 int pos, exitoLocalizar=0;
 int i;
 
 Prestador ElemBusqueda;
 ElemBusqueda.DNI = DNI;
-Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+Localizar(LSO, ElemBusqueda, &exitoLocalizar, &pos);
 
 if(exitoLocalizar){
    int confirmacion;
@@ -91,12 +95,12 @@ if(exitoLocalizar){
      }
 
       }
-int Modificar(Prestador *Elem, int DNI, int *exito) {
+int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito) {
     int pos, exitoLocalizar = 0;
 
     Prestador ElemBusqueda;
     ElemBusqueda.DNI = DNI;
-    Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+    Localizar(LSO, ElemBusqueda, &exitoLocalizar, &pos);
 
     if (!exitoLocalizar) {
         *exito = 0;
@@ -164,12 +168,12 @@ int Modificar(Prestador *Elem, int DNI, int *exito) {
 }
 
 
-void Evocar(Prestador *Elem, int DNI, int *exito){
+void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
 int pos, exitoLocalizar=0;
 
 Prestador ElemBusqueda;
 ElemBusqueda.DNI = DNI;
-Localizar(ElemBusqueda, &exitoLocalizar, &pos);
+Localizar(LSO, ElemBusqueda, &exitoLocalizar, &pos);
 
 if(exitoLocalizar){
     *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
@@ -179,7 +183,7 @@ if(exitoLocalizar){
 }
 }
 
-void MostrarEstructura() {
+void MostrarEstructura(Prestador LSO[]) {
     system("cls");
     int i;
 
@@ -200,18 +204,20 @@ void MostrarEstructura() {
     }
 }
 
-int MemorizacionPrevia() {
-    Prestador aux;
-    int exito;
+int MemorizacionPrevia(Prestador LSO[]) {
     FILE *fp;
+    Prestador aux;
+    int exito = 1;
+
+  fp = fopen("Prestadores.txt", "r");
 
     // Intentar abrir el archivo en modo lectura
-    if ((fp = fopen("Prestadores.txt","r")) == NULL) {
+    if (fp == NULL) {
         printf("No se pudo abrir el archivo.\n");
         return 0;
     } else {
         // Leer los datos del archivo hasta llegar al final
-        while (!feof(fp)) {
+        while (!feof(fp) && CantElem <= MAXPRESTADORES) {
             fscanf(fp, "%d", &aux.DNI);
             fscanf(fp, " %[^\n]", aux.nombreyapellido);
             fscanf(fp, " %[^\n]", aux.servicios);
@@ -219,8 +225,26 @@ int MemorizacionPrevia() {
             fscanf(fp, " %[^\n]", aux.correo);
             fscanf(fp, " %[^\n]", aux.telefono);
 
-            // Invocar la función Alta para agregar el prestador a la lista
-            Alta(aux, &exito);
+            int duplicado = 0;
+            int i;
+            for(i=0; i<CantElem; i++){
+                if(strcmp(LSO[i].nombreyapellido, aux.nombreyapellido)== 0){
+                    duplicado = 1;
+                    printf("Advertencia se encontro un prestador duplicado con el nombre '%s'. No se dara de Alta. \n", aux.nombreyapellido);
+                }
+
+            }
+            if(!duplicado){
+                Alta(LSO, aux, &exito);
+            }
+            if(CantElem > MAXPRESTADORES){
+                printf("Se alcanzo el maximo de prestadores %d. No se cargaran mas prestadores. \n", MAXPRESTADORES);
+                break;
+            }
+
+            }
+
+
 
             if (!exito) {
                 printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
@@ -235,7 +259,7 @@ int MemorizacionPrevia() {
                   }
 
 
-                        }
+
 
 
 
@@ -247,7 +271,8 @@ int main()
     Prestador prestadorEvocado;
     int DNI;
 
-    inicializarLSO();
+    Prestador LSO[MAXPRESTADORES+1]; //+1 para el elemento del infinito
+    inicializarLSO(LSO);
 
     do{
        system("cls");
@@ -280,7 +305,7 @@ int main()
       printf("Ingrese el telefono: \n");
       scanf(" %[^\n]", nuevoPrestador.telefono);
 
-      Alta(nuevoPrestador, &exito);
+     Alta(LSO, nuevoPrestador, &exito);
         if(exito) {
          printf("Prestador dado de alta con exito.\n");
          }else {
@@ -292,7 +317,7 @@ int main()
         system("cls");
         printf("Ingrese el DNI del prestador a dar de baja: \n");
         scanf(" %d", &DNI);
-        Baja(DNI, &exito);
+        Baja(LSO, DNI, &exito);
         if(exito){
             printf("Prestador dado de baja con exito. \n");
         }else{
@@ -304,7 +329,7 @@ int main()
         system("cls");
         printf("Ingrese el DNI del prestador a modificar: ");
         scanf(" %d", &DNI);
-        Modificar(&nuevoPrestador, DNI, &exito);
+        Modificar(LSO, &nuevoPrestador, DNI, &exito);
         if(exito){
             printf("Prestador modificado con exito. \n");
         }else{
@@ -316,7 +341,7 @@ int main()
         system("cls");
         printf("Ingrese el DNI del prestador a evocar: \n");
         scanf(" %d", &DNI);
-        Evocar(&prestadorEvocado, DNI, &exito);
+        Evocar(LSO, &prestadorEvocado, DNI, &exito);
         if(exito){
             printf("Prestador encontrado:\n");
             printf("DNI: %d\n", prestadorEvocado.DNI);
@@ -332,12 +357,12 @@ int main()
          break;
      case 5:
          system("cls");
-         MemorizacionPrevia();
+         MemorizacionPrevia(LSO);
          system("pause");
          break;
      case 6:
          system("cls");
-         MostrarEstructura();
+         MostrarEstructura(LSO);
          system("pause");
          break;
      case 7:
@@ -353,4 +378,6 @@ int main()
 
 
 }
+
+
 
