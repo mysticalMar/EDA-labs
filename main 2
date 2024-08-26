@@ -104,7 +104,6 @@ Localizar(ElemBusqueda, &exitoLocalizar, &pos);
  }else{
  int decision;
  int seguir = 1;
- do{
     system("cls");
     printf("Este es el prestador encontrado:\n");
     printf("DNI: %d\n", LSO[pos].DNI);
@@ -113,7 +112,7 @@ Localizar(ElemBusqueda, &exitoLocalizar, &pos);
     printf("Domicilio: %s\n", LSO[pos].domicilio);
     printf("Correo: %s\n", LSO[pos].correo);
     printf("Telefono: %s\n", LSO[pos].telefono);
-
+do{
     printf("\nIndique qué campo desea modificar:\n");
     printf("<1> Nombre y Apellido\n<2> Servicios\n<3> Domicilio\n");
     printf("<4> Correo\n<5> Telefono\n<6> Salir de modificaciones\n");
@@ -127,39 +126,38 @@ Localizar(ElemBusqueda, &exitoLocalizar, &pos);
           scanf(" %d", &decision);
           system("cls");
  }
+
  switch(decision){
  case 1:
      printf("Ingrese el nuevo Nombre y Apellido: \n");
-     gets(LSO[pos].nombreyapellido);
+     scanf("%s", &LSO[pos].nombreyapellido);
      break;
  case 2:
     printf("Ingrese los nuevos servicios: \n");
-    gets(LSO[pos].servicios);
+    scanf("%s", &LSO[pos].servicios);
     break;
  case 3:
     printf("Ingrese el nuevo domicilio: \n");
-    gets(LSO[pos].domicilio);
+    scanf("%s", &LSO[pos].domicilio);
     break;
  case 4:
     printf("Ingrese el nuevo correo: \n");
-    gets(LSO[pos].correo);
+    scanf("%s", &LSO[pos].correo);
     break;
  case 5:
     printf("Ingrese el nuevo correo: \n");
-    gets(LSO[pos].correo);
+    scanf("%s", &LSO[pos].correo);
     break;
  case 6:
-    seguir = 0;
+    decision = 0;
     break;
  default:
-    system("pause");
-    printf("¿Desea modificar otro campo? (1: Si, 0: No)\n");
-    scanf(" %d", &seguir);
+    printf("¿Desea modificar otro campo? (0: Si) \n");
+    scanf("%d", &decision);
     break;
     system("cls");
-
  }
- }while (seguir == 1);
+ }while (decision>0&&decision<7);
    *exito = 1;
    return 1;
 
@@ -207,7 +205,7 @@ void MostrarEstructura() {
 
 int MemorizacionPrevia() {
     Prestador aux;
-    int exito;
+    int exito, i=0;
     FILE *fp;
 
     // Intentar abrir el archivo en modo lectura
@@ -216,14 +214,14 @@ int MemorizacionPrevia() {
         return 0;
     } else {
         // Leer los datos del archivo hasta llegar al final
+
         while (!feof(fp)) {
             fscanf(fp, "%d", &aux.DNI);
-            fscanf(fp, " %[^\n]", aux.nombreyapellido);
-            fscanf(fp, " %[^\n]", aux.servicios);
-            fscanf(fp, " %[^\n]", aux.domicilio);
-            fscanf(fp, " %[^\n]", aux.correo);
-            fscanf(fp, " %[^\n]", aux.telefono);
-
+            fscanf(fp, "%[^\n]s", &aux.nombreyapellido);
+            fscanf(fp, "%[^\n]s", &aux.servicios);
+            fscanf(fp, "%[^\n]s", &aux.domicilio);
+            fscanf(fp, "%[^\n]s", &aux.correo);
+            fscanf(fp, "%[^\n]s", &aux.telefono);
             // Invocar la función Alta para agregar el prestador a la lista
             Alta(aux, &exito);
 
@@ -231,6 +229,8 @@ int MemorizacionPrevia() {
                 printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
                 return 0;
             }
+            i++;
+            printf("interación: %d \n", i);
         }
 
 
@@ -278,7 +278,7 @@ int main()
         int opcion, exito, dni;
         Prestador e;
         do {
-           printf("Ingrese la opcion que desea ejecutar \n 1: Alta \n 2: Baja \n 3: Modificacion \n 4: Evocacion \n 5: Memorizacion previa \n 6: Mostrar estructura \n");
+           printf("Ingrese la opcion que desea ejecutar \n 1: Alta \n 2: Baja \n 3: Modificacion \n 4: Evocacion \n 5: Memorizacion previa \n 6: Mostrar estructura \n 7: Salir del menu \n ");
            scanf("%d", &opcion);
             switch (opcion){
           case 1: {if (CantElem==110){
@@ -311,12 +311,20 @@ int main()
             }
             break;
         case 3: {
+                if (CantElem==0){
+            printf("Error: Lista vacia \n");
+            break;
+        }
                 printf("Ingrese el DNI del prestador que desea modificar \n");
                 scanf("%d", &dni);
                 Modificar(LSO, dni, &exito); //controlar
                 break;
         }
         case 4: {
+                if (CantElem==0){
+            printf("Error: Lista vacia \n");
+            break;
+        }
             printf("Ingrese el DNI del prestador a buscar \n");
             scanf("%d", &dni);
             Evocar(&e, dni, &exito);
@@ -331,12 +339,22 @@ int main()
         break;
         }
         case 6: {
+              if (CantElem==0){
+            printf("Error: Lista vacia \n");
+            break;
+        }
         MostrarEstructura();
         break;
         }
-        default: {printf("Desea salir del menu? Si: 0 \n");
+        case 7: {
+        opcion=0;
+        break;
+        }
+        default: {
+        printf("Desea salir del menu? Si: 0 \n");
         scanf("%d", &opcion);
+        break;
         }
     }
-    }while (opcion>0&&opcion<6);
+    }while (opcion>0&&opcion<8);
 }
