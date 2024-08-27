@@ -155,6 +155,7 @@ do{
    return 1;
 
   }
+}
 void MostrarEstructura(Prestador l[]) {
     system("cls");
     int i;
@@ -209,7 +210,6 @@ int MemorizacionPrevia(Prestador l[]) {
                 return 0;
             }
             i++;
-            printf("interacion: %d \n", i);
         }
 
 
@@ -218,7 +218,17 @@ int MemorizacionPrevia(Prestador l[]) {
                   }
 
                         }
+void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
+    int pos, exitoLocalizar=0;
+    Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
+    if(exitoLocalizar){
+        *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
+        *exito = 1;//Evocacion exitosa
+    }else{
+        *exito=0;
+    }
+}
 void carga(Prestador *m){
     printf("Ingrese el DNI \n");
     scanf("%d", &m->DNI);
@@ -243,7 +253,7 @@ void carga(Prestador *m){
 int main()
 {
         int opcion, exito, dni;
-        Prestador l[110], e;
+        Prestador l[110], e, prestadorEvocado;
         do {
            printf("Ingrese la opcion que desea ejecutar \n 1: Alta \n 2: Baja \n 3: Modificacion \n 4: Evocacion \n 5: Memorizacion previa \n 6: Mostrar estructura \n 7: Salir del menu \n ");
            scanf("%d", &opcion);
@@ -284,8 +294,27 @@ int main()
         }
                 printf("Ingrese el DNI del prestador que desea modificar \n");
                 scanf("%d", &dni);
-                Modificar(, DNI, &exito); //controlar
+                Modificar(l, dni, &exito); //controlar
                 break;
+        }
+        case 4: { system("cls");
+        printf("Ingrese el DNI del prestador a evocar: \n");
+        scanf(" %d", &dni);
+        Evocar(l, &prestadorEvocado, dni, &exito);
+        if(exito){
+            printf("Prestador encontrado:\n");
+            printf("DNI: %d\n", prestadorEvocado.DNI);
+            printf("Nombre y Apellido: %s\n", prestadorEvocado.nombreyapellido);
+            printf("Servicios: %s\n", prestadorEvocado.servicios);
+            printf("Domicilio: %s\n", prestadorEvocado.domicilio);
+            printf("Correo: %s\n", prestadorEvocado.correo);
+            printf("Teléfono: %s\n", prestadorEvocado.telefono);
+        }else{
+            printf("Error: Prestador no encontrado. \n");
+        }
+
+         system("pause");
+         break;
         }
         case 5: {
         MemorizacionPrevia(&l);
