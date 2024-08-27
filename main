@@ -36,11 +36,7 @@ void Localizar(Prestador LSO[], Prestador Elem, int *exito, int *pos) {
 }
 
 void Alta(Prestador LSO[], Prestador Elem, int *exito) {
-    if(Elem.DNI == INFINITO){
-        printf("Error eliga un DNI distinto. \n");
-        *exito=0;
-        return;
-    }
+
     int pos, exitoLocalizar = 0;
     int i;
     Localizar(LSO, Elem, &exitoLocalizar, &pos);
@@ -204,8 +200,8 @@ void MostrarEstructura(Prestador LSO[]) {
     }
 }
 
-int MemorizacionPrevia(Prestador LSO[]) {
-    FILE *fp;
+ int MemorizacionPrevia(Prestador LSO[]) {
+   FILE *fp;
     Prestador aux;
     int exito = 1;
 
@@ -263,6 +259,7 @@ int MemorizacionPrevia(Prestador LSO[]) {
 
 
 
+
 int main()
 {
     int opcion;
@@ -291,28 +288,43 @@ int main()
 
     switch(opcion){
      case 1:
-      system("cls");
-      printf("Ingrese el DNI del nuevo prestador: \n");
-      scanf(" %d", &nuevoPrestador.DNI);
-      printf("Ingrese el nombre y apellido: \n");
-      scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
-      printf("Ingrese los servicios del prestador: \n");
-      scanf(" %[^\n]", nuevoPrestador.servicios);
-      printf("Ingrese el domicilio: \n");
-      scanf(" %[^\n]", nuevoPrestador.domicilio);
-      printf("Ingrese el correo: \n");
-      scanf(" %[^\n]", nuevoPrestador.correo);
-      printf("Ingrese el telefono: \n");
-      scanf(" %[^\n]", nuevoPrestador.telefono);
+     system("cls");
+        while(1) { // Loop infinito que se rompe sólo si el DNI es válido
+            printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
+            scanf(" %d", &nuevoPrestador.DNI);
 
-     Alta(LSO, nuevoPrestador, &exito);
+            // Controla que el DNI no sea igual a INFINITO y que no supere los 8 dígitos
+            if(nuevoPrestador.DNI == INFINITO) {
+                printf("DNI no permitido, elija otro.\n");
+            } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) { // Asume que un DNI válido está entre 10000000 y 99999999
+                printf("DNI invalido, debe ser un numero de 8 digitos.\n");
+            } else {
+                break; // Si el DNI es válido, sale del bucle
+            }
+        }
+
+        printf("Ingrese el nombre y apellido: \n");
+        scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
+        printf("Ingrese los servicios del prestador: \n");
+        scanf(" %[^\n]", nuevoPrestador.servicios);
+        printf("Ingrese el domicilio: \n");
+        scanf(" %[^\n]", nuevoPrestador.domicilio);
+        printf("Ingrese el correo: \n");
+        scanf(" %[^\n]", nuevoPrestador.correo);
+        printf("Ingrese el telefono: \n");
+        scanf(" %[^\n]", nuevoPrestador.telefono);
+
+        Alta(LSO, nuevoPrestador, &exito);
+
         if(exito) {
-         printf("Prestador dado de alta con exito.\n");
-         }else {
+            printf("Prestador dado de alta con exito.\n");
+        } else {
             printf("Error: no se pudo dar de alta al prestador.\n");
-                }
-            system("pause");
-            break;
+        }
+        system("pause");
+        break;
+
+
      case 2:
         system("cls");
         printf("Ingrese el DNI del prestador a dar de baja: \n");
@@ -378,6 +390,7 @@ int main()
 
 
 }
+
 
 
 
