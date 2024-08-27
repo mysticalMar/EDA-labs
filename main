@@ -84,6 +84,8 @@ if(exitoLocalizar){
     }
     CantElem--;//Reducimos el numero de elementos
     *exito=1; //Se dio de baja correctamente
+   } else{
+    *exito=0;
    }
 
      }
@@ -197,7 +199,7 @@ int MemorizacionPrevia(Prestador LSO[]) {
         return 0;
     } else {
         // Leer los datos del archivo hasta llegar al final
-        while (i < 110 && !feof(fp)) {
+        while (i < MAXPRESTADORES  && !feof(fp)) {
             int dniDuplicado = 0;
 
             // Leer los datos del prestador desde el archivo
@@ -240,7 +242,9 @@ int MemorizacionPrevia(Prestador LSO[]) {
         fclose(fp);  // Cerrar el archivo después de leer todos los datos
 
         // Mostrar un cartel con la cantidad de prestadores cargados
+        if(i>0){
         printf("Cantidad de prestadores cargados: %d\n", i);
+        }
         if (duplicados > 0) {
             printf("Se omitieron %d prestadores debido a DNIs duplicados.\n", duplicados);
         }
@@ -261,6 +265,16 @@ void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         *exito=0;
     }
 }
+int esSoloLetras(char *cadena) {// Funcion auxiliar para invocarla en el main y verificar si el Nombre y Apellido son letras y espacios
+    int i;
+    for (i = 0; cadena[i] != '\0'; i++) {
+        if (!isalpha(cadena[i]) && cadena[i] != ' ') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 
 
 int main()
@@ -311,9 +325,16 @@ int main()
                 break; // Si el DNI es válido, sale del bucle
             }
         }
-
+        while(2){
         printf("Ingrese el nombre y apellido: \n");
         scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
+                if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
+                    printf("Error: El nombre y apellido solo pueden contener letras y espacios.\n");
+                }else {
+                break;
+                }
+
+                }
         printf("Ingrese los servicios del prestador: \n");
         scanf(" %[^\n]", nuevoPrestador.servicios);
         printf("Ingrese el domicilio: \n");
