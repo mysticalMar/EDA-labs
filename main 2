@@ -17,8 +17,8 @@ typedef struct {
 
 int CantElem = 0;
 
-void inicializarLSO(Prestador *l[]) {
-
+void inicializarLSO(Prestador l[]) {
+l[0].DNI=INFINITO;
 }
 
 void Localizar(Prestador l[], int dni, int *exito, int *pos) {
