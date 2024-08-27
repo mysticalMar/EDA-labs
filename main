@@ -41,7 +41,7 @@ void Alta(Prestador LSO[], Prestador Elem, int *exito) {
     int i;
     Localizar(LSO, Elem, &exitoLocalizar, &pos);
     if (!exitoLocalizar) {
-        if (CantElem <= MAXPRESTADORES && Elem.DNI != INFINITO) { // Hay espacio disponible
+        if (CantElem < MAXPRESTADORES && Elem.DNI != INFINITO) { // Hay espacio disponible
             for(i=CantElem ; i > pos; i--) {
                 LSO[i] = LSO[i - 1];
             }
@@ -169,7 +169,7 @@ void MostrarEstructura(Prestador LSO[]) {
     int i;
 
     if (CantElem == 0) {
-        printf("La lista de prestadores está vacía.\n");
+        printf("La lista de prestadores esta vacía.\n");
         return;
     }
     for (i = 0; i < CantElem; i++) {
@@ -187,7 +187,7 @@ void MostrarEstructura(Prestador LSO[]) {
 
 int MemorizacionPrevia(Prestador LSO[]) {
     Prestador aux;
-    int exito, i=0;
+    int i = 0, j, exito, duplicados = 0;
     FILE *fp;
 
     // Intentar abrir el archivo en modo lectura
@@ -196,8 +196,10 @@ int MemorizacionPrevia(Prestador LSO[]) {
         return 0;
     } else {
         // Leer los datos del archivo hasta llegar al final
+        while (i < 110 && !feof(fp)) {
+            int dniDuplicado = 0;
 
-        while (i<110 && !feof(fp)) {
+            // Leer los datos del prestador desde el archivo
             fscanf(fp, "%d", &aux.DNI);
             fgetc(fp);
             fscanf(fp, "%[^\n]", aux.nombreyapellido);
@@ -210,23 +212,41 @@ int MemorizacionPrevia(Prestador LSO[]) {
             fgetc(fp);
             fscanf(fp, "%[^\n]s", aux.telefono);
             fgetc(fp);
-            // Invocar la función Alta para agregar el prestador a la lista
-            Alta(LSO, aux, &exito);
 
-            if (!exito) {
-                printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
-                return 0;
+            // Verificar si el DNI ya existe en la lista cargada
+            for (j = 0; j < i; j++) {
+                if (LSO[j].DNI == aux.DNI) {
+                    dniDuplicado = 1;
+                    duplicados++;
+                    printf("DNI duplicado encontrado: %d. Se omitira este registro.\n", aux.DNI);
+                    break;
+                }
             }
-            i++;
+
+            // Si no es un DNI duplicado, agregar el prestador a la lista
+            if (!dniDuplicado) {
+                Alta(LSO, aux, &exito);
+
+                if (!exito) {
+                    printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
+                    fclose(fp);
+                    return 0;
+                }
+                i++;
+            }
         }
 
+        fclose(fp);  // Cerrar el archivo después de leer todos los datos
 
-    fclose(fp);  // Cerrar el archivo después de leer todos los datos
-    printf("La cantidad de prestadores cargados es: %d\n", i);
-    return 1;
-                  }
+        // Mostrar un cartel con la cantidad de prestadores cargados
+        printf("Cantidad de prestadores cargados: %d\n", i);
+        if (duplicados > 0) {
+            printf("Se omitieron %d prestadores debido a DNIs duplicados.\n", duplicados);
+        }
 
-                        }
+        return 1;
+    }
+}
 void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     int pos, exitoLocalizar=0;
     Prestador ElemBusqueda;
@@ -270,7 +290,13 @@ int main()
 
     switch(opcion){
      case 1:
+         if(CantElem >= MAXPRESTADORES){
+            printf("Error la lista de prestadores esta llena. No se puede agregar mas prestadores. \n");
+            system("pause");
+            break;
+         }
      system("cls");
+
         while(1) { // Loop infinito que se rompe sólo si el DNI es válido
             printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
             scanf(" %d", &nuevoPrestador.DNI);
