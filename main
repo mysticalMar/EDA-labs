@@ -144,12 +144,12 @@ int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
                         break;
                 }
             } else {
-                printf("Error! Ingrese una opci�n valida\n.");
+                printf("Error! Ingrese una opcion valida\n.");
                 system("pause");
             }
 
             if (seguir) {
-                printf("�Desea modificar otro campo? (1: Si, 0: No)\n");
+                printf("¿Desea modificar otro campo? (1: Si, 0: No)\n");
                 scanf("%d", &seguir);
             }
 
@@ -273,6 +273,7 @@ int main()
 {
         int opcion, exito, DNI;
         Prestador LSO[110], e, prestadorEvocado, nuevoPrestador;
+        inicializarLSO(LSO);
 
         do {
        system("cls");
