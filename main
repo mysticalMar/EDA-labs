@@ -44,7 +44,7 @@ void Alta(Prestador l[], Prestador e, int *exito) {
                 l[i] = l[i - 1];
             }
             // Insertamos el elemento en la posición correcta
-            l[i] = e;
+            l[i] = e; //Aclaracion e es un Elemento
             CantElem++;
             *exito = 1;
 
@@ -79,15 +79,15 @@ if(exitoLocalizar){
     }
     CantElem--;//Reducimos el numero de elementos
     *exito=1; //Se dio de baja correctamente
-   }
-
-     }
-     else{
-   *exito=0;
-   }
-
-      }
-
+            printf("Prestador dado de baja con exito.\n");
+        } else {
+            *exito = 0; // Cancelación de la baja
+            printf("Se cancelo la baja del prestador.\n");
+        }
+    } else {
+        *exito = 0; // No se encontró el prestador
+    }
+}
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
       int pos, exitoLocalizar = 0;
 
