@@ -272,7 +272,8 @@ int esSoloLetras(char *cadena) {// Funcion auxiliar para invocarla en el main y 
 int main()
 {
         int opcion, exito, DNI;
-        Prestador LSO[110], e, prestadorEvocado, nuevoPrestador;
+        Prestador LSO[MAXPRESTADORES + 1]; // 1 elemento mas para el mas infinito
+         Prestador e, prestadorEvocado, nuevoPrestador;
         inicializarLSO(LSO);
 
         do {
