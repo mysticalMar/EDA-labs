@@ -227,7 +227,6 @@ int MemorizacionPrevia(Prestador LSO[]) {
 
                 if (!exito) {
                     printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
-                    fclose(fp);
                     return 0;
                 }
             }
@@ -304,7 +303,7 @@ int main()
             scanf(" %d", &nuevoPrestador.DNI);
 
             // Controla que el DNI no sea igual a INFINITO y que no supere los 8 dígitos
-            if(e.DNI == INFINITO) {
+            if(nuevoPrestador.DNI == INFINITO) {
                 printf("DNI no permitido, elija otro.\n");
             } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) { // Asume que un DNI válido está entre 10000000 y 99999999
                 printf("DNI invalido, debe ser un numero de 8 digitos.\n");
@@ -312,7 +311,7 @@ int main()
                 break; // Si el DNI es válido, sale del bucle
             }
         }
-        while(2){
+        while(1){
         printf("Ingrese el nombre y apellido: \n");
         scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
                 if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
