@@ -306,7 +306,7 @@ int main()
                     printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
                     scanf("%d", &nuevoPrestador.DNI);
 
-                    // Verifica si el DNI es válido
+                    // Verifica si el DNI es valido
                     if (nuevoPrestador.DNI == INFINITO) {
                         printf("DNI no permitido, elija otro.\n");
                     } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) {
@@ -396,7 +396,7 @@ int main()
             printf("Servicios: %s\n", prestadorEvocado.servicios);
             printf("Domicilio: %s\n", prestadorEvocado.domicilio);
             printf("Correo: %s\n", prestadorEvocado.correo);
-            printf("Teléfono: %s\n", prestadorEvocado.telefono);
+            printf("Telefono: %s\n", prestadorEvocado.telefono);
         }else{
             printf("Error: Prestador no encontrado. \n");
         }
