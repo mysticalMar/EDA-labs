@@ -1,9 +1,12 @@
+//Grupo 32 Maximo Gallardo y Mariana Romano
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define INFINITO 99999999
 #define MAXPRESTADORES 110
+
+
 
 typedef struct {
     int DNI;
