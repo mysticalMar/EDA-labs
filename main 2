@@ -281,7 +281,6 @@ int main()
         inicializarLSO(LSO);
 
         do {
-       system("cls");
        printf("Bienvenidos a la agenda de prestadores de servicios.\n");
        printf("----- MENU PRINCIPAL -----\n");
        printf("1. Ingreso de nuevos prestadores\n");
@@ -294,6 +293,7 @@ int main()
        printf("---------------------------\n");
        printf("Ingrese una opcion: ");
        scanf(" %d", &opcion);
+        system("cls");
         switch(opcion){
      case 1:
          if(CantElem >= MAXPRESTADORES){
@@ -316,7 +316,8 @@ int main()
                 break; // Si el DNI es válido, sale del bucle
             }
         }
-        while(2){
+        while(1){
+
         printf("Ingrese el nombre y apellido: \n");
         scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
                 if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
@@ -347,11 +348,12 @@ int main()
 
 
      case 2:
+
         if (CantElem==0){
             printf("Error: lista vacia \n");
             break;
         }
-        system("cls");
+         system("cls");
         printf("Ingrese el DNI del prestador a dar de baja: \n");
         scanf(" %d", &DNI);
         Baja(LSO, DNI, &exito);
