@@ -163,8 +163,7 @@ int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
 
 void MostrarEstructura(Prestador l[]) {
     system("cls");
-    int i;
-
+    int i, c=0;
 
     if (CantElem == 0) {
         printf("La lista de prestadores está vacía.\n");
@@ -180,6 +179,11 @@ void MostrarEstructura(Prestador l[]) {
         printf("Correo: %s\n", l[i].correo);
         printf("Telefono: %s\n", l[i].telefono);
         printf("------------------------------------------\n");
+        c++;
+        if (c==5){
+            getchar();
+            c=0;
+        }
     }
 }
 
@@ -227,6 +231,7 @@ int MemorizacionPrevia(Prestador LSO[]) {
 
                 if (!exito) {
                     printf("No se pudo cargar el prestador con DNI %d.\n", aux.DNI);
+                    fclose(fp);
                     return 0;
                 }
             }
@@ -276,7 +281,6 @@ int main()
         inicializarLSO(LSO);
 
         do {
-       system("cls");
        printf("Bienvenidos a la agenda de prestadores de servicios.\n");
        printf("----- MENU PRINCIPAL -----\n");
        printf("1. Ingreso de nuevos prestadores\n");
@@ -289,6 +293,7 @@ int main()
        printf("---------------------------\n");
        printf("Ingrese una opcion: ");
        scanf(" %d", &opcion);
+        system("cls");
         switch(opcion){
      case 1:
          if(CantElem >= MAXPRESTADORES){
@@ -297,63 +302,73 @@ int main()
             break;
          }
      system("cls");
+  while (1) {
+                    printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
+                    scanf("%d", &nuevoPrestador.DNI);
 
-        while(1) { // Loop infinito que se rompe sólo si el DNI es válido
-            printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
-            scanf(" %d", &nuevoPrestador.DNI);
+                    // Verifica si el DNI es válido
+                    if (nuevoPrestador.DNI == INFINITO) {
+                        printf("DNI no permitido, elija otro.\n");
+                    } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) {
+                        printf("DNI inválido, debe ser un número de 8 digitos.\n");
+                    } else {
+                        // Verifica si el DNI ya existe
+                        Localizar(LSO, nuevoPrestador.DNI, &exito, &DNI);
+                        if (exito) {
+                            printf("Error: el DNI ya existe en la lista.\n");
+                        } else {
+                            break;
+                        }
+                    }
+                }
 
-            // Controla que el DNI no sea igual a INFINITO y que no supere los 8 dígitos
-            if(nuevoPrestador.DNI == INFINITO) {
-                printf("DNI no permitido, elija otro.\n");
-            } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) { // Asume que un DNI válido está entre 10000000 y 99999999
-                printf("DNI invalido, debe ser un numero de 8 digitos.\n");
-            } else {
-                break; // Si el DNI es válido, sale del bucle
-            }
-        }
-        while(1){
-        printf("Ingrese el nombre y apellido: \n");
-        scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
-                if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
-                    printf("Error: El nombre y apellido solo pueden contener letras y espacios.\n");
-                }else {
+                // Ingresar el resto de los datos
+                while (1) {
+                    printf("Ingrese el nombre y apellido: \n");
+                    scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
+                    if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
+                        printf("Error: El nombre y apellido solo pueden contener letras y espacios.\n");
+                    } else {
+                        break;
+                    }
+                }
+                printf("Ingrese los servicios del prestador: \n");
+                scanf(" %[^\n]", nuevoPrestador.servicios);
+                printf("Ingrese el domicilio: \n");
+                scanf(" %[^\n]", nuevoPrestador.domicilio);
+                printf("Ingrese el correo: \n");
+                scanf(" %[^\n]", nuevoPrestador.correo);
+                printf("Ingrese el telefono: \n");
+                scanf(" %[^\n]", nuevoPrestador.telefono);
+
+                Alta(LSO, nuevoPrestador, &exito);
+
+                if (exito == 1) {
+                    printf("Prestador dado de alta con exito.\n");
+                } else if (exito == 2) {
+                    printf("Error: DNI duplicado, no se pudo dar de alta al prestador.\n");
+                } else {
+                    printf("Error: no se pudo dar de alta al prestador.\n");
+                }
+                system("pause");
                 break;
-                }
-
-                }
-        printf("Ingrese los servicios del prestador: \n");
-        scanf(" %[^\n]", nuevoPrestador.servicios);
-        printf("Ingrese el domicilio: \n");
-        scanf(" %[^\n]", nuevoPrestador.domicilio);
-        printf("Ingrese el correo: \n");
-        scanf(" %[^\n]", nuevoPrestador.correo);
-        printf("Ingrese el telefono: \n");
-        scanf(" %[^\n]", nuevoPrestador.telefono);
-
-        Alta(LSO, nuevoPrestador, &exito);
-
-        if(exito) {
-            printf("Prestador dado de alta con exito.\n");
-        } else {
-            printf("Error: no se pudo dar de alta al prestador.\n");
-        }
-        system("pause");
-        break;
-
-
      case 2:
-        system("cls");
+
+        if (CantElem==0){
+            printf("Error: lista vacia \n");
+            break;
+        }
+         system("cls");
         printf("Ingrese el DNI del prestador a dar de baja: \n");
         scanf(" %d", &DNI);
         Baja(LSO, DNI, &exito);
-        if(exito){
-            printf("Prestador dado de baja con exito. \n");
-        }else{
-            printf("Error: No se encontro el prestador. \n");
-        }
         system("pause");
         break;
      case 3:
+          if (CantElem==0){
+            printf("Error: lista vacia \n");
+            break;
+        }
         system("cls");
         printf("Ingrese el DNI del prestador a modificar: ");
         scanf(" %d", &DNI);
@@ -366,6 +381,10 @@ int main()
         system("pause");
         break;
      case 4:
+          if (CantElem==0){
+            printf("Error: lista vacia \n");
+            break;
+        }
         system("cls");
         printf("Ingrese el DNI del prestador a evocar: \n");
         scanf(" %d", &DNI);
@@ -389,6 +408,10 @@ int main()
          system("pause");
          break;
      case 6:
+          if (CantElem==0){
+            printf("Error: lista vacia \n");
+            break;
+        }
          system("cls");
          MostrarEstructura(LSO);
          system("pause");
