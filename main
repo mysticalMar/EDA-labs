@@ -1,3 +1,4 @@
+//Grupo 32 Maximo Gallardo y Mariana Romano
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,7 @@ void Localizar(Prestador l[], int dni, int *exito, int *pos) {
     }
 }
 
-int Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
+void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     int pos, exitoLocalizar = 0, i;
 
     Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
@@ -58,19 +59,18 @@ int Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
             }
 
             *exito = 1;  // Alta exitosa
-            return 1;
+
         } else {
             *exito = -1;  // Alta no exitosa, lista llena o DNI inválido
-            return -1;
 
         }
     } else {
         *exito = 0;  // Alta no exitosa, DNI repetido
-        return 0;
+
     }
 }
 
-int Baja(Prestador l[], int DNI, int *exito){
+void Baja(Prestador l[], int DNI, int *exito){
 int pos, exitoLocalizar=0, i;
 
 Localizar(l, DNI,  &exitoLocalizar, &pos);
@@ -93,17 +93,16 @@ if(exitoLocalizar){
     }
     CantElem--;//Reducimos el numero de elementos
     l[CantElem].DNI = INFINITO; // El ultimo elemento despues de dar de baja se marca con INFINITO para asegurar que quede un DNI anituguo en la lista
-    return 1;
     *exito=1; //Se dio de baja correctamente
 
         } else {
             *exito = 0;
-            return 0;
+
 
         }
     } else {
         *exito = 0; // No se encontró el prestador
-        return 0;
+
     }
 }
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
@@ -462,4 +461,3 @@ int main()
     }while(opcion != 7);
 
 }
-
