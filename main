@@ -1,4 +1,3 @@
-//Grupo 32 Maximo Gallardo y Mariana Romano
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +21,7 @@ int CantElem = 0;
 
 void inicializarLSO(Prestador l[]) {
 l[0].DNI=INFINITO;
+CantElem = 0;
 }
 
 void Localizar(Prestador l[], int dni, int *exito, int *pos) {
@@ -53,6 +53,10 @@ int Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
             // Insertamos el elemento en la posición encontrada
             l[pos] = ElementoAlta;
             CantElem++;
+            if (CantElem == 1) {
+                l[1].DNI = INFINITO;
+            }
+
             *exito = 1;  // Alta exitosa
             return 1;
         } else {
@@ -66,7 +70,7 @@ int Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     }
 }
 
-void Baja(Prestador l[], int DNI, int *exito){
+int Baja(Prestador l[], int DNI, int *exito){
 int pos, exitoLocalizar=0, i;
 
 Localizar(l, DNI,  &exitoLocalizar, &pos);
@@ -88,14 +92,18 @@ if(exitoLocalizar){
         l[i] = l[i+1];
     }
     CantElem--;//Reducimos el numero de elementos
+    l[CantElem].DNI = INFINITO; // El ultimo elemento despues de dar de baja se marca con INFINITO para asegurar que quede un DNI anituguo en la lista
+    return 1;
     *exito=1; //Se dio de baja correctamente
 
         } else {
-            *exito = 0; // Cancelación de la baja
-          ;
+            *exito = 0;
+            return 0;
+
         }
     } else {
         *exito = 0; // No se encontró el prestador
+        return 0;
     }
 }
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
@@ -382,6 +390,12 @@ int main()
         printf("Ingrese el DNI del prestador a dar de baja: \n");
         scanf(" %d", &DNI);
         Baja(LSO, DNI, &exito);
+        if(exito == 1){
+        printf("Prestador dado de baja con exito.\n");
+        } else {
+            printf("Se cancelo la baja del prestador.\n");
+        }
+
         system("pause");
         break;
      case 3:
@@ -448,6 +462,4 @@ int main()
     }while(opcion != 7);
 
 }
-
-
 
