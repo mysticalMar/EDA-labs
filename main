@@ -1,4 +1,3 @@
-               //Grupo 32 Maximo Gallardo y Mariana Romano
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -375,19 +374,28 @@ int main()
         if (CantElem==0){
             printf("Error: lista vacia \n");
             break;
-        }
-         system("cls");
-        printf("Ingrese el DNI del prestador a dar de baja: \n");
-        scanf(" %d", &DNI);
-        Baja(LSO, DNI, &exito);
-        if(exito == 1){
-        printf("Prestador dado de baja con exito.\n");
-        } else {
-            printf("Se cancelo la baja del prestador.\n");
-        }
+            }
+         do {
+            system("cls");
+            printf("Ingrese el DNI del prestador a dar de baja: \n");
+            scanf(" %d", &DNI);
+            Baja(LSO, DNI, &exito);
+            if (exito == 1) {
+            printf("Prestador dado de baja con exito.\n");
+              break;  // Salimos del bucle si la baja es exitosa
+            } else {
+                    printf("No se pudo dar de baja al prestador con DNI %d.\n", DNI);
+                    int opcionReintento;
+                    printf("¿Desea intentar con otro DNI? (1: Si, 0: No): ");
+                    scanf(" %d", &opcionReintento);
+                    if (opcionReintento == 0) {
+                            break;  // Salimos del bucle si el usuario no quiere intentar de nuevo
+                        }
+                    }
+                } while (1);
 
-        system("pause");
-        break;
+                system("pause");
+                break;
      case 3:
           if (CantElem==0){
             printf("Error: lista vacia \n");
@@ -451,4 +459,5 @@ int main()
        }
     }while(opcion != 7);
 
-}
+
+         }
