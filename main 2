@@ -281,6 +281,38 @@ int esSoloLetras(char *cadena) {// Funcion auxiliar para invocarla en el main y 
     }
     return 1;
 }
+void carga(Prestador *nuevoPrestador){
+
+    while (1) {
+             printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
+             scanf("%d", &nuevoPrestador->DNI);
+
+             // Verifica si el DNI es válido
+             if (nuevoPrestador->DNI == INFINITO) {
+                 printf("DNI no permitido, elija otro.\n");
+             } else if (nuevoPrestador->DNI > 99999999 || nuevoPrestador->DNI < 10000000) {
+                 printf("DNI invalido, debe ser un numero de 8 digitos.\n");
+             }
+             else break;
+             }
+    while (1) {
+                 printf("Ingrese el nombre y apellido: \n");
+                 scanf(" %[^\n]", &nuevoPrestador->nombreyapellido);
+                 if (!esSoloLetras(nuevoPrestador->nombreyapellido)) {
+                     printf("Error: El nombre y apellido solo pueden contener letras y espacios.\n");
+                 } else {
+                     break;
+                 }
+             }
+             printf("Ingrese los servicios del prestador: \n");
+             scanf(" %[^\n]", &nuevoPrestador->servicios);
+             printf("Ingrese el domicilio: \n");
+             scanf(" %[^\n]", &nuevoPrestador->domicilio);
+             printf("Ingrese el correo: \n");
+             scanf(" %[^\n]", &nuevoPrestador->correo);
+             printf("Ingrese el telefono: \n");
+             scanf(" %[^\n]", &nuevoPrestador->telefono);
+}
 int main()
 {
         int opcion, exito, DNI;
@@ -311,35 +343,8 @@ int main()
          }
          system("cls");
 
-         while (1) {
-             printf("Ingrese el DNI del nuevo prestador (hasta 8 digitos): \n");
-             scanf("%d", &nuevoPrestador.DNI);
 
-             // Verifica si el DNI es válido
-             if (nuevoPrestador.DNI == INFINITO) {
-                 printf("DNI no permitido, elija otro.\n");
-             } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) {
-                 printf("DNI invalido, debe ser un numero de 8 digitos.\n");
-             }
-             else break;
-             }
-             while (1) {
-                 printf("Ingrese el nombre y apellido: \n");
-                 scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
-                 if (!esSoloLetras(nuevoPrestador.nombreyapellido)) {
-                     printf("Error: El nombre y apellido solo pueden contener letras y espacios.\n");
-                 } else {
-                     break;
-                 }
-             }
-             printf("Ingrese los servicios del prestador: \n");
-             scanf(" %[^\n]", nuevoPrestador.servicios);
-             printf("Ingrese el domicilio: \n");
-             scanf(" %[^\n]", nuevoPrestador.domicilio);
-             printf("Ingrese el correo: \n");
-             scanf(" %[^\n]", nuevoPrestador.correo);
-             printf("Ingrese el telefono: \n");
-             scanf(" %[^\n]", nuevoPrestador.telefono);
+             carga(&nuevoPrestador);
 
              Alta(LSO, nuevoPrestador, &exito);
 
@@ -355,6 +360,7 @@ int main()
                          // Salir al menú principal
                          break;  // Salir del bucle y regresar al menú principal
                      }
+                     else carga(&nuevoPrestador);
              } else {
                  printf("Error: no se pudo dar de alta al prestador.\n");
              }
