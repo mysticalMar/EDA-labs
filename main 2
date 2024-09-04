@@ -63,7 +63,7 @@ void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
 
         }
     } else {
-        *exito = 0;  // Alta no exitosa, DNI repetido
+        *exito = 2;  // Alta no exitosa, DNI repetido
 
     }
 }
@@ -320,27 +320,9 @@ int main()
                  printf("DNI no permitido, elija otro.\n");
              } else if (nuevoPrestador.DNI > 99999999 || nuevoPrestador.DNI < 10000000) {
                  printf("DNI invalido, debe ser un numero de 8 digitos.\n");
-             } else {
-                 // Verifica si el DNI ya existe
-                 Localizar(LSO, nuevoPrestador.DNI, &exito, &DNI);
-                 if (exito) {
-                     printf("Error: el DNI ya existe en la lista.\n");
-                     int decision;
-                     printf("¿Desea intentar con otro DNI o salir al menu principal?\n");
-                     printf("Ingrese 1 para intentar con otro DNI o 0 para salir al menu principal: ");
-                     scanf("%d", &decision);
-                     if (decision == 0) {
-                         // Salir al menú principal
-                         break;  // Salir del bucle y regresar al menú principal
-                     }
-                 } else {
-                     break;  // El DNI es válido y no está duplicado, salir del bucle
-                 }
              }
-         }
-
-         // Ingresar el resto de los datos solo si se ha decidido continuar
-         if (!exito) {
+             else break;
+             }
              while (1) {
                  printf("Ingrese el nombre y apellido: \n");
                  scanf(" %[^\n]", nuevoPrestador.nombreyapellido);
@@ -364,11 +346,18 @@ int main()
              if (exito == 1) {
                  printf("Prestador dado de alta con exito.\n");
              } else if (exito == 2) {
-                 printf("Error: DNI duplicado, no se pudo dar de alta al prestador.\n");
+                     printf("Error: el DNI ya existe en la lista.\n");
+                     int decision;
+                     printf("¿Desea intentar con otro DNI o salir al menu principal?\n");
+                     printf("Ingrese 1 para intentar con otro DNI o 0 para salir al menu principal: ");
+                     scanf("%d", &decision);
+                     if (decision == 0) {
+                         // Salir al menú principal
+                         break;  // Salir del bucle y regresar al menú principal
+                     }
              } else {
                  printf("Error: no se pudo dar de alta al prestador.\n");
              }
-         }
          system("pause");
          break;
      case 2:
