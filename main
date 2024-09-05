@@ -1,4 +1,3 @@
-//Grupo 32 Maximo Gallardo y Mariana Romano
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -237,7 +236,7 @@ int MemorizacionPrevia(Prestador LSO[]){
         }
 
         // Si no es un duplicado, agregar el prestador a la lista
-        if (!dniduplicado) {
+        if (!dniduplicado && aux.DNI < INFINITO) {
             Alta(LSO, aux, &exito);
             if (exito == 1) {
                 prestadorescargados++;
@@ -457,3 +456,4 @@ int main()
 
 
          }
+
