@@ -74,7 +74,7 @@ Localizar(l, DNI,  &exitoLocalizar, &pos);
 if(exitoLocalizar){
 
    if(confirma(l, pos)==1){
-    for(i=pos; i<CantElem-1; i++){
+    for(i=pos; i<=CantElem-1; i++){
         l[i] = l[i+1];
     }
     CantElem--;//Reducimos el numero de elementos
