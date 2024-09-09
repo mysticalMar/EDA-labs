@@ -25,7 +25,7 @@ CantElem = 0;
 
 void Localizar(Prestador l[], int dni, int *exito, int *pos) {
     int i = 0;
-    while  (l[i].DNI < dni && i<CantElem) {
+    while  (l[i].DNI < dni) {
         i++;
     }
     *pos = i;
@@ -224,7 +224,9 @@ int MemorizacionPrevia(Prestador LSO[]){
         }
 
         // Si no es un duplicado, agregar el prestador a la lista
+
             Alta(LSO, aux, &exito);
+
             if (exito == 1) {
                 prestadorescargados++;
             }
