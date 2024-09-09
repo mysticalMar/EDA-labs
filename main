@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #define INFINITO 99999999
 #define MAXPRESTADORES 110
+
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -30,7 +30,7 @@ void Localizar(Prestador l[], int dni, int *exito, int *pos) {
     }
     *pos = i;
 
-    if (l[i].DNI == dni && i<CantElem) {
+    if (l[i].DNI == dni) {
         *exito = 1; // Se encontró el DNI
     } else {
         *exito = 0; // No se encontró el DNI
@@ -72,11 +72,10 @@ Localizar(l, DNI,  &exitoLocalizar, &pos);
 if(exitoLocalizar){
 
    if(confirma(l, pos)==1){
-    for(i=pos; i < CantElem-1; i++){
+    for(i=pos; i < CantElem; i++){
         l[i] = l[i+1];
     }
     CantElem--;//Reducimos el numero de elementos
-
 
     *exito=1; //Se dio de baja correctamente
 
