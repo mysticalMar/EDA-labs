@@ -72,7 +72,7 @@ Localizar(l, DNI,  &exitoLocalizar, &pos);
 if(exitoLocalizar){
 
    if(confirma(l, pos)==1){
-    for(i=pos; i <= CantElem-1; i++){
+    for(i=pos; i < CantElem; i++){
         l[i] = l[i+1];
     }
     CantElem--;//Reducimos el numero de elementos
@@ -384,7 +384,7 @@ int main()
             } else {
                     printf("No se pudo dar de baja al prestador con DNI %d.\n", DNI);
                     int opcionReintento;
-                    printf("¿Desea intentar con otro DNI? (1: Si, 0: No): ");
+                    printf("¿Desea intentar con otro DNI? (Cualquier numero: Si , 0: No): ");
                     scanf(" %d", &opcionReintento);
                     if (opcionReintento == 0) {
                             break;  // Salimos del bucle si el usuario no quiere intentar de nuevo
