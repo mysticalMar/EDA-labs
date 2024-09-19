@@ -1,10 +1,13 @@
+#ifndef LSOBB_H_INCLUDED
+#define LSOBB_H_INCLUDED
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define INFINITO 99999999
-#define MAXPRESTADORES 110
+#define MAXPRESTADORES 10
 
 
 
@@ -19,32 +22,35 @@ typedef struct {
 
 
 int CantElem = 0;
-
-void inicializarLSO(Prestador l[]) {
-l[0].DNI=INFINITO;
-CantElem = 0;
-}
-
+//variables de costos
+int corr_Alta=0, max_Alta=0, corr_Baja=0, max_Baja=0, cant_local=0; max_local=0;
+float medio_Alta=0, medio_Baja=0, medio_local=0;
 void Localizar(Prestador l[], int dni, int *exito, int *pos) {
      int li,ls,m;
- li=0;
- ls=111;
-	 	 m =aux(li, ls);
-	 while ((li<=ls)&&(l[m].DNI!=dni)){
+     li=0;
+     ls=CantElem;
+     m =(li+ls)/2;
+	 while ((li<ls)&&(l[m].DNI!=dni)){
+     cant_local++;
      if (l[m].DNI<dni) {
             li = m+1;
     }
 		 else {
-         ls = m-1;
+         ls = m;
 		 }
-        m=aux(li, ls);
+      m =(li+ls)/2;
 }
-if (ls<li) {
-            *exito= 0;
+    if (ls==li) {
+                *exito= 0;
+                *pos=li;
+            }
+            else *exito=1;
             *pos=m;
-        }
-        else *exito=1;
-        *pos=m;
+    //Calculos de costos
+    if (cant_local>max_local){
+        max_local=cant_local;
+    }
+    medio_local=max_local/cant_local;
 }
 
 void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
@@ -54,7 +60,7 @@ void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
 
 
     if (!exitoLocalizar) {
-        if (CantElem < MAXPRESTADORES && ElementoAlta.DNI < INFINITO) {
+        if (CantElem < MAXPRESTADORES) {
             // Realizamos el corrimiento para insertar en la posición correcta
             for (i = CantElem+1; i > pos; i--) {
                 l[i] = l[i - 1];
@@ -227,7 +233,7 @@ int MemorizacionPrevia(Prestador LSO[]){
                                                           aux.domicilio, aux.correo, aux.telefono) != EOF) {
 
         // Verificar si el DNI es válido
-        if (aux.DNI <= 0 || aux.DNI == INFINITO || aux.DNI > INFINITO) {
+        if (aux.DNI <= 0) {
             printf("DNI inválido encontrado: %d. Se omitira este registro.\n", aux.DNI);
             continue;
         }
@@ -324,9 +330,8 @@ void carga(Prestador *nuevoPrestador){
 int main()
 {
         int opcion, exito, DNI;
-        Prestador LSO[MAXPRESTADORES + 1]; // 1 elemento mas para el mas infinito
+        Prestador LSO[MAXPRESTADORES];
          Prestador e, prestadorEvocado, nuevoPrestador;
-        inicializarLSO(LSO);
 
         do {
        printf("Bienvenidos a la agenda de prestadores de servicios.\n");
@@ -466,15 +471,4 @@ int main()
 
          }
 
-
-
-int aux(int li, int ls){
-int m;
-if ((li+ls)%2!=0){
-        m=((li+ls)/2)+1; //segmento más grande a la izquierda
-        return m;
-	 }
-	 else m=(li+ls)/2;
-	 return m;
-}
-
+#endif // LSOBB_H_INCLUDED
