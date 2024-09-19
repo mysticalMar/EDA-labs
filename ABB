@@ -1,0 +1,83 @@
+#ifndef ABB_H_INCLUDED
+#define ABB_H_INCLUDED
+
+
+typedef struct {
+    int DNI;
+    char nombreyapellido[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+} Prestador;
+
+
+typedef struct{
+Prestador datos;
+struct nodo *izq;
+struct nodo *der;
+}Nodo;
+
+typedef struct {
+ Nodo *raiz;
+ Nodo *cur;
+ Nodo *curaux;
+}Arbol;
+
+void init_ABB(Arbol *a){
+(*a).raiz = NULL;
+(*a).cur = NULL;
+(*a).curaux = NULL;
+}
+
+void LocalizarABB(Arbol *a, int *exito, int dni){
+a->cur = a->raiz;
+a->curaux = a->raiz;
+
+while(a->cur != NULL){
+    if(a->cur->datos.DNI == dni){
+        *exito = 1;
+    }
+    if(a->cur->datos.DNI > dni){
+        a->curaux = a->cur;
+        a->cur = a->cur->izq;
+    }else if(a->cur->datos.DNI < dni){
+     a->curaux = a->cur;
+     a->cur = a->cur->der;
+    }
+
+}
+  *exito = 0; // No se encontro el DNI
+}
+void AltaABB(Arbol *a, Prestador nuevop, int *exito){
+    int exitoLocalizar = 0;
+  LocalizarABB(a, nuevoPrestador.DNI, &exito, costo);
+
+Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
+nuevoNodo->datos = nuevop;
+nuevoNodo->der = NULL;
+nuevoNodo->izq = NULL;
+
+if(a->raiz == NULL){
+    a->raiz = nuevoNodo; // El arbol estaba vacio
+    *exito = 1;
+}
+ if(exitoLocalizar){
+    *exito = 2;// DNI duplicado
+    free(nuevoNodo);
+}else{
+  if(a->curaux->datos.DNI > nuevop.DNI){
+    a->curaux->izq = nuevoNodo;
+  }else{
+   a->curaux->der = nuevoNodo;
+  }
+  *exito = 1; // Alta exitosa
+}
+
+
+}
+
+
+
+
+#endif // ABB_H_INCLUDED
