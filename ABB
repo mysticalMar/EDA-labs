@@ -188,6 +188,43 @@ if(nodo == NULL){
   MostrarPreOrden(a->raiz);
   }
 
+  void MemorizacionPrevia(Arbol *a) {
+    FILE *fp;
+    if ((fp = fopen("Operaciones-Prestadores.txt", "r")) == NULL) {
+        printf("No se pudo abrir el archivo\n");
+        return; // No se pudo abrir el archivo
+    }
+
+    Prestador nuevoPrestador;
+    int operacion;
+    int exito;
+    int contadorPreCarga = 0;
+
+    while (!feof(fp)) {
+        fscanf(fp, "%d", &operacion);
+        if (operacion == 1) { // Alta
+            fscanf(fp, "%d", &nuevoPrestador.DNI);
+            fgetc(fp); // Limpiar el buffer
+            fscanf(fp, " %[^\n]", nuevoPrestador.nombreyapellido);
+            fscanf(fp, " %[^\n]", nuevoPrestador.servicios);
+            fscanf(fp, " %[^\n]", nuevoPrestador.domicilio);
+            fscanf(fp, " %[^\n]", nuevoPrestador.correo);
+            fscanf(fp, " %[^\n]", nuevoPrestador.telefono);
+
+            // Invocar la función de alta
+            AltaABB(a, nuevoPrestador, &exito);
+            if (exito == 1) {
+                contadorPreCarga++;
+            } else if (exito == 2) {
+                printf("DNI duplicado: %d\n", nuevoPrestador.DNI);
+            }
+        }
+    }
+
+    fclose(fp);
+    printf("Se cargaron %d elementos\n", contadorPreCarga);
+}
+
 
 
 void EvocarABB(Arbol *a, int dni, int *exito, Prestador *prestadorEncontrado){
@@ -203,8 +240,3 @@ if(exitolocalizar){
 
 }
 
-
-
-
-
-#endif // ABB_H_INCLUDED
