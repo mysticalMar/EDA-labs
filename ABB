@@ -3,12 +3,12 @@
 
 
 typedef struct {
-    int DNI;
-    char nombreyapellido[80];
-    char servicios[120];
-    char domicilio[80];
-    char correo[50];
-    char telefono[30];
+  int DNI;
+  char nombreyapellido[80];
+  char servicios[120];
+  char domicilio[80];
+  char correo[50];
+  char telefono[30];
 } Prestador;
 
 
@@ -21,28 +21,28 @@ struct nodo *der;
 typedef struct {
  Nodo *raiz;
  Nodo *cur;
- Nodo *curaux;
+ Nodo *padre;
 }Arbol;
 
 void init_ABB(Arbol *a){
 (*a).raiz = NULL;
 (*a).cur = NULL;
-(*a).curaux = NULL;
+(*a).padre = NULL;
 }
 
 void LocalizarABB(Arbol *a, int *exito, int dni){
 a->cur = a->raiz;
-a->curaux = a->raiz;
+a->padre = a->raiz;
 
 while(a->cur != NULL){
     if(a->cur->datos.DNI == dni){
         *exito = 1;
     }
     if(a->cur->datos.DNI > dni){
-        a->curaux = a->cur;
+        a->padre = a->cur;
         a->cur = a->cur->izq;
     }else if(a->cur->datos.DNI < dni){
-     a->curaux = a->cur;
+     a->padre = a->cur;
      a->cur = a->cur->der;
     }
 
@@ -51,7 +51,7 @@ while(a->cur != NULL){
 }
 void AltaABB(Arbol *a, Prestador nuevop, int *exito){
     int exitoLocalizar = 0;
-  LocalizarABB(a, nuevoPrestador.DNI, &exito, costo);
+  LocalizarABB(a, nuevoPrestador.DNI, &exito);
 
 Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
 nuevoNodo->datos = nuevop;
@@ -66,16 +66,143 @@ if(a->raiz == NULL){
     *exito = 2;// DNI duplicado
     free(nuevoNodo);
 }else{
-  if(a->curaux->datos.DNI > nuevop.DNI){
-    a->curaux->izq = nuevoNodo;
+  if(a->padre->datos.DNI > nuevop.DNI){
+    a->padre->izq = nuevoNodo;
   }else{
-   a->curaux->der = nuevoNodo;
+   a->padre->der = nuevoNodo;
   }
   *exito = 1; // Alta exitosa
 }
 
 
 }
+// Funcion para encontrar el mayor de los menores
+Nodo* mayorDeLosMenores(Nodo *nodo, Nodo **padre){
+ *padre = nodo;
+  nodo = nodo->izq;
+
+  while(nodo->der != NULL){
+    *padre = nodo;
+    nodo = nodo->der;
+  }
+ return nodo;
+}
+
+
+int BajaABB(Arbol *a, int dni, int *costo){
+int exitolocalizar;
+LocalizarABB(a, &exitolocalizar, dni);
+
+ if(!exitolocalizar){
+    return 0; // No se encontro el prestador
+ }
+  Nodo *nodoeliminar = a->cur;
+
+  //Caso 1: El nodo a eliminar sera una hoja es decir "No tiene hijos"
+  if(nodoeliminar->izq == NULL && nodoeliminar->der == NULL){
+    if(a->padre == NULL){
+        a->raiz = NULL;
+    }else if(a->padre->izq == nodoeliminar){
+         a->padre->izq = NULL;
+    }else {
+       a->padre->der = NULL;
+    }
+    free(nodoeliminar);
+    *costo += 1;
+    return 1;
+
+  }
+  //Caso 2: El nodo a eliminar tiene un hijo
+  if(nodoeliminar->izq == NULL || nodoeliminar->der == NULL){
+    Nodo *hijo;
+   if(nodoeliminar->izq != NULL){
+    hijo = nodoeliminar->izq;
+   }else{
+    hijo = nodoeliminar->der;
+   }
+   if(a->padre == NULL){
+    a->raiz = hijo;
+   } else if(a->padre->izq == nodoeliminar){
+    a->padre->izq = hijo;
+   } else{
+    a->padre->der = hijo;
+   }
+   free(nodoeliminar);
+   *costo += 1;
+   return 1;
+  }
+  //Caso 3: El nodo a eliminar tiene dos hijos
+  Nodo *padreMayormenores = NULL;
+  Nodo *nodoMayormenores = mayorDeLosMenores(nodoeliminar, &padreMayormenores);
+// Reemplazar los datos del nodo a eliminar con los del mayor de los menores
+ nodoeliminar ->datos = nodoMayormenores->datos;
+ // Eliminar el nodo mayor de los menores
+ if(padreMayormenores->izq == nodoMayormenores){
+
+    padreMayormenores->izq = nodoMayormenores->izq;
+ }else {
+  padreMayormenores->der = nodoMayormenores->der;
+ }
+ free(nodoMayormenores);
+ *costo += 1;
+ return 1;
+
+}
+
+void MostrarPreOrden(Nodo *nodo){
+if(nodo == NULL){
+    return;
+}
+    printf("Prestador: \n");
+    printf("DNI: %d\n", nodo->datos.DNI);
+    printf("Nombre y Apellido: %s\n", nodo->datos.nombreyapellido);
+    printf("Servicios: %s\n", nodo->datos.servicios);
+    printf("Domicilio: %s\n", nodo->datos.domicilio);
+    printf("Correo: %s\n", nodo->datos.correo);
+    printf("Telefono: %s\n", nodo->datos.telefono);
+  if(nodo->izq != NULL){
+    printf("DNI Hijo izquierdo: %d\n", nodo->izq->datos.DNI);
+  }else {
+        printf("DNI Hijo Izquierdo: NULL\n");
+    }
+
+    if (nodo->der != NULL) {
+        printf("DNI Hijo Derecho: %d\n", nodo->der->datos.DNI);
+    } else {
+        printf("DNI Hijo Derecho: NULL\n");
+    }
+
+    printf("----------------------\n");
+
+    //Recorrer el hijo de la izquierda en preorden
+    MostrarPreOrden(nodo->izq);
+    //Recorrer el hijo de la derecha en preorden
+    MostrarPreOrden(nodo->der);
+
+
+  }
+  void MostrarEstructuraABB(Arbol *a){
+      if(a->raiz == NULL){
+        return;
+      }
+  MostrarPreOrden(a->raiz);
+  }
+
+
+
+void EvocarABB(Arbol *a, int dni, int *exito, Prestador *prestadorEncontrado){
+int exitolocalizar = 0;
+LocalizarABB(a, &exito, dni);
+
+if(exitolocalizar){
+    *prestadorEncontrado = a->cur->datos;
+    *exito = 1;
+} else{
+   *exito = 0;
+}
+
+}
+
 
 
 
