@@ -51,7 +51,7 @@ while(a->cur != NULL){
 }
 void AltaABB(Arbol *a, Prestador nuevop, int *exito){
     int exitoLocalizar = 0;
-  LocalizarABB(a, nuevoPrestador.DNI, &exito);
+  LocalizarABB(a, nuevop.DNI, &exito);
 
 Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
 nuevoNodo->datos = nuevop;
@@ -128,7 +128,6 @@ LocalizarABB(a, &exitolocalizar, dni);
     a->padre->der = hijo;
    }
    free(nodoeliminar);
-   *costo += 1;
    return 1;
   }
   //Caso 3: El nodo a eliminar tiene dos hijos
@@ -144,7 +143,6 @@ LocalizarABB(a, &exitolocalizar, dni);
   padreMayormenores->der = nodoMayormenores->der;
  }
  free(nodoMayormenores);
- *costo += 1;
  return 1;
 
 }
@@ -161,13 +159,15 @@ if(nodo == NULL){
     printf("Correo: %s\n", nodo->datos.correo);
     printf("Telefono: %s\n", nodo->datos.telefono);
   if(nodo->izq != NULL){
-    printf("DNI Hijo izquierdo: %d\n", nodo->izq->datos.DNI);
+    Nodo *v =nodo->izq;
+    printf("DNI Hijo izquierdo: %d\n", v->datos.DNI);
   }else {
         printf("DNI Hijo Izquierdo: NULL\n");
     }
 
     if (nodo->der != NULL) {
-        printf("DNI Hijo Derecho: %d\n", nodo->der->datos.DNI);
+       Nodo *v=nodo->der;
+        printf("DNI Hijo Derecho: %d\n", v->datos.DNI);
     } else {
         printf("DNI Hijo Derecho: NULL\n");
     }
@@ -239,4 +239,4 @@ if(exitolocalizar){
 }
 
 }
-
+#endif ABB.H_INLCUDED
