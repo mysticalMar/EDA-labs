@@ -1,6 +1,7 @@
 #ifndef LSO_H_INCLUDED
 #define LSO_H_INCLUDED
-
+#define INFINITO 99999999
+#define MAXPRESTADORES 110
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -10,32 +11,43 @@ typedef struct {
     char telefono[30];
 } Prestador;
 
-
+//promedio= vector de costos/cantidad de altas exitosas
 int CantElem = 0;
-
+//variables de costos
+int LSO_Altas=0, LSO_total_Alta=0, LSO_corr_Alta=0, LSO_max_Alta=0,
+LSO_Bajas=0, LSO_total_Baja=0, LSO_corr_Baja=0, LSO_max_Baja=0,
+LSO_total_Local=0, LSO_cant_local=0, LSO_max_local=0, LSO_local=0;
+float LSO_medio_Alta=0, LSO_medio_Baja=0, LSO_medio_local=0;
 void inicializarLSO(Prestador l[]) {
 l[0].DNI=INFINITO;
 CantElem = 0;
 }
 
-void Localizar(Prestador l[], int dni, int *exito, int *pos) {
+void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
     int i = 0;
     while  (l[i].DNI < dni) {
         i++;
+        LSO_cant_local++;
     }
     *pos = i;
 
     if (l[i].DNI == dni) {
         *exito = 1; // Se encontr� el DNI
+        LSO_local++;
+        if (LSO_cant_local>LSO_max_local){
+            LSO_max_local=LSO_cant_local;
+        }
     } else {
         *exito = 0; // No se encontr� el DNI
     }
+     LSO_local=+LSO_cant_local;
+     LSO_cant_local=0;
 }
 
-void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
+void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     int pos, exitoLocalizar = 0, i;
 
-    Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
+    LSO_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
 
 
     if (!exitoLocalizar) {
@@ -43,12 +55,13 @@ void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
             // Realizamos el corrimiento para insertar en la posici�n correcta
             for (i = CantElem+1; i > pos; i--) {
                 l[i] = l[i - 1];
+                LSO_corr_Alta++;
             }
             // Insertamos el elemento en la posici�n encontrada
             l[pos] = ElementoAlta;
             CantElem++;
             *exito = 1;  // Alta exitosa
-
+            LSO_Altas++;
         } else {
             *exito = -1;  // Alta no exitosa, lista llena o DNI inv�lido
 
@@ -57,23 +70,30 @@ void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
         *exito = 2;  // Alta no exitosa, DNI repetido
 
     }
+    //costos
+    if(LSO_corr_Alta>LSO_max_Alta){
+        LSO_max_Alta=LSO_corr_Alta;
+    }
+    LSO_total_Alta+=LSO_corr_Alta;
+    LSO_corr_Alta=0;
 }
 
-void Baja(Prestador l[], int DNI, int *exito){
+void LSO_Baja(Prestador l[], int DNI, int *exito, Prestador e){ //e se recibe por parámetro para comparar el elemento obtenido en la posición que coincida con el dni (confirmación automática)
 int pos, exitoLocalizar=0, i;
 
-Localizar(l, DNI,  &exitoLocalizar, &pos);
+LSO_Localizar(l, DNI,  &exitoLocalizar, &pos);
 
 if(exitoLocalizar){
 
-   if(confirma(l, pos)==1){
+   if(confirma(l, pos, )==1){
     for(i=pos; i < CantElem; i++){
         l[i] = l[i+1];
+       LSO_corr_Baja++;
     }
     CantElem--;//Reducimos el numero de elementos
 
     *exito=1; //Se dio de baja correctamente
-
+     LSO_Bajas++;
         } else {
             *exito = 0;
 
@@ -82,25 +102,15 @@ if(exitoLocalizar){
         *exito = 0; // No se encontr� el prestador
 
     }
-}
-int confirma(Prestador l[], int pos){
-    int confirmacion=0;
- printf("�Esta seguro que quiere dar de baja al presetador con DNI %d?\n", l[pos].DNI);
-   printf("Nombre y Apellido: %s \n",l[pos].nombreyapellido);
-   printf("Domicilio: %s\n", l[pos].domicilio);
-   printf("Correo: %s\n", l[pos].correo);
-   printf("Servicios: %s\n", l[pos].servicios);
-   printf("Telefono: %s\n", l[pos].telefono);
-   printf("Ingrese un 1 para confirmar, o cualquier otro numero para cancelar: ");
-   scanf("%d", &confirmacion);
-   return confirmacion;
+    //Costos
+    LSO_total_Baja=+LSO_corr_Baja;
 }
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
       int pos, exitoLocalizar = 0;
 
     Prestador ElemBusqueda;
     ElemBusqueda.DNI = DNI;
-    Localizar(LSO, DNI, &exitoLocalizar, &pos);
+    LSO_Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
     if (!exitoLocalizar) {
         *exito = 0;
@@ -219,7 +229,7 @@ int MemorizacionPrevia(Prestador LSO[]){
 
 
 
-            Alta(LSO, aux, &exito);
+            LSO_Alta(LSO, aux, &exito);
 
             if (exito == 1) {
                 prestadorescargados++;
@@ -253,9 +263,9 @@ int MemorizacionPrevia(Prestador LSO[]){
     return 1;
 }
 
-void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
+void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     int pos, exitoLocalizar=0;
-    Localizar(LSO, DNI, &exitoLocalizar, &pos);
+    LSO_Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
     if(exitoLocalizar){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
@@ -266,4 +276,3 @@ void Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
 }
 
 #endif // LSO_H_INCLUDED
-
