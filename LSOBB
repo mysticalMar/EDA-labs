@@ -2,32 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "lso.h"
 #define MAXPRESTADORES 10
 
 
 
-typedef struct {
-    int DNI;
-    char nombreyapellido[80];
-    char servicios[120];
-    char domicilio[80];
-    char correo[50];
-    char telefono[30];
-} Prestador;
 
-
-int CantElem = 0;
+int LSOBB_CantElem = 0;
 //variables de costos
-int corr_Alta=0, max_Alta=0, corr_Baja=0, max_Baja=0, cant_local=0; max_local=0, cant_total_Alta=0;
-float medio_Alta=0, medio_Baja=0, medio_local=0;
-void Localizar(Prestador l[], int dni, int *exito, int *pos) {
+int LSOBB_corr_Alta=0, LSOBB_max_Alta=0, LSOBB_corr_Baja=0, LSOBB_max_Baja=0, LSOBB_cant_local=0, LSOBB_max_local=0, LSOBB_cant_total_Alta=0;
+float LSOBB_medio_Alta=0, LSOBB_medio_Baja=0, LSOBB_medio_local=0;
+void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
      int li,ls,m;
      li=0;
-     ls=CantElem;
+     ls=LSOBB_CantElem;
      m =(li+ls)/2;
 	 while ((li<ls)&&(l[m].DNI!=dni)){
-     cant_local++;
+     LSOBB_cant_local++;
      if (l[m].DNI<dni) {
             li = m+1;
     }
@@ -43,29 +34,29 @@ void Localizar(Prestador l[], int dni, int *exito, int *pos) {
             else *exito=1;
             *pos=m;
     //Calculos de costos
-    if (cant_local>max_local){
-        max_local=cant_local;
+    if (LSOBB_cant_local>LSOBB_max_local){
+        LSOBB_max_local=LSOBB_cant_local;
     }
 
-    cant_local=0;
+    LSOBB_cant_local=0;
 }
 
-void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
+void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     int pos, exitoLocalizar = 0, i;
 
-    Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
+    LSOBB_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
 
 
     if (!exitoLocalizar) {
         if (CantElem < MAXPRESTADORES) {
             // Realizamos el corrimiento para insertar en la posición correcta
-            for (i = CantElem; i > pos; i--) {
+            for (i = LSOBB_CantElem; i > pos; i--) {
                 l[i] = l[i - 1];
-                corr_Alta++;
+                LSOBB_corr_Alta++;
             }
             // Insertamos el elemento en la posición encontrada
             l[pos] = ElementoAlta;
-            CantElem++;
+            LSOBB_CantElem++;
             *exito = 1;  // Alta exitosa
 
         } else {
@@ -77,25 +68,25 @@ void Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
 
     }
     //Calculos de costos
-     if (corr_Alta>max_Alta){
-        max_Alta=corr_Alta;
+     if (LSOBB_corr_Alta>LSOBB_max_Alta){
+        LSOBB_max_Alta=LSOBB_corr_Alta;
     }
-    corr_Alta=0;
+    LSOBB_corr_Alta=0;
 }
 
-void Baja(Prestador l[], int DNI, int *exito){
+void LSOBB_Baja(Prestador l[], int DNI, int *exito){
 int pos, exitoLocalizar=0, i;
 
-Localizar(l, DNI,  &exitoLocalizar, &pos);
+LSOBB_Localizar(l, DNI,  &exitoLocalizar, &pos);
 
 if(exitoLocalizar){
 
-   if(confirma(l, pos)==1){
+   if(LSOBB_confirma(l, pos)==1){
     for(i=pos; i<CantElem; i++){
         l[i] = l[i+1];
-        corr_Baja++;
+        LSOBB_corr_Baja++;
     }
-    CantElem--;//Reducimos el numero de elementos
+    LSOBB_CantElem--;//Reducimos el numero de elementos
 
     *exito=1; //Se dio de baja correctamente
 
@@ -108,12 +99,12 @@ if(exitoLocalizar){
 
     }
        //Calculos de costos
-     if (corr_Baja>max_Baja){
-        max_Baja=corr_Baja;
+     if (LSOBB_corr_Baja>LSOBB_max_Baja){
+        LSOBB_max_Baja=LSOBB_corr_Baja;
     }
-    corr_Baja=0;
+    LSOBB_corr_Baja=0;
 }
-int confirma(Prestador l[], int pos){
+int LSOBB_confirma(Prestador l[], int pos){
     int confirmacion=0;
  printf("¿Esta seguro que quiere dar de baja al presetador con DNI %d?\n", l[pos].DNI);
    printf("Nombre y Apellido: %s \n",l[pos].nombreyapellido);
@@ -476,4 +467,3 @@ int main()
 
 
          }
-
