@@ -1,1 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+//#include //"ABB.h"
+#include "lso.h"
+//#include //"lsobb.h"
+
+void precarga(){
+    int opcion, exito, DNI;
+    Prestador LSO[110+1], p;
+FILE *fp=fopen("Prestadores.txt", "r");
+while (!feof(fp)){
+fscanf(fp, "%d", &opcion);
+    switch(opcion){
+    case 1:
+    fscanf(fp, "%d", &p.DNI);
+    fscanf(fp, "%[^\n]", &p.nombreyapellido);
+    fscanf(fp, "%[^\n]", &p.servicios);
+    fscanf(fp, "%[^\n]", &p.domicilio);
+    fscanf(fp, "%[^\n]", &p.correo);
+    fscanf(fp, "%[^\n]", &p.telefono);
+    LSO_Alta(LSO, p, &exito);
+    break;
+    case 2:    fscanf(fp, "%d", &DNI);
+               LSO_Evocar(LSO, &p, DNI, &exito);
+               break;
+    case 3:
+        fscanf(fp, "%d", &DNI);
+        LSO_Baja(LSO, DNI, &exito);
+    }
+}
+}
+int main()
+{
+    int opcion;
+    Prestador nuevop;
+    do{
+        printf("1: Comparar estructuras \n");
+        printf("2: Mostrar: ABB \n");
+        printf("3 Mostrar: LSO \n");
+        printf("4: Mostrar: LSOBB \n");
+        scanf("%d", &opcion);
+    }
+    switch(opcion){
+    case 1: precarga();
+     while (LSO_Altas>0){
+    LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
+    }
+    printf("Coste medio de Alta: %f", LSO_medio_Alta);
+    printf("Coste maximo de Alta en LSO: %d", LSO_max_Alta);
+
+    }
+
+}
 
