@@ -4,10 +4,14 @@
 #include "lso.h"
 //#include //"lsobb.h"
 
-void precarga(){
+void precarga(Prestador LSO[]){
     int opcion, exito, DNI;
-    Prestador LSO[110+1], p;
-FILE *fp=fopen("Prestadores.txt", "r");
+    Prestador p;
+FILE *fp=fopen("Operaciones.txt", "r");
+if(fopen("Operaciones.txt", "r")==NULL){
+    printf("No se puede abrir el archivo \n");
+    exit(1);
+}
 while (!feof(fp)){
 fscanf(fp, "%d", &opcion);
     switch(opcion){
@@ -25,30 +29,30 @@ fscanf(fp, "%d", &opcion);
                break;
     case 3:
         fscanf(fp, "%d", &DNI);
-        LSO_Baja(LSO, DNI, &exito);
+        LSO_Baja(LSO, DNI, &exito, p);
     }
 }
 }
 int main()
 {
     int opcion;
-    Prestador nuevop;
+    Prestador LSO[110], nuevop;
     do{
-        printf("1: Comparar estructuras \n");
-        printf("2: Mostrar: ABB \n");
-        printf("3 Mostrar: LSO \n");
-        printf("4: Mostrar: LSOBB \n");
-        scanf("%d", &opcion);
-    }
-    switch(opcion){
-    case 1: precarga();
-     while (LSO_Altas>0){
-    LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
-    }
-    printf("Coste medio de Alta: %f", LSO_medio_Alta);
-    printf("Coste maximo de Alta en LSO: %d", LSO_max_Alta);
+            printf("1: Comparar estructuras \n");
+            printf("2: Mostrar: ABB \n");
+            printf("3 Mostrar: LSO \n");
+            printf("4: Mostrar: LSOBB \n");
+            scanf("%d", &opcion);
 
-    }
+        switch(opcion){
+        case 1: precarga(LSO);
+         while (LSO_Altas>0){
+        LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
+        }
+        printf("Coste medio de Alta: %f \n", LSO_medio_Alta);
+        printf("Coste maximo de Alta en LSO: %d \n", LSO_max_Alta);
+
+        }
+    }while(opcion<=4);
 
 }
-
