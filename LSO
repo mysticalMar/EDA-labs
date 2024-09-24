@@ -85,7 +85,7 @@ LSO_Localizar(l, DNI,  &exitoLocalizar, &pos);
 
 if(exitoLocalizar){
 
-   if(confirma(l, pos, )==1){
+   if(confirma(l, pos, e)==1){
     for(i=pos; i < CantElem; i++){
         l[i] = l[i+1];
        LSO_corr_Baja++;
@@ -104,6 +104,33 @@ if(exitoLocalizar){
     }
     //Costos
     LSO_total_Baja=+LSO_corr_Baja;
+}
+int confirma(Prestador l[], int pos, Prestador elemento){
+    int c=0;
+        do{
+                if (strcmp(l[pos].nombreyapellido, elemento.nombreyapellido)){
+                    c=1;
+                }
+                else break;
+                if (strcmp(l[pos].servicios, elemento.servicios)){
+                    c=1;
+                     }
+                else break;
+                if (strcmp(l[pos].domicilio, elemento.domicilio)){
+                    c=1;
+                }
+                else break;
+                     if (strcmp(l[pos].correo, elemento.correo)){
+                    c=1;
+                }
+                else break;
+                     if (strcmp(l[pos].telefono, elemento.telefono)){
+                    c=1;
+                }
+                else break;
+
+        }while(c=1);
+        return c;
 }
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
       int pos, exitoLocalizar = 0;
