@@ -129,7 +129,12 @@ int BajaABB(Arbol *a, int dni, int *cantActPtrosBaja, int *MaxBaja, int *cantBaj
   }
   // Caso 2: Nodo con un hijo
   else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
-    Nodo *hijo = (nodoeliminar->izq != NULL) ? nodoeliminar->izq : nodoeliminar->der;
+    Nodo *hijo;
+if (nodoeliminar->izq != NULL) {
+    hijo = nodoeliminar->izq;
+} else {
+    hijo = nodoeliminar->der;
+}
     if (a->padre == NULL) {
       a->raiz = hijo;
     } else if (a->padre->izq == nodoeliminar) {
