@@ -2,53 +2,77 @@
 #include <stdlib.h>
 //#include //"ABB.h"
 #include "lso.h"
-//#include //"lsobb.h"
+#include "lsobb.h"
 
-void precarga(Prestador LSO[]){
+void precarga(Prestador LSO[], Prestador LSOBB[]) {
     inicializarLSO(LSO);
-    int opcion=0, exito=0, DNI, prestadorescargados=0;
+    int opcion = 0, exitoLSO= 0, exitoLSOBB=0, DNI, prestadorescargadosLSO = 0, prestadorescargadosLSOBB=0;
     Prestador aux;
-FILE *fp=fopen("Operaciones.txt", "r");
-if(fp==NULL){
-    printf("No se puede abrir el archivo \n");
-    exit(1);
-}
+    FILE *fp = fopen("Operaciones.txt", "r");
 
-    while (!feof(fp)) {
-    fscanf(fp, "%d", &opcion);
-        switch(opcion){
+    if (fp == NULL) {
+        printf("No se puede abrir el archivo \n");
+        exit(1);
+    }
+
+    while (fscanf(fp, "%d", &opcion) != EOF) {
+
+        switch (opcion) {
         case 1:
-        if (prestadorescargados==MAXPRESTADORES){
-                            break;
-                        }
-         fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
-                                                              &aux.DNI, aux.nombreyapellido, aux.servicios,
-                                                              aux.domicilio, aux.correo, aux.telefono);
-                                                              LSO_Alta(LSO, aux, &exito);
+            if (prestadorescargadosLSO == MAXPRESTADORES) {
+                break;
+            }
 
-                    if (exito == 1) {
-                        prestadorescargados++;
-                         printf("prestadores cargados: %d \n", prestadorescargados);
-                    }
+            fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
+                                   &aux.DNI, aux.nombreyapellido, aux.servicios,
+                                   aux.domicilio, aux.correo, aux.telefono);
 
+                LSO_Alta(LSO, aux, &exitoLSO);
+                LSOBB_Alta(LSOBB, aux, &exitoLSOBB);
+
+                if (exitoLSO == 1) {
+                    prestadorescargadosLSO++;
+                }
+                if (exitoLSOBB == 1) {
+                    prestadorescargadosLSOBB++;
+                }
             break;
 
-        case 2:    fscanf(fp, "%d \n", &DNI);
-                   LSO_Evocar(LSO, &aux, DNI, &exito);
-                   break;
+        case 2:
+                fscanf(fp, "%d\n", &DNI);
+            LSO_Baja(LSO, DNI, &exitoLSO, aux);
+            LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
+             if (exitoLSO == 1) {
+                    prestadorescargadosLSO--;
+             }
+              if (exitoLSOBB == 1) {
+                    prestadorescargadosLSOBB--;
+                }
+            break;
+
+
         case 3:
-            fscanf(fp, "%d \n", &DNI);
-            LSO_Baja(LSO, DNI, &exito, aux);
+            fscanf(fp, "%d\n", &DNI);
+            LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
+            LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB);
             break;
+        }
+
+
+        if (prestadorescargadosLSO == MAXPRESTADORES) {
+
+            break; // Salir del bucle principal si alcanzamos el máximo de prestadores
         }
     }
 
- fclose(fp);
+    fclose(fp);
 }
+
+
 int main()
 {
     int opcion;
-    Prestador LSO[111], nuevop;
+    Prestador LSO[111], LSOBB[110] ,nuevop;
     do{
             printf("1: Comparar estructuras \n");
             printf("2: Mostrar: ABB \n");
@@ -57,18 +81,27 @@ int main()
             scanf("%d", &opcion);
 
         switch(opcion){
-        case 1: precarga(LSO);
+        case 1: precarga(LSO, LSOBB);
+        //costes LSO
          if (LSO_Altas>0){
         LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
-         printf("Coste medio de Alta: %f \n", LSO_medio_Alta);
+         printf("Coste medio de Alta en LSO: %f \n", LSO_medio_Alta);
         }
 
         printf("Coste maximo de Alta en LSO: %d \n", LSO_max_Alta);
+        //costes LSOBB
+         if (LSOBB_Altas>0){
+        LSOBB_medio_Alta=LSOBB_total_Alta/LSOBB_Altas;
+         printf("Coste medio de Alta en LSOBB: %f \n", LSOBB_medio_Alta);
+        }
+
+        printf("Coste maximo de Alta en LSOBB: %d \n", LSOBB_max_Alta);
         break;
 
         case 3: MostrarEstructura(LSO);
         break;
-
+        case 4: MostrarEstructura(LSOBB);
+        break;
         }
 
     }while(opcion<=4);
