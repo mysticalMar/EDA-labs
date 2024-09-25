@@ -1,5 +1,6 @@
 #ifndef LSO_H_INCLUDED
-#define LSO_H_INCLUDED
+#define LSO_H_INCLUDED}
+#include <string.h>
 #define INFINITO 99999999
 #define MAXPRESTADORES 110
 typedef struct {
@@ -106,30 +107,27 @@ if(exitoLocalizar){
     LSO_total_Baja=+LSO_corr_Baja;
 }
 int confirma(Prestador l[], int pos, Prestador elemento){
-    int c=0;
-        do{
-                if (strcmp(l[pos].nombreyapellido, elemento.nombreyapellido)){
+    int c;
+                if (strcmp(l[pos].nombreyapellido, elemento.nombreyapellido)==1){
                     c=1;
                 }
-                else break;
-                if (strcmp(l[pos].servicios, elemento.servicios)){
+                else c=0;
+                if (strcmp(l[pos].servicios, elemento.servicios)==1){
                     c=1;
                      }
-                else break;
-                if (strcmp(l[pos].domicilio, elemento.domicilio)){
+                else c=0;
+                if (strcmp(l[pos].domicilio, elemento.domicilio)==1){
                     c=1;
                 }
-                else break;
-                     if (strcmp(l[pos].correo, elemento.correo)){
+                else c=0;
+                     if (strcmp(l[pos].correo, elemento.correo)==1){
                     c=1;
                 }
-                else break;
-                     if (strcmp(l[pos].telefono, elemento.telefono)){
+                else c=0;
+                    if (strcmp(l[pos].telefono, elemento.telefono)==1){
                     c=1;
                 }
-                else break;
-
-        }while(c=1);
+                else c=0;
         return c;
 }
 int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
