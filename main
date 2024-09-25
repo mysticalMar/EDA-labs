@@ -5,38 +5,50 @@
 //#include //"lsobb.h"
 
 void precarga(Prestador LSO[]){
-    int opcion, exito, DNI;
-    Prestador p;
+    inicializarLSO(LSO);
+    int opcion=0, exito=0, DNI, prestadorescargados=0;
+    Prestador aux;
 FILE *fp=fopen("Operaciones.txt", "r");
-if(fopen("Operaciones.txt", "r")==NULL){
+if(fp==NULL){
     printf("No se puede abrir el archivo \n");
     exit(1);
 }
-while (!feof(fp)){
-fscanf(fp, "%d", &opcion);
-    switch(opcion){
-    case 1:
-    fscanf(fp, "%d", &p.DNI);
-    fscanf(fp, "%[^\n]", &p.nombreyapellido);
-    fscanf(fp, "%[^\n]", &p.servicios);
-    fscanf(fp, "%[^\n]", &p.domicilio);
-    fscanf(fp, "%[^\n]", &p.correo);
-    fscanf(fp, "%[^\n]", &p.telefono);
-    LSO_Alta(LSO, p, &exito);
-    break;
-    case 2:    fscanf(fp, "%d", &DNI);
-               LSO_Evocar(LSO, &p, DNI, &exito);
-               break;
-    case 3:
-        fscanf(fp, "%d", &DNI);
-        LSO_Baja(LSO, DNI, &exito, p);
+
+    while (!feof(fp)) {
+    fscanf(fp, "%d", &opcion);
+        switch(opcion){
+        case 1:
+        if (prestadorescargados==MAXPRESTADORES){
+                            break;
+                        }
+         fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
+                                                              &aux.DNI, aux.nombreyapellido, aux.servicios,
+                                                              aux.domicilio, aux.correo, aux.telefono);
+                                                              LSO_Alta(LSO, aux, &exito);
+
+                    if (exito == 1) {
+                        prestadorescargados++;
+                         printf("prestadores cargados: %d \n", prestadorescargados);
+                    }
+
+            break;
+
+        case 2:    fscanf(fp, "%d \n", &DNI);
+                   LSO_Evocar(LSO, &aux, DNI, &exito);
+                   break;
+        case 3:
+            fscanf(fp, "%d \n", &DNI);
+            LSO_Baja(LSO, DNI, &exito, aux);
+            break;
+        }
     }
-}
+
+ fclose(fp);
 }
 int main()
 {
     int opcion;
-    Prestador LSO[110], nuevop;
+    Prestador LSO[111], nuevop;
     do{
             printf("1: Comparar estructuras \n");
             printf("2: Mostrar: ABB \n");
@@ -46,13 +58,19 @@ int main()
 
         switch(opcion){
         case 1: precarga(LSO);
-         while (LSO_Altas>0){
+         if (LSO_Altas>0){
         LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
+         printf("Coste medio de Alta: %f \n", LSO_medio_Alta);
         }
-        printf("Coste medio de Alta: %f \n", LSO_medio_Alta);
+
         printf("Coste maximo de Alta en LSO: %d \n", LSO_max_Alta);
+        break;
+
+        case 3: MostrarEstructura(LSO);
+        break;
 
         }
+
     }while(opcion<=4);
 
 }
