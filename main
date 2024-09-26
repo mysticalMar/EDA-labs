@@ -89,11 +89,6 @@ int precargaABB(Arbol *arbol) {
                        aux.domicilio, aux.correo, aux.telefono);
 
                 Alta_ABB(arbol, aux, &exito, &cantActPterosAlta, &maxAlta, &cantAlta);
-
-                if (exito == 1) {
-                    prestadorescargados++;
-                    printf("Prestadores cargados (ABB): %d \n", prestadorescargados);
-                }
                 break;
 
             case 2:
