@@ -90,7 +90,7 @@ int main()
         do{
                 printf("1: Comparar estructuras \n");
                 printf("2: Mostrar: ABB \n");
-                printf("3 Mostrar: LSO \n");
+                printf("3: Mostrar: LSO \n");
                 printf("4: Mostrar: LSOBB \n");
                 scanf("%d", &opcion);
 
@@ -111,9 +111,9 @@ int main()
 
             if (LSO_local>0){
                 LSO_medio_local=LSO_total_Local/LSO_local;
-                printf("Coste medio de localizacion en LSO: %f \n", LSO_medio_local);
+                printf("Coste medio de evocacion en LSO: %f \n", LSO_medio_local);
             }
-                printf("Coste maximo de localizacion en LSO: %f \n", LSO_max_local);
+                printf("Coste maximo de evocacion en LSO: %f \n", LSO_max_local);
 
             //costes LSOBB
              if (LSOBB_Altas>0){
@@ -130,16 +130,16 @@ int main()
 
             if (LSOBB_local>0){
                 LSOBB_medio_local=LSOBB_total_local/LSOBB_local;
-                printf("Coste medio de localizacion en LSOBB: %f \n", LSOBB_medio_local);
+                printf("Coste medio de evocacion en LSOBB: %f \n", LSOBB_medio_local);
             }
-                printf("Coste maximo de localizacion en LSOBB: %f \n", LSOBB_max_local);
+                printf("Coste maximo de evocacion en LSOBB: %f \n", LSOBB_max_local);
               // costes ABB
 
                costo_total_alta_ABB = cantActPtrosAlta * 0.5;
                 if (cantAltas > 0) {
                     costo_medio_alta_ABB = costo_total_alta_ABB / cantAltas;
                     printf("Costo medio de Alta en ABB: %f\n", costo_medio_alta_ABB);
-                    printf("Costo máximo de Alta en ABB: %d\n", MaxAlta);
+                    printf("Costo maximo de Alta en ABB: %d\n", MaxAlta);
                 }
 
                 // Costo total y medio de bajas en ABB
@@ -147,15 +147,17 @@ int main()
                 if (cantBajas > 0) {
                     costo_medio_baja_ABB = costo_total_baja_ABB / cantBajas;
                     printf("Costo medio de Baja en ABB: %f\n", costo_medio_baja_ABB);
-                    printf("Costo maximo de Baja en ABB: %d\n", MaxBaja);
+
                 }
+                 printf("Costo maximo de Baja en ABB: %d\n", MaxBaja);
 
                 // Costo total y medio de evocación en ABB
                 if (cantEvocaciones > 0) {
                     costo_medio_evocar_ABB = (comparacionesEvocar * 1.0) / cantEvocaciones;
-                    printf("Costo medio de Evocación en ABB: %f\n", costo_medio_evocar_ABB);
-                    printf("Maximo de comparaciones en una Evocación en ABB: %d\n", MaxComparaciones);
+                    printf("Costo medio de Evocacion en ABB: %f\n", costo_medio_evocar_ABB);
+
                 }
+                 printf("Maximo de comparaciones en una Evocacion en ABB: %d\n", MaxComparaciones);
             break;
             case 2: MostrarEstructura_ABB(&arbol);
             break;
@@ -171,3 +173,5 @@ int main()
         while(opcion<=4);
 
         }
+
+
