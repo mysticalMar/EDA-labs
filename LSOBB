@@ -44,15 +44,7 @@ void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
             else {
             *exito=1; //localizacion exitosa
             *pos=m;
-            LSOBB_local++;
             }
-    //Calculos de costos
-    if (LSOBB_cant_local>LSOBB_max_local){
-        LSOBB_max_local=LSOBB_cant_local;
-    }
-    LSOBB_total_local+=LSOBB_cant_local;
-
-    LSOBB_cant_local=0;
 }
 
 void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
@@ -157,6 +149,14 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     if(exitoLocalizar){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
+
+        if (LSOBB_cant_local>LSOBB_max_local){
+            LSOBB_max_local=LSOBB_cant_local;
+        }
+          LSOBB_total_local+=LSOBB_cant_local;
+
+        LSO_cant_local=0;
+        LSO_local++;
     }else{
         *exito=0;
     }
