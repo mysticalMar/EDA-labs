@@ -1,140 +1,134 @@
 #ifndef ABB_H_INCLUDED
 #define ABB_H_INCLUDED
 
+typedef struct {
+    int DNI;
+    char nombreyapellido[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+} PrestadorABB;
+
+typedef struct nodo {
+    PrestadorABB datos;
+    struct nodo *izq;
+    struct nodo *der;
+} Nodo;
 
 typedef struct {
-  int DNI;
-  char nombreyapellido[80];
-  char servicios[120];
-  char domicilio[80];
-  char correo[50];
-  char telefono[30];
-} Prestador;
+    Nodo *raiz;
+    Nodo *cur;
+    Nodo *padre;
+} Arbol;
 
-
-typedef struct{
-Prestador datos;
-struct nodo *izq;
-struct nodo *der;
-}Nodo;
-
-typedef struct {
- Nodo *raiz;
- Nodo *cur;
- Nodo *padre;
-}Arbol;
-
-void init_ABB(Arbol *a){
-(*a).raiz = NULL;
-(*a).cur = NULL;
-(*a).padre = NULL;
+void init_ABB(Arbol *a) {
+    a->raiz = NULL;
+    a->cur = NULL;
+    a->padre = NULL;
 }
 
-void LocalizarABB(Arbol *a, int *exito, int dni, int *comparaciones){
-*comparaciones = 0;
-a->cur = a->raiz;
-a->padre = NULL;
+void Localizar_ABB(Arbol *a, int dni, int *exito, int *comparaciones) {
+    *comparaciones = 0;
+    a->cur = a->raiz;
+    a->padre = NULL;
 
-while(a->cur != NULL){
-    (*comparaciones)++;//Costo por comparacion
-    if(a->cur->datos.DNI == dni){
+    while (a->cur != NULL) {
+        (*comparaciones)++;  // Costo por comparación
+        if (a->cur->datos.DNI == dni) {
+            *exito = 1;
+            return;  // DNI encontrado
+        }
+        a->padre = a->cur;
+        if (a->cur->datos.DNI > dni) {
+            a->cur = a->cur->izq;
+        } else {
+            a->cur = a->cur->der;
+        }
+    }
+    *exito = 0;  // No se encontró el DNI
+}
+
+void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito, int *cantActPtrosAlta, int *MaxAlta, int *cantAltas) {
+    int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
+    Localizar_ABB(a, nuevoPrestador.DNI, &exitoLocalizar, &comparaciones);
+
+    Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
+    nuevoNodo->datos = nuevoPrestador;
+    nuevoNodo->der = NULL;
+    nuevoNodo->izq = NULL;
+
+    if (a->raiz == NULL) {
+        a->raiz = nuevoNodo;  // El árbol estaba vacío
+        actualizaciones++;     // Actualización de puntero
+        *exito = 1;
+    } else if (exitoLocalizar) {
+        *exito = 2;  // DNI duplicado
+        free(nuevoNodo);
+    } else {
+        if (nuevoPrestador.DNI < a->padre->datos.DNI) {
+            a->padre->izq = nuevoNodo;
+        } else {
+            a->padre->der = nuevoNodo;
+        }
+        actualizaciones++;  // Actualización de puntero
         *exito = 1;
     }
-    if(a->cur->datos.DNI > dni){
-        a->padre = a->cur;
-        a->cur = a->cur->izq;
-    }else if(a->cur->datos.DNI < dni){
-     a->padre = a->cur;
-     a->cur = a->cur->der;
+
+    *cantActPtrosAlta += actualizaciones;
+    if (actualizaciones > *MaxAlta) {
+        *MaxAlta = actualizaciones;
     }
 
-
-}
-  *exito = 0; // No se encontro el DNI
-}
-void AltaABB(Arbol *a, Prestador nuevoPrestador, int *exito, int *cantActPtrosAlta, int *MaxAlta, int *cantAltas) {
-  int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
-  LocalizarABB(a, nuevoPrestador.DNI, &exitoLocalizar, &comparaciones);
-
-  Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
-  nuevoNodo->datos = nuevoPrestador;
-  nuevoNodo->der = NULL;
-  nuevoNodo->izq = NULL;
-
-  if (a->raiz == NULL) {
-    a->raiz = nuevoNodo; // El árbol estaba vacío
-    actualizaciones++;  // Actualización de puntero
-    *exito = 1;
-  } else if (exitoLocalizar) {
-    *exito = 2; // DNI duplicado
-    free(nuevoNodo);
-  } else {
-    if (nuevoPrestador.DNI < a->padre->datos.DNI) {
-      a->padre->izq = nuevoNodo;
-    } else {
-      a->padre->der = nuevoNodo;
+    if (*exito == 1) {
+        (*cantAltas)++;  // Incrementa el contador de altas solo si fue exitosa
     }
-    actualizaciones++;  // Actualización de puntero
-    *exito = 1;
-  }
-
-  *cantActPtrosAlta += actualizaciones;
-  if (actualizaciones > *MaxAlta) {
-    *MaxAlta = actualizaciones;
-  }
-
-  if (*exito == 1) {
-    (*cantAltas)++; // Incrementa el contador de altas solo si fue exitosa
-    return *cantActPtrosAlta / *cantAltas // Calculamos el medio
-  }
-
 }
-// Funcion para encontrar el mayor de los menores
-Nodo* mayorDeLosMenores(Nodo *nodo, Nodo **padre){
- *padre = nodo;
-  nodo = nodo->izq;
 
-  while(nodo->der != NULL){
+Nodo *mayorDeLosMenores(Nodo *nodo, Nodo **padre) {
     *padre = nodo;
-    nodo = nodo->der;
-  }
- return nodo;
-}
+    nodo = nodo->izq;
 
-
-int BajaABB(Arbol *a, int dni, int *cantActPtrosBaja, int *MaxBaja, int *cantBaja) {
-  int exitoLocalizar = 0;
-  int comparaciones = 0;
-  int actualizaciones = 0;
-
-  LocalizarABB(a, &exitoLocalizar, dni, &comparaciones);
-
-  if (!exitoLocalizar) {
-    return 0;  // No se encontró el prestador
-  }
-
-  Nodo *nodoeliminar = a->cur;
-
-  // Caso 1: Nodo hoja (sin hijos)
-  if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
-    if (a->padre == NULL) {
-      a->raiz = NULL;
-    } else if (a->padre->izq == nodoeliminar) {
-      a->padre->izq = NULL;
-    } else {
-      a->padre->der = NULL;
+    while (nodo->der != NULL) {
+        *padre = nodo;
+        nodo = nodo->der;
     }
-    free(nodoeliminar);
-    actualizaciones++;
-  }
-  // Caso 2: Nodo con un hijo
-  else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
-    Nodo *hijo;
-if (nodoeliminar->izq != NULL) {
-    hijo = nodoeliminar->izq;
-} else {
-    hijo = nodoeliminar->der;
+    return nodo;
 }
+
+int Baja_ABB(Arbol *a, int dni, int *cantActPtrosBaja, int *MaxBaja, int *cantBaja) {
+    int exitoLocalizar = 0;
+    int comparaciones = 0;
+    int actualizaciones = 0;
+
+    Localizar_ABB(a, dni, &exitoLocalizar, &comparaciones);
+
+    if (!exitoLocalizar) {
+        return 0;  // No se encontró el prestador
+    }
+
+    Nodo *nodoeliminar = a->cur;
+
+    // Caso 1: Nodo hoja (sin hijos)
+    if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
+        if (a->padre == NULL) {
+            a->raiz = NULL;
+        } else if (a->padre->izq == nodoeliminar) {
+            a->padre->izq = NULL;
+        } else {
+            a->padre->der = NULL;
+        }
+        free(nodoeliminar);
+        actualizaciones++;
+    }
+    // Caso 2: Nodo con un hijo
+     else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
+    Nodo *hijo;
+   if (nodoeliminar->izq != NULL) {
+    hijo = nodoeliminar->izq;
+    } else {
+    hijo = nodoeliminar->der;
+        }
     if (a->padre == NULL) {
       a->raiz = hijo;
     } else if (a->padre->izq == nodoeliminar) {
@@ -145,117 +139,78 @@ if (nodoeliminar->izq != NULL) {
     free(nodoeliminar);
     actualizaciones++;
   }
-  // Caso 3: Nodo con dos hijos
-  else {
-    Nodo *padreMayorMenores = NULL;
-    Nodo *nodoMayorMenores = mayorDeLosMenores(nodoeliminar, &padreMayorMenores);
-    nodoeliminar->datos = nodoMayorMenores->datos;
+    // Caso 3: Nodo con dos hijos
+    else {
+        Nodo *padreMayorMenores = NULL;
+        Nodo *nodoMayorMenores = mayorDeLosMenores(nodoeliminar, &padreMayorMenores);
+        nodoeliminar->datos = nodoMayorMenores->datos;
 
-    if (padreMayorMenores->izq == nodoMayorMenores) {
-      padreMayorMenores->izq = nodoMayorMenores->izq;
-    } else {
-      padreMayorMenores->der = nodoMayorMenores->der;
+        if (padreMayorMenores->izq == nodoMayorMenores) {
+            padreMayorMenores->izq = nodoMayorMenores->izq;
+        } else {
+            padreMayorMenores->der = nodoMayorMenores->der;
+        }
+        free(nodoMayorMenores);
+        actualizaciones++;
     }
-    free(nodoMayorMenores);
-    actualizaciones++;
-  }
 
-  // Incrementar las variables de costo
-  *cantActPtrosBaja += actualizaciones;
-  if (actualizaciones > *MaxAlta) {
-    *MaxBaja = actualizaciones;
-  }
-  if(exitoLocalizar){
-  (*cantBaja)++;  // Incrementar el contador de bajas
-  return *cantActPtrosBaja / *cantBaja;
+    *cantActPtrosBaja += actualizaciones;
+    if (actualizaciones > *MaxBaja) {
+        *MaxBaja = actualizaciones;
+    }
+    if (exitoLocalizar) {
+        (*cantBaja)++;  // Incrementar el contador de bajas
+    }
 
-  }
-  return 1;  // Baja exitosa
+    return 1;  // Baja exitosa
 }
 
-void MostrarPreOrden(Nodo *nodo){
-if(nodo == NULL){
-    return;
-}
-    printf("Prestador: \n");
+void MostrarPreOrden(Nodo *nodo) {
+    if (nodo == NULL) {
+        return;
+    }
+
+    printf("Prestador:\n");
     printf("DNI: %d\n", nodo->datos.DNI);
     printf("Nombre y Apellido: %s\n", nodo->datos.nombreyapellido);
     printf("Servicios: %s\n", nodo->datos.servicios);
     printf("Domicilio: %s\n", nodo->datos.domicilio);
     printf("Correo: %s\n", nodo->datos.correo);
-    printf("Telefono: %s\n", nodo->datos.telefono);
-  if(nodo->izq != NULL){
+    printf("Teléfono: %s\n", nodo->datos.telefono);
+
+    if (nodo->izq != NULL) {
     Nodo *v =nodo->izq;
     printf("DNI Hijo izquierdo: %d\n", v->datos.DNI);
-  }else {
+    } else {
         printf("DNI Hijo Izquierdo: NULL\n");
     }
 
     if (nodo->der != NULL) {
        Nodo *v=nodo->der;
-        printf("DNI Hijo Derecho: %d\n", v->datos.DNI);
+       printf("DNI Hijo Derecho: %d\n", v->datos.DNI);
     } else {
         printf("DNI Hijo Derecho: NULL\n");
     }
 
     printf("----------------------\n");
 
-    //Recorrer el hijo de la izquierda en preorden
     MostrarPreOrden(nodo->izq);
-    //Recorrer el hijo de la derecha en preorden
     MostrarPreOrden(nodo->der);
+}
 
-
-  }
-  void MostrarEstructuraABB(Arbol *a){
-      if(a->raiz == NULL){
+void MostrarEstructuraABB(Arbol *a) {
+    if (a->raiz == NULL) {
         return;
-      }
-  MostrarPreOrden(a->raiz);
-  }
-
-  void MemorizacionPrevia(Arbol *a) {
-    FILE *fp;
-    if ((fp = fopen("Operaciones-Prestadores.txt", "r")) == NULL) {
-        printf("No se pudo abrir el archivo\n");
-        return; // No se pudo abrir el archivo
     }
-
-    Prestador nuevoPrestador;
-    int operacion;
-    int exito;
-    int contadorPreCarga = 0;
-
-    while (!feof(fp)) {
-        fscanf(fp, "%d", &operacion);
-        if (operacion == 1) { // Alta
-            fscanf(fp, "%d", &nuevoPrestador.DNI);
-            fgetc(fp); // Limpiar el buffer
-            fscanf(fp, " %[^\n]", nuevoPrestador.nombreyapellido);
-            fscanf(fp, " %[^\n]", nuevoPrestador.servicios);
-            fscanf(fp, " %[^\n]", nuevoPrestador.domicilio);
-            fscanf(fp, " %[^\n]", nuevoPrestador.correo);
-            fscanf(fp, " %[^\n]", nuevoPrestador.telefono);
-
-            // Invocar la función de alta
-            AltaABB(a, nuevoPrestador, &exito);
-            if (exito == 1) {
-                contadorPreCarga++;
-            } else if (exito == 2) {
-                printf("DNI duplicado: %d\n", nuevoPrestador.DNI);
-            }
-        }
-    }
-
-    fclose(fp);
-    printf("Se cargaron %d elementos\n", contadorPreCarga);
+    MostrarPreOrden(a->raiz);
 }
 
 
 
-void EvocarABB(Arbol *a, int dni, int *exito, Prestador *prestadorEncontrado, int *comparaciones) {
+void Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado) {
   int exitoLocalizar = 0;
-  LocalizarABB(a, dni, &exitoLocalizar, comparaciones);
+  int comparaciones = 0;
+  Localizar_ABB(a, dni, &exitoLocalizar, &comparaciones);
 
   if (exitoLocalizar) {
     *prestadorEncontrado = a->cur->datos;
