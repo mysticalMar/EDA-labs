@@ -32,15 +32,10 @@ void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
 
     if (l[i].DNI == dni) {
         *exito = 1; // Se encontr� el DNI
-        if (LSO_cant_local>LSO_max_local){
-            LSO_max_local=LSO_cant_local;
-        }
+
     } else {
         *exito = 0; // No se encontr� el DNI
     }
-     LSO_total_Local+=LSO_cant_local;
-
-     LSO_cant_local=0;
 
 }
 
@@ -169,6 +164,12 @@ void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     if(exitoLocalizar){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
+        if (LSO_cant_local>LSO_max_local){
+            LSO_max_local=LSO_cant_local;
+        }
+          LSO_total_Local+=LSO_cant_local;
+
+     LSO_cant_local=0;
         LSO_local++;
     }else{
         *exito=0;
