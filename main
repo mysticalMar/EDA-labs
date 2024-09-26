@@ -4,108 +4,74 @@
 #include "lso.h"
 #include "lsobb.h"
 
-void precarga(Prestador LSO[], Prestador LSOBB[]) {
-    inicializarLSO(LSO);
-    int opcion = 0, exitoLSO= 0, exitoLSOBB=0, DNI, prestadorescargadosLSO = 0, prestadorescargadosLSOBB=0;
+void precarga(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
+    init_ABB(arbol);  // Inicializa el árbol
+    inicializarLSO(LSO);  // Inicializa las listas secuenciales
+    int opcion = 0, exitoLSO = 0, exitoLSOBB = 0, exito = 0;
+    int DNI, prestadorescargadosLSO = 0, prestadorescargadosLSOBB = 0;
     Prestador aux;
+    PrestadorABB a;  // Variable para almacenar datos en ABB
     FILE *fp = fopen("OperacionesPrestadores.txt", "r");
 
     if (fp == NULL) {
-        printf("No se puede abrir el archivo \n");
+        printf("No se puede abrir el archivo\n");
         exit(1);
     }
 
     while (fscanf(fp, "%d", &opcion) != EOF) {
-
         switch (opcion) {
-        case 1:
-            if (prestadorescargadosLSO == MAXPRESTADORES) {
-                break;
-            }
+            case 1: // Alta
+                if (prestadorescargadosLSO == MAXPRESTADORES) {
+                    break;
+                }
+                // Lee los datos del prestador
+                fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n", &aux.DNI, aux.nombreyapellido, aux.servicios,
+                        aux.domicilio, aux.correo, aux.telefono);
 
-            fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
-                                   &aux.DNI, aux.nombreyapellido, aux.servicios,
-                                   aux.domicilio, aux.correo, aux.telefono);
-
+                // Inserta en LSO
                 LSO_Alta(LSO, aux, &exitoLSO);
+                // Inserta en LSOBB
                 LSOBB_Alta(LSOBB, aux, &exitoLSOBB);
 
-                if (exitoLSO == 1) {
-                    prestadorescargadosLSO++;
-                }
-                if (exitoLSOBB == 1) {
-                    prestadorescargadosLSOBB++;
-                }
+                // Convierte los datos de Prestador a PrestadorABB antes de insertarlo en el ABB
+                a.DNI = aux.DNI;
+                strcpy(a.nombreyapellido, aux.nombreyapellido);
+                strcpy(a.servicios, aux.servicios);
+                strcpy(a.domicilio, aux.domicilio);
+                strcpy(a.correo, aux.correo);
+                strcpy(a.telefono, aux.telefono);
+
+                // Inserta en el ABB
+                Alta_ABB(arbol, a, &exito);
+
+                if (exitoLSO == 1) prestadorescargadosLSO++;
+                if (exitoLSOBB == 1) prestadorescargadosLSOBB++;
             break;
 
-        case 2:
+            case 2: // Baja
                 fscanf(fp, "%d\n", &DNI);
-            LSO_Baja(LSO, DNI, &exitoLSO, aux);
-            LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
-             if (exitoLSO == 1) {
-                    prestadorescargadosLSO--;
-             }
-              if (exitoLSOBB == 1) {
-                    prestadorescargadosLSOBB--;
-                }
+                LSO_Baja(LSO, DNI, &exitoLSO, aux);
+                LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
+                Baja_ABB(arbol, DNI);
+                if (exitoLSO == 1) prestadorescargadosLSO--;
+                if (exitoLSOBB == 1) prestadorescargadosLSOBB--;
             break;
 
-
-        case 3:
-            fscanf(fp, "%d\n", &DNI);
-            LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
-            LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB);
+            case 3: // Evocar
+                fscanf(fp, "%d\n", &DNI);
+                LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
+                LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB);
+                Evocar_ABB(arbol, DNI, &exito, &a);
             break;
         }
-
 
         if (prestadorescargadosLSO == MAXPRESTADORES) {
-
-            break; // Salir del bucle principal si alcanzamos el máximo de prestadores
+            break;  // Salir del bucle si se alcanzan los prestadores
         }
     }
 
     fclose(fp);
 }
-int precargaABB(Arbol *arbol) {
-    init_ABB(arbol);
-    int opcion = 0, exito = 0, DNI, prestadorescargados = 0;
-    int cantActPterosAlta = 0, maxAlta = 0, cantAlta = 0;
-    int cantActPterosBaja = 0, maxBaja = 0, cantBaja = 0;
-    int comparaciones;
-    PrestadorABB aux;
-    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
-    if (fp == NULL) {
-        printf("No se puede abrir el archivo \n");
-        return 0;
-    }
-
-    while (!feof(fp)) {
-        fscanf(fp, "%d", &opcion);
-        switch (opcion) {
-            case 1:
-                fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
-                       &aux.DNI, aux.nombreyapellido, aux.servicios,
-                       aux.domicilio, aux.correo, aux.telefono);
-
-                Alta_ABB(arbol, aux, &exito, &cantActPterosAlta, &maxAlta, &cantAlta);
-                break;
-
-            case 2:
-               fscanf(fp, "%d \n", &DNI);
-               Baja_ABB(arbol, DNI, &cantActPterosBaja, &maxBaja, &cantBaja);
-                break;
-
-            case 3:
-                fscanf(fp, "%d \n", &DNI);
-                Evocar_ABB(arbol, DNI, &exito, &aux);
-                break;
-        }
-    }
-
-    fclose(fp);
-}
-
 
 int main()
 {
@@ -129,7 +95,7 @@ int main()
                 scanf("%d", &opcion);
 
             switch(opcion){
-            case 1: precarga(LSO, LSOBB);
+            case 1: precarga(LSO, LSOBB, &arbol);
             //costes LSO
              if (LSO_Altas>0){
             LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
@@ -141,13 +107,13 @@ int main()
                 LSO_medio_Baja=LSO_total_Baja/LSO_Bajas;
                 printf("Coste medio de Baja en LSO: %f \n", LSO_medio_Baja);
             }
-                printf("Coste máximo de Baja en LSO: %f \n", LSO_max_Baja);
+                printf("Coste maximo de Baja en LSO: %f \n", LSO_max_Baja);
 
             if (LSO_local>0){
                 LSO_medio_local=LSO_total_Local/LSO_local;
                 printf("Coste medio de localizacion en LSO: %f \n", LSO_medio_local);
             }
-                printf("Coste máximo de localizacion en LSO: %f \n", LSO_max_local);
+                printf("Coste maximo de localizacion en LSO: %f \n", LSO_max_local);
 
             //costes LSOBB
              if (LSOBB_Altas>0){
@@ -160,49 +126,38 @@ int main()
                 LSOBB_medio_Baja=LSOBB_total_Baja/LSOBB_Bajas;
                 printf("Coste medio de Baja en LSOBB: %f \n", LSOBB_medio_Baja);
             }
-                printf("Coste máximo de Baja en LSOBB: %f \n", LSOBB_max_Baja);
+                printf("Coste maximo de Baja en LSOBB: %f \n", LSOBB_max_Baja);
 
             if (LSOBB_local>0){
                 LSOBB_medio_local=LSOBB_total_local/LSOBB_local;
                 printf("Coste medio de localizacion en LSOBB: %f \n", LSOBB_medio_local);
             }
-                printf("Coste máximo de localizacion en LSOBB: %f \n", LSOBB_max_local);
-            precargaABB(&arbol);
-              // Cálculos de costes medios y máximos
+                printf("Coste maximo de localizacion en LSOBB: %f \n", LSOBB_max_local);
+              // costes ABB
 
-                costo_total_alta_ABB = cantActPterosAlta * 0.5;
-
-                costo_total_baja_ABB = cantActPterosBaja * 0.5;
-
-                     // Costo medio de las altas
-                     if (cantAlta > 0) {
-                costo_medio_alta_ABB = costo_total_alta_ABB / cantAlta;
-                printf("Costo medio de Alta en ABB: %f \n", costo_medio_alta_ABB);
-                printf("Costo máximo de Alta en ABB: %d \n", maxAlta);
+               costo_total_alta_ABB = cantActPtrosAlta * 0.5;
+                if (cantAltas > 0) {
+                    costo_medio_alta_ABB = costo_total_alta_ABB / cantAltas;
+                    printf("Costo medio de Alta en ABB: %f\n", costo_medio_alta_ABB);
+                    printf("Costo máximo de Alta en ABB: %d\n", MaxAlta);
                 }
 
-                   // Costo medio de las bajas
-                 if (cantBaja > 0) {
-               costo_medio_baja_ABB = costo_total_baja_ABB / cantBaja;
-               printf("Costo medio de Baja en ABB: %f \n", costo_medio_baja_ABB);
-               printf("Costo máximo de Baja en ABB: %d \n", maxBaja);
+                // Costo total y medio de bajas en ABB
+                costo_total_baja_ABB = cantActPtrosBaja * 0.5;
+                if (cantBajas > 0) {
+                    costo_medio_baja_ABB = costo_total_baja_ABB / cantBajas;
+                    printf("Costo medio de Baja en ABB: %f\n", costo_medio_baja_ABB);
+                    printf("Costo maximo de Baja en ABB: %d\n", MaxBaja);
                 }
 
-
-        int exito;
-          if(exito){
-             costo_total_evocar_ABB += comparacionesEvocar * 1;
-             cantEvocaciones++;
-             }
-            if (comparacionesEvocar > maxComparaciones) {
-            maxComparaciones = comparacionesEvocar;  // Actualiza si fue la mayor cantidad de comparaciones
-        }
-
-         // Costo medio de evocaciones
-         if (cantEvocaciones > 0) {
-        costo_medio_evocar_ABB = costo_total_evocar_ABB / cantEvocaciones;
-        printf("Costo medio de Evocar en ABB: %f \n", costo_medio_evocar_ABB);
-        printf("Máximo de comparaciones en una Evocación en ABB: %d \n", maxComparaciones);
+                // Costo total y medio de evocación en ABB
+                if (cantEvocaciones > 0) {
+                    costo_medio_evocar_ABB = (comparacionesEvocar * 1.0) / cantEvocaciones;
+                    printf("Costo medio de Evocación en ABB: %f\n", costo_medio_evocar_ABB);
+                    printf("Maximo de comparaciones en una Evocación en ABB: %d\n", MaxComparaciones);
+                }
+            break;
+            case 2: MostrarEstructura_ABB(&arbol);
             break;
 
             case 3: MostrarEstructura(LSO);
@@ -212,8 +167,7 @@ int main()
             }
 
         }
-        }
+
         while(opcion<=4);
 
         }
-
