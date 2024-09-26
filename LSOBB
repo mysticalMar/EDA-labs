@@ -50,7 +50,7 @@ void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
     if (LSOBB_cant_local>LSOBB_max_local){
         LSOBB_max_local=LSOBB_cant_local;
     }
-    LSOBB_total_local=+LSOBB_cant_local;
+    LSOBB_total_local+=LSOBB_cant_local;
 
     LSOBB_cant_local=0;
 }
@@ -86,7 +86,7 @@ void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
      if (LSOBB_corr_Alta>LSOBB_max_Alta){
         LSOBB_max_Alta=LSOBB_corr_Alta;
     }
-       LSOBB_total_Alta=+LSOBB_corr_Alta;
+       LSOBB_total_Alta+=LSOBB_corr_Alta;
     LSOBB_corr_Alta=0;
 }
 
@@ -119,7 +119,7 @@ if(exitoLocalizar){
      if (LSOBB_corr_Baja>LSOBB_max_Baja){
         LSOBB_max_Baja=LSOBB_corr_Baja;
     }
-     LSOBB_total_Baja=+LSOBB_corr_Baja;
+     LSOBB_total_Baja+=LSOBB_corr_Baja;
     LSOBB_corr_Baja=0;
 }
 
