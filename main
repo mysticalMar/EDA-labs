@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "ABB.h"
@@ -48,8 +49,9 @@ void precarga(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                 if (exitoLSOBB == 1) prestadorescargadosLSOBB++;
             break;
 
-            case 2: // Baja
-                fscanf(fp, "%d\n", &DNI);
+                case 2: // Baja
+                fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n", &aux.DNI, aux.nombreyapellido, aux.servicios,
+                        aux.domicilio, aux.correo, aux.telefono);
                 LSO_Baja(LSO, DNI, &exitoLSO, aux);
                 LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
                 Baja_ABB(arbol, DNI);
@@ -173,5 +175,3 @@ int main()
         while(opcion<=4);
 
         }
-
-
