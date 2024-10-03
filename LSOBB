@@ -27,6 +27,7 @@ void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
      li=0;
      ls=CantElem;
      m =(li+ls)/2;
+    LSOBB_cant_local++;
 	 while ((li<ls)&&(l[m].DNI!=dni)){
      LSOBB_cant_local++;
      if (l[m].DNI<dni) {
@@ -90,7 +91,7 @@ LSOBB_Localizar(l, DNI,  &exitoLocalizar, &pos);
 if(exitoLocalizar){
 
    if(confirma(l, pos, e)==1){
-    for(i=pos; i<CantElem; i++){
+    for(i=pos; i<CantElem-1; i++){
         l[i] = l[i+1];
         LSOBB_corr_Baja++;
     }
@@ -150,16 +151,16 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
 
-        if (LSOBB_cant_local>LSOBB_max_local){
+        LSOBB_local++;
+    }else{
+        *exito=0;
+    }
+      if (LSOBB_cant_local>LSOBB_max_local){
             LSOBB_max_local=LSOBB_cant_local;
         }
           LSOBB_total_local+=LSOBB_cant_local;
 
-        LSO_cant_local=0;
-        LSO_local++;
-    }else{
-        *exito=0;
-    }
+        LSOBB_cant_local=0;
 }
 
 
