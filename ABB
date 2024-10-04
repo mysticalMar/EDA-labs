@@ -1,10 +1,9 @@
 #ifndef ABB_H_INCLUDED
 #define ABB_H_INCLUDED
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define PAUSA_PRESTADORES 5
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -107,29 +106,29 @@ void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito) {
     }
 }
 
-Nodo *mayorDeLosMenores(Nodo *nodo, Nodo **padre) {
-    *padre = nodo;
-    nodo = nodo->izq;
-
-    while (nodo->der != NULL) {
-        *padre = nodo;
-        nodo = nodo->der;
-    }
-    return nodo;
-}
-
-int Baja_ABB(Arbol *a, int dni) {
+int Baja_ABB(Arbol *a, PrestadorABB prestador) {
     int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
 
-    Localizar_ABB(a, dni, &exitoLocalizar, &comparaciones);
+
+    Localizar_ABB(a, prestador.DNI, &exitoLocalizar, &comparaciones);
 
     if (!exitoLocalizar) {
-        return 0;  // No se encontró el prestador
+        return 0;
     }
 
     Nodo *nodoeliminar = a->cur;
 
-    // Caso 1: Nodo hoja (sin hijos)
+    // Confirmar la baja comparando la nupla completa (todos los campos)
+    if (nodoeliminar->datos.DNI != prestador.DNI ||
+        strcmp(nodoeliminar->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
+        strcmp(nodoeliminar->datos.servicios, prestador.servicios) != 0 ||
+        strcmp(nodoeliminar->datos.domicilio, prestador.domicilio) != 0 ||
+        strcmp(nodoeliminar->datos.correo, prestador.correo) != 0 ||
+        strcmp(nodoeliminar->datos.telefono, prestador.telefono) != 0) {
+        return 0;  // La nupla no coincide, no se realiza la baja
+    }
+
+    /// Caso 1: Nodo hoja (sin hijos)
     if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
         if (a->padre == NULL) {
             a->raiz = NULL;
@@ -141,7 +140,7 @@ int Baja_ABB(Arbol *a, int dni) {
         free(nodoeliminar);
         actualizaciones++;
     }
-    // Caso 2: Nodo con un hijo
+    /// Caso 2: Nodo con un hijo
     else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
         Nodo *hijo = (nodoeliminar->izq != NULL) ? nodoeliminar->izq : nodoeliminar->der;
         if (a->padre == NULL) {
@@ -154,18 +153,37 @@ int Baja_ABB(Arbol *a, int dni) {
         free(nodoeliminar);
         actualizaciones++;
     }
-    // Caso 3: Nodo con dos hijos
+    /// Caso 3: Nodo con dos hijos
     else {
-        Nodo *padreMayorMenores = NULL;
-        Nodo *nodoMayorMenores = mayorDeLosMenores(nodoeliminar, &padreMayorMenores);
-        nodoeliminar->datos = nodoMayorMenores->datos;
+        Nodo *padreMayorMenores = nodoeliminar;
+        Nodo *mayorMenor = nodoeliminar->izq;
 
-        if (padreMayorMenores->izq == nodoMayorMenores) {
-            padreMayorMenores->izq = nodoMayorMenores->izq;
-        } else {
-            padreMayorMenores->der = nodoMayorMenores->der;
+        // Encuentra el mayor de los menores (el más grande en el subárbol izquierdo)
+        while (mayorMenor->der != NULL) {
+            padreMayorMenores = mayorMenor;
+            mayorMenor = mayorMenor->der;
         }
-        free(nodoMayorMenores);
+
+        // Verificar si la nupla del mayor de los menores coincide antes de reemplazar
+        if (mayorMenor->datos.DNI != prestador.DNI ||
+            strcmp(mayorMenor->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
+            strcmp(mayorMenor->datos.servicios, prestador.servicios) != 0 ||
+            strcmp(mayorMenor->datos.domicilio, prestador.domicilio) != 0 ||
+            strcmp(mayorMenor->datos.correo, prestador.correo) != 0 ||
+            strcmp(mayorMenor->datos.telefono, prestador.telefono) != 0) {
+            return 0;
+        }
+
+        nodoeliminar->datos = mayorMenor->datos;
+
+        // Elimina el nodo que contenía el mayor de los menores
+        if (padreMayorMenores->izq == mayorMenor) {
+            padreMayorMenores->izq = mayorMenor->izq;
+        } else {
+            padreMayorMenores->der = mayorMenor->izq;
+        }
+
+        free(mayorMenor);
         actualizaciones++;
     }
 
@@ -182,45 +200,67 @@ int Baja_ABB(Arbol *a, int dni) {
     return 1;  // Baja exitosa
 }
 
-void MostrarPreOrden(Nodo *nodo) {
-    if (nodo == NULL) {
-        return;
-    }
-
-    printf("Prestador:\n");
-    printf("DNI: %d\n", nodo->datos.DNI);
-    printf("Nombre y Apellido: %s\n", nodo->datos.nombreyapellido);
-    printf("Servicios: %s\n", nodo->datos.servicios);
-    printf("Domicilio: %s\n", nodo->datos.domicilio);
-    printf("Correo: %s\n", nodo->datos.correo);
-    printf("Teléfono: %s\n", nodo->datos.telefono);
-
-    if (nodo->izq != NULL) {
-        printf("DNI Hijo izquierdo: %d\n", nodo->izq->datos.DNI);
-    } else {
-        printf("DNI Hijo Izquierdo: NULL\n");
-    }
-
-    if (nodo->der != NULL) {
-        printf("DNI Hijo Derecho: %d\n", nodo->der->datos.DNI);
-    } else {
-        printf("DNI Hijo Derecho: NULL\n");
-    }
-
-    printf("----------------------\n");
-
-    MostrarPreOrden(nodo->izq);
-    MostrarPreOrden(nodo->der);
-}
 
 void MostrarEstructura_ABB(Arbol *a) {
     if (a->raiz == NULL) {
-        printf("El Arbol Binario de Busqueda (ABB) esta vacio.\n");
+        printf("El arbol esta vacio.\n");
         return;
     }
 
-    MostrarPreOrden(a->raiz);
+    Nodo *pila[110];  // Pila para manejar hasta 110 prestadores
+    int tope = -1;
+    int contador = 0;
+
+    // Iniciar con la raíz del árbol
+    pila[++tope] = a->raiz;
+
+    // Mientras haya nodos en la pila
+    while (tope != -1) {
+        Nodo *actual = pila[tope--];  // Pop de la pila
+
+        // Mostrar la información del prestador
+        printf("Prestador %d:\n", contador + 1);
+        printf("DNI: %d\n", actual->datos.DNI);
+        printf("Nombre y Apellido: %s\n", actual->datos.nombreyapellido);
+        printf("Servicios: %s\n", actual->datos.servicios);
+        printf("Domicilio: %s\n", actual->datos.domicilio);
+        printf("Correo: %s\n", actual->datos.correo);
+        printf("Teléfono: %s\n", actual->datos.telefono);
+
+        if (actual->izq != NULL) {
+            printf("DNI del Hijo izquierdo: %d\n", actual->izq->datos.DNI);
+        } else {
+            printf("DNI del Hijo izquierdo: NULL\n");
+        }
+        if (actual->der != NULL) {
+            printf("DNI del Hijo derecho: %d\n", actual->der->datos.DNI);
+        } else {
+            printf("DNI del Hijo derecho: NULL\n");
+        }
+
+        printf("----------------------\n");
+        contador++;
+
+        if (contador % PAUSA_PRESTADORES == 0) {
+            printf("Presione Enter para continuar...\n");
+            getchar();
+        }
+
+        /// Verificar límite de 110 prestadores
+        if (contador >= 110) {
+            break;
+        }
+
+        /// Primero empujamos el hijo derecho, luego el izquierdo para procesarlos en orden preorden
+        if (actual->der != NULL) {
+            pila[++tope] = actual->der;
+        }
+        if (actual->izq != NULL) {
+            pila[++tope] = actual->izq;
+        }
+    }
 }
+
 void Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado) {
     int exitoLocalizar = 0;
     int comparaciones = 0;
@@ -233,14 +273,34 @@ void Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado
     } else {
         *exito = 0;
     }
-
-    // Actualización de costos
-    comparacionesEvocar += comparaciones;
     cantEvocaciones++;
-
+    comparacionesEvocar += comparaciones;
     if (comparaciones > MaxComparaciones) {
         MaxComparaciones = comparaciones;
     }
 }
+//Funcion para que no sea sensible a mayuscula y minuscula
+int confirma_ABB(PrestadorABB prestador1, PrestadorABB prestador2) {
+    int c = 1;
+
+    if (strcasecmp(prestador1.nombreyapellido, prestador2.nombreyapellido) != 0) {
+        c = 0;
+    }
+    if (strcasecmp(prestador1.servicios, prestador2.servicios) != 0) {
+        c = 0;
+    }
+    if (strcasecmp(prestador1.domicilio, prestador2.domicilio) != 0) {
+        c = 0;
+    }
+    if (strcasecmp(prestador1.correo, prestador2.correo) != 0) {
+        c = 0;
+    }
+    if (strcasecmp(prestador1.telefono, prestador2.telefono) != 0) {
+        c = 0;
+    }
+
+
+}
+
 
 #endif // ABB_H_INCLUDED
