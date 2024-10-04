@@ -1,306 +1,195 @@
-#ifndef ABB_H_INCLUDED
-#define ABB_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#define PAUSA_PRESTADORES 5
-typedef struct {
-    int DNI;
-    char nombreyapellido[80];
-    char servicios[120];
-    char domicilio[80];
-    char correo[50];
-    char telefono[30];
-} PrestadorABB;
+#include "ABB.h"
+#include "lso.h"
+#include "lsobb.h"
 
-typedef struct nodo {
-    PrestadorABB datos;
-    struct nodo *izq;
-    struct nodo *der;
-} Nodo;
+//Grupo 32 Maximo Gallardo y Mariana Romano
 
-typedef struct {
-    Nodo *raiz;
-    Nodo *cur;
-    Nodo *padre;
-} Arbol;
+void precarga(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
+    init_ABB(arbol);  // Inicializa el árbol
+    inicializarLSO(LSO);  // Inicializa las listas secuenciales
+    int opcion = 0, exitoLSO = 0, exitoLSOBB = 0, exito = 0;
+    int DNI, prestadorescargadosLSO = 0, prestadorescargadosLSOBB = 0;
+    Prestador aux;
+    PrestadorABB a;  // Variable para almacenar datos en ABB
+    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
 
-void init_ABB(Arbol *a) {
-    a->raiz = NULL;
-    a->cur = NULL;
-    a->padre = NULL;
-}
-
-// Variables globales para el costo de las operaciones
-int cantActPtrosAlta = 0;   // Acumula cuántas actualizaciones de punteros se hacen en cada alta.
-int MaxAlta = 0;            // Guarda el valor más grande en actualizaciones de punteros en una alta.
-int cantAltas = 0;          // Cuenta la cantidad de altas exitosas.
-
-int cantActPtrosBaja = 0;   // Acumula cuántas actualizaciones de punteros se hacen en cada baja.
-int MaxBaja = 0;            // Guarda el valor más grande en actualizaciones de punteros en una baja.
-int cantBajas = 0;          // Cuenta la cantidad de bajas exitosas.
-
-int comparacionesEvocar = 0; // Acumula la cantidad de comparaciones en evocaciones.
-int cantEvocaciones = 0;     // Cuenta la cantidad de evocaciones.
-int MaxComparaciones = 0;    // Guarda la máxima cantidad de comparaciones en una evocación.
-
-void Localizar_ABB(Arbol *a, int dni, int *exito, int *comparaciones) {
-    *comparaciones = 0;
-    a->cur = a->raiz;
-    a->padre = NULL;
-
-    while (a->cur != NULL) {
-        (*comparaciones)++;  // Costo por comparación
-        if (a->cur->datos.DNI == dni) {
-            *exito = 1;
-            return;  // DNI encontrado
-        }
-        a->padre = a->cur;
-        if (a->cur->datos.DNI > dni) {
-            a->cur = a->cur->izq;
-        } else {
-            a->cur = a->cur->der;
-        }
-    }
-    *exito = 0;  // No se encontró el DNI
-}
-
-void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito) {
-    int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
-    Localizar_ABB(a, nuevoPrestador.DNI, &exitoLocalizar, &comparaciones);
-
-    Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
-    if (nuevoNodo == NULL) {
-        *exito = 0;  // Error en la asignación de memoria
-        return;
-    }
-    nuevoNodo->datos = nuevoPrestador;
-    nuevoNodo->der = NULL;
-    nuevoNodo->izq = NULL;
-
-    if (a->raiz == NULL) {
-        a->raiz = nuevoNodo;  // El árbol estaba vacío
-        actualizaciones++;     // Actualización de puntero
-        *exito = 1;
-    } else if (exitoLocalizar) {
-        *exito = 2;  // DNI duplicado
-        free(nuevoNodo);  // Liberar el nodo asignado si es duplicado
-    } else {
-        if (nuevoPrestador.DNI < a->padre->datos.DNI) {
-            a->padre->izq = nuevoNodo;
-        } else {
-            a->padre->der = nuevoNodo;
-        }
-        actualizaciones++;  // Actualización de puntero
-        *exito = 1;
+    if (fp == NULL) {
+        printf("No se puede abrir el archivo\n");
+        exit(1);
     }
 
-    // Actualización de costos
-    cantActPtrosAlta += actualizaciones;
-    if (actualizaciones > MaxAlta) {
-        MaxAlta = actualizaciones;
-    }
+    while (fscanf(fp, "%d", &opcion) != EOF) {
+        switch (opcion) {
+            case 1: // Alta
+                if (prestadorescargadosLSO == MAXPRESTADORES) {
+                    break;
+                }
+                // Lee los datos del prestador
+                fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n", &aux.DNI, aux.nombreyapellido, aux.servicios,
+                        aux.domicilio, aux.correo, aux.telefono);
 
-    if (*exito == 1) {
-        cantAltas++;  // Incrementa el contador de altas solo si fue exitosa
-    }
-}
+                // Inserta en LSO
+                LSO_Alta(LSO, aux, &exitoLSO);
+                // Inserta en LSOBB
+                LSOBB_Alta(LSOBB, aux, &exitoLSOBB);
 
-int Baja_ABB(Arbol *a, PrestadorABB prestador) {
-    int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
+                // Convierte los datos de Prestador a PrestadorABB antes de insertarlo en el ABB
+                a.DNI = aux.DNI;
+                strcpy(a.nombreyapellido, aux.nombreyapellido);
+                strcpy(a.servicios, aux.servicios);
+                strcpy(a.domicilio, aux.domicilio);
+                strcpy(a.correo, aux.correo);
+                strcpy(a.telefono, aux.telefono);
 
+                // Inserta en el ABB
+                Alta_ABB(arbol, a, &exito);
 
-    Localizar_ABB(a, prestador.DNI, &exitoLocalizar, &comparaciones);
+                if (exitoLSO == 1) prestadorescargadosLSO++;
+                if (exitoLSOBB == 1) prestadorescargadosLSOBB++;
+            break;
 
-    if (!exitoLocalizar) {
-        return 0;
-    }
+                case 2: // Baja
+                fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n", &aux.DNI, aux.nombreyapellido, aux.servicios,
+                        aux.domicilio, aux.correo, aux.telefono);
+                LSO_Baja(LSO, DNI, &exitoLSO, aux);
+                LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
+                Baja_ABB(arbol, a);
+                if (exitoLSO == 1) prestadorescargadosLSO--;
+                if (exitoLSOBB == 1) prestadorescargadosLSOBB--;
+            break;
 
-    Nodo *nodoeliminar = a->cur;
-
-    // Confirmar la baja comparando la nupla completa (todos los campos)
-    if (nodoeliminar->datos.DNI != prestador.DNI ||
-        strcmp(nodoeliminar->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
-        strcmp(nodoeliminar->datos.servicios, prestador.servicios) != 0 ||
-        strcmp(nodoeliminar->datos.domicilio, prestador.domicilio) != 0 ||
-        strcmp(nodoeliminar->datos.correo, prestador.correo) != 0 ||
-        strcmp(nodoeliminar->datos.telefono, prestador.telefono) != 0) {
-        return 0;  // La nupla no coincide, no se realiza la baja
-    }
-
-    /// Caso 1: Nodo hoja (sin hijos)
-    if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
-        if (a->padre == NULL) {
-            a->raiz = NULL;
-        } else if (a->padre->izq == nodoeliminar) {
-            a->padre->izq = NULL;
-        } else {
-            a->padre->der = NULL;
-        }
-        free(nodoeliminar);
-        actualizaciones++;
-    }
-    /// Caso 2: Nodo con un hijo
-    else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
-        Nodo *hijo = (nodoeliminar->izq != NULL) ? nodoeliminar->izq : nodoeliminar->der;
-        if (a->padre == NULL) {
-            a->raiz = hijo;
-        } else if (a->padre->izq == nodoeliminar) {
-            a->padre->izq = hijo;
-        } else {
-            a->padre->der = hijo;
-        }
-        free(nodoeliminar);
-        actualizaciones++;
-    }
-    /// Caso 3: Nodo con dos hijos
-    else {
-        Nodo *padreMayorMenores = nodoeliminar;
-        Nodo *mayorMenor = nodoeliminar->izq;
-
-        // Encuentra el mayor de los menores (el más grande en el subárbol izquierdo)
-        while (mayorMenor->der != NULL) {
-            padreMayorMenores = mayorMenor;
-            mayorMenor = mayorMenor->der;
-        }
-
-        // Verificar si la nupla del mayor de los menores coincide antes de reemplazar
-        if (mayorMenor->datos.DNI != prestador.DNI ||
-            strcmp(mayorMenor->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
-            strcmp(mayorMenor->datos.servicios, prestador.servicios) != 0 ||
-            strcmp(mayorMenor->datos.domicilio, prestador.domicilio) != 0 ||
-            strcmp(mayorMenor->datos.correo, prestador.correo) != 0 ||
-            strcmp(mayorMenor->datos.telefono, prestador.telefono) != 0) {
-            return 0;
-        }
-
-        nodoeliminar->datos = mayorMenor->datos;
-
-        // Elimina el nodo que contenía el mayor de los menores
-        if (padreMayorMenores->izq == mayorMenor) {
-            padreMayorMenores->izq = mayorMenor->izq;
-        } else {
-            padreMayorMenores->der = mayorMenor->izq;
-        }
-
-        free(mayorMenor);
-        actualizaciones++;
-    }
-
-    // Actualización de costos
-    cantActPtrosBaja += actualizaciones;
-    if (actualizaciones > MaxBaja) {
-        MaxBaja = actualizaciones;
-    }
-
-    if (exitoLocalizar) {
-        cantBajas++;  // Incrementa el contador de bajas exitosas
-    }
-
-    return 1;  // Baja exitosa
-}
-
-
-void MostrarEstructura_ABB(Arbol *a) {
-    if (a->raiz == NULL) {
-        printf("El arbol esta vacio.\n");
-        return;
-    }
-
-    Nodo *pila[110];  // Pila para manejar hasta 110 prestadores
-    int tope = -1;
-    int contador = 0;
-
-    // Iniciar con la raíz del árbol
-    pila[++tope] = a->raiz;
-
-    // Mientras haya nodos en la pila
-    while (tope != -1) {
-        Nodo *actual = pila[tope--];  // Pop de la pila
-
-        // Mostrar la información del prestador
-        printf("Prestador %d:\n", contador + 1);
-        printf("DNI: %d\n", actual->datos.DNI);
-        printf("Nombre y Apellido: %s\n", actual->datos.nombreyapellido);
-        printf("Servicios: %s\n", actual->datos.servicios);
-        printf("Domicilio: %s\n", actual->datos.domicilio);
-        printf("Correo: %s\n", actual->datos.correo);
-        printf("Teléfono: %s\n", actual->datos.telefono);
-
-        if (actual->izq != NULL) {
-            printf("DNI del Hijo izquierdo: %d\n", actual->izq->datos.DNI);
-        } else {
-            printf("DNI del Hijo izquierdo: NULL\n");
-        }
-        if (actual->der != NULL) {
-            printf("DNI del Hijo derecho: %d\n", actual->der->datos.DNI);
-        } else {
-            printf("DNI del Hijo derecho: NULL\n");
-        }
-
-        printf("----------------------\n");
-        contador++;
-
-        if (contador % PAUSA_PRESTADORES == 0) {
-            printf("Presione Enter para continuar...\n");
-            getchar();
-        }
-
-        /// Verificar límite de 110 prestadores
-        if (contador >= 110) {
+            case 3: // Evocar
+                fscanf(fp, "%d\n", &DNI);
+                LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
+                LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB);
+                Evocar_ABB(arbol, DNI, &exito, &a);
             break;
         }
 
-        /// Primero empujamos el hijo derecho, luego el izquierdo para procesarlos en orden preorden
-        if (actual->der != NULL) {
-            pila[++tope] = actual->der;
-        }
-        if (actual->izq != NULL) {
-            pila[++tope] = actual->izq;
+        if (prestadorescargadosLSO == MAXPRESTADORES) {
+            break;  // Salir del bucle si se alcanzan los prestadores
         }
     }
+
+    fclose(fp);
 }
 
-void Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado) {
-    int exitoLocalizar = 0;
-    int comparaciones = 0;
+int main()
+{
+        int opcion;
+        Prestador LSO[111], LSOBB[110] ,nuevop;
+        Arbol arbol;
+     // Variables para acumular los costos del ABB
+       int cantActPterosAlta = 0, maxAlta = 0, cantAlta = 0;
+       int cantActPterosBaja = 0, maxBaja = 0, cantBaja = 0;
+       int comparacionesEvocar = 0, cantEvocaciones = 0, maxComparaciones = 0;
 
-    Localizar_ABB(a, dni, &exitoLocalizar, &comparaciones);
+     // Variables para almacenar los costos totales y medios en ABB
+       float costo_total_alta_ABB = 0, costo_total_baja_ABB = 0, costo_total_evocar_ABB = 0;
+       float costo_medio_alta_ABB = 0, costo_medio_baja_ABB = 0, costo_medio_evocar_ABB = 0;
 
-    if (exitoLocalizar) {
-        *prestadorEncontrado = a->cur->datos;
-        *exito = 1;
-    } else {
-        *exito = 0;
-    }
-    cantEvocaciones++;
-    comparacionesEvocar += comparaciones;
-    if (comparaciones > MaxComparaciones) {
-        MaxComparaciones = comparaciones;
-    }
-}
-//Funcion para que no sea sensible a mayuscula y minuscula
-int confirma_ABB(PrestadorABB prestador1, PrestadorABB prestador2) {
-    int c = 1;
+        do{
+                printf("--------------------BIENVENIDO-------------------\n");
+                printf("------------------ MENU PRINCIPAL----------------\n");
+                printf("1: Comparar estructuras \n");
+                printf("2: Mostrar: ABB \n");
+                printf("3: Mostrar: LSO \n");
+                printf("4: Mostrar: LSOBB \n");
+                printf("5: Salir \n");
+                printf("-------------------------------------------------\n");
+                scanf("%d", &opcion);
 
-    if (strcasecmp(prestador1.nombreyapellido, prestador2.nombreyapellido) != 0) {
-        c = 0;
-    }
-    if (strcasecmp(prestador1.servicios, prestador2.servicios) != 0) {
-        c = 0;
-    }
-    if (strcasecmp(prestador1.domicilio, prestador2.domicilio) != 0) {
-        c = 0;
-    }
-    if (strcasecmp(prestador1.correo, prestador2.correo) != 0) {
-        c = 0;
-    }
-    if (strcasecmp(prestador1.telefono, prestador2.telefono) != 0) {
-        c = 0;
-    }
+            switch(opcion){
+            system("cls");
+            case 1: precarga(LSO, LSOBB, &arbol);
+            //costes LSO
+             if (LSO_Altas>0){
+            LSO_medio_Alta=LSO_total_Alta/LSO_Altas;
+             printf("Coste medio de Alta en LSO: %f \n", LSO_medio_Alta);
+            }
+            printf("Coste maximo de Alta en LSO: %d \n", LSO_max_Alta);
 
+            if (LSO_Bajas>0){
+                LSO_medio_Baja=LSO_total_Baja/LSO_Bajas;
+                printf("Coste medio de Baja en LSO: %f \n", LSO_medio_Baja);
+            }
+                printf("Coste maximo de Baja en LSO: %f \n", LSO_max_Baja);
 
-}
+            if (LSO_local>0){
+                LSO_medio_local=LSO_total_Local/LSO_local;
+                printf("Coste medio de evocacion en LSO: %f \n", LSO_medio_local);
+            }
+                printf("Coste maximo de evocacion en LSO: %f \n", LSO_max_local);
 
+            //costes LSOBB
+             if (LSOBB_Altas>0){
+            LSOBB_medio_Alta=LSOBB_total_Alta/LSOBB_Altas;
+             printf("Coste medio de Alta en LSOBB: %f \n", LSOBB_medio_Alta);
+            }
 
-#endif // ABB_H_INCLUDED
+            printf("Coste maximo de Alta en LSOBB: %d \n", LSOBB_max_Alta);
+            if (LSOBB_Bajas>0){
+                LSOBB_medio_Baja=LSOBB_total_Baja/LSOBB_Bajas;
+                printf("Coste medio de Baja en LSOBB: %f \n", LSOBB_medio_Baja);
+            }
+                printf("Coste maximo de Baja en LSOBB: %f \n", LSOBB_max_Baja);
+
+            if (LSOBB_local>0){
+                LSOBB_medio_local=LSOBB_total_local/LSOBB_local;
+                printf("Coste medio de evocacion en LSOBB: %f \n", LSOBB_medio_local);
+            }
+                printf("Coste maximo de evocacion en LSOBB: %f \n", LSOBB_max_local);
+              // costes ABB
+
+               costo_total_alta_ABB = cantActPtrosAlta * 0.5;
+                if (cantAltas > 0) {
+                    costo_medio_alta_ABB = costo_total_alta_ABB / cantAltas;
+                    printf("Costo medio de Alta en ABB: %f\n", costo_medio_alta_ABB);
+                    printf("Costo maximo de Alta en ABB: %d\n", MaxAlta);
+                }
+
+                // Costo total y medio de bajas en ABB
+                costo_total_baja_ABB = cantActPtrosBaja * 0.5;
+                if (cantBajas > 0) {
+                    costo_medio_baja_ABB = costo_total_baja_ABB / cantBajas;
+                    printf("Costo medio de Baja en ABB: %f\n", costo_medio_baja_ABB);
+
+                }
+                 printf("Costo maximo de Baja en ABB: %d\n", MaxBaja);
+
+                // Costo total y medio de evocación en ABB
+                if (cantEvocaciones > 0) {
+                    costo_medio_evocar_ABB = (comparacionesEvocar * 1.0) / cantEvocaciones;
+                    printf("Costo medio de Evocacion en ABB: %f\n", costo_medio_evocar_ABB);
+
+                }
+                 printf("Maximo de comparaciones en una Evocacion en ABB: %d\n", MaxComparaciones);
+            break;
+            case 2:
+                system("cls");
+                MostrarEstructura_ABB(&arbol);
+            break;
+            case 3:
+                system("cls");
+                MostrarEstructura(LSO);
+              break;
+            case 4:
+                 system("cls");
+                 MostrarEstructura(LSOBB);
+            break;
+            case 5:
+                 system("cls");
+               printf("Saliendo...\n");
+            break;
+            default:
+                printf("Error seleccione una opcion valida\n");
+                break;
+            }
+
+        }
+
+        while(opcion!=5);
+
+        }
