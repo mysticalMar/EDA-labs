@@ -1,9 +1,10 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "ABB.h"
 #include "lso.h"
 #include "lsobb.h"
+
+//Grupo 32 Maximo Gallardo y Mariana Romano
 
 void precarga(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
     init_ABB(arbol);  // Inicializa el árbol
@@ -90,13 +91,18 @@ int main()
        float costo_medio_alta_ABB = 0, costo_medio_baja_ABB = 0, costo_medio_evocar_ABB = 0;
 
         do{
+                printf("--------------------BIENVENIDO-------------------\n");
+                printf("------------------ MENU PRINCIPAL----------------\n");
                 printf("1: Comparar estructuras \n");
                 printf("2: Mostrar: ABB \n");
                 printf("3: Mostrar: LSO \n");
                 printf("4: Mostrar: LSOBB \n");
+                printf("5: Salir \n");
+                printf("-------------------------------------------------\n");
                 scanf("%d", &opcion);
 
             switch(opcion){
+            system("cls");
             case 1: precarga(LSO, LSOBB, &arbol);
             //costes LSO
              if (LSO_Altas>0){
@@ -161,13 +167,25 @@ int main()
                 }
                  printf("Maximo de comparaciones en una Evocacion en ABB: %d\n", MaxComparaciones);
             break;
-            case 2: MostrarEstructura_ABB(&arbol);
+            case 2:
+                system("cls");
+                MostrarEstructura_ABB(&arbol);
             break;
-
-            case 3: MostrarEstructura(LSO);
+            case 3:
+                system("cls");
+                MostrarEstructura(LSO);
+              break;
+            case 4:
+                 system("cls");
+                 MostrarEstructura(LSOBB);
             break;
-            case 4: MostrarEstructura(LSOBB);
+            case 5:
+                 system("cls");
+               printf("Saliendo...\n");
             break;
+            default:
+                printf("Error seleccione una opcion valida\n");
+                break;
             }
 
         }
