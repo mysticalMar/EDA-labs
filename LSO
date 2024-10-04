@@ -43,7 +43,6 @@ void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
 
 void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     int pos, exitoLocalizar = 0, i;
-    printf("dni en alta: %d \n", ElementoAlta.DNI);
     LSO_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
 
 
