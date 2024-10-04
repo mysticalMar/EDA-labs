@@ -5,11 +5,6 @@
 #define MAXPRESTADORES 110
 //Grupo 32 Maximo Gallardo y Mariana Romano
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define INFINITO 99999999
-#define MAXPRESTADORES 110
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -48,7 +43,7 @@ void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
 
 void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     int pos, exitoLocalizar = 0, i;
-
+    printf("dni en alta: %d \n", ElementoAlta.DNI);
     LSO_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
 
 
@@ -84,7 +79,6 @@ void LSO_Baja(Prestador l[], int DNI, int *exito, Prestador e){ //e se recibe po
 int pos, exitoLocalizar=0, i;
 
 LSO_Localizar(l, DNI,  &exitoLocalizar, &pos);
-
 if(exitoLocalizar){
 
    if(confirma(l, pos, e)==1&&DNI<INFINITO){
@@ -112,11 +106,16 @@ if(exitoLocalizar){
 }
 int confirma(Prestador l[], int pos, Prestador elemento){
     int c;
-                if (strcmpi(l[pos].nombreyapellido, elemento.nombreyapellido)==0&&strcmpi(l[pos].servicios, elemento.servicios)==0&&strcmpi(l[pos].domicilio, elemento.domicilio)==0&&strcmpi(l[pos].correo, elemento.correo)==0&&strcmpi(l[pos].telefono, elemento.telefono)==0){
-                    c=1;
-                }
-                else c=0;
-        return c;
+   if (strcasecmp(l[pos].nombreyapellido, elemento.nombreyapellido) == 0 &&
+    strcasecmp(l[pos].servicios, elemento.servicios) == 0 &&
+    strcasecmp(l[pos].domicilio, elemento.domicilio) == 0 &&
+    strcasecmp(l[pos].correo, elemento.correo) == 0 &&
+    strcasecmp(l[pos].telefono, elemento.telefono) == 0) {
+    c = 1;
+} else {
+    c = 0;
+}
+return c;
 }
 
 
@@ -165,137 +164,6 @@ void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
 
      LSO_cant_local=0;
 
-}
-int Modificar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
-      int pos, exitoLocalizar = 0;
-
-    Prestador ElemBusqueda;
-    ElemBusqueda.DNI = DNI;
-    LSO_Localizar(LSO, DNI, &exitoLocalizar, &pos);
-
-    if (!exitoLocalizar) {
-        *exito = 0;
-        return 0;
-    } else {
-        int decision;
-        int seguir = 1;
-        do {
-            system("cls");
-            printf("Este es el prestador encontrado:\n");
-            printf("DNI: %d\n", LSO[pos].DNI);
-            printf("Nombre y Apellido: %s\n", LSO[pos].nombreyapellido);
-            printf("Servicios: %s\n", LSO[pos].servicios);
-            printf("Domicilio: %s\n", LSO[pos].domicilio);
-            printf("Correo: %s\n", LSO[pos].correo);
-            printf("Telefono: %s\n", LSO[pos].telefono);
-
-            printf("\nIndique que campo desea modificar:\n");
-            printf("<1> Nombre y Apellido\n<2> Servicios\n<3> Domicilio\n");
-            printf("<4> Correo\n<5> Telefono\n<6> Salir de modificaciones\n");
-            scanf("%d", &decision);
-
-            if (decision >= 1 && decision <= 6) {
-                system("cls");
-                switch (decision) {
-                    case 1:
-                        printf("Ingrese el nuevo Nombre y Apellido: \n");
-                        scanf(" %[^\n]", LSO[pos].nombreyapellido);
-                        break;
-                    case 2:
-                        printf("Ingrese los nuevos servicios: \n");
-                        scanf(" %[^\n]", LSO[pos].servicios);
-                        break;
-                    case 3:
-                        printf("Ingrese el nuevo domicilio: \n");
-                        scanf(" %[^\n]", LSO[pos].domicilio);
-                        break;
-                    case 4:
-                        printf("Ingrese el nuevo correo: \n");
-                        scanf(" %[^\n]", LSO[pos].correo);
-                        break;
-                    case 5:
-                        printf("Ingrese el nuevo telefono: \n");
-                        scanf(" %[^\n]", LSO[pos].telefono);
-                        break;
-                    case 6:
-                        seguir = 0;
-                        break;
-                }
-            } else {
-                printf("Error! Ingrese una opcion valida\n.");
-                system("pause");
-            }
-
-            if (seguir) {
-                printf("¿Desea modificar otro campo? (1: Si, 0: No)\n");
-                scanf("%d", &seguir);
-            }
-
-        } while (seguir == 1);
-
-        *exito = 1;
-        return 1;
-    }
-}
-
-
-int MemorizacionPrevia(Prestador LSO[]){
-   FILE *fp;
-    Prestador aux;
-    int exito = 0, duplicados = 0, prestadorescargados = 0, i;
-    int dniduplicado;
-
-    // Intentar abrir el archivo "Prestadores.txt" para lectura
-    if ((fp = fopen("Prestadores.txt", "r")) == NULL) {
-        printf("No se pudo abrir el archivo 'Prestadores.txt'.\n");
-        return 0;
-    }else{
-
-    // Leer el archivo línea por línea hasta el final o hasta que se llenen los prestadores
-    while (prestadorescargados < MAXPRESTADORES && fscanf(fp, "%d\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n%[^\n]\n",
-                                                          &aux.DNI, aux.nombreyapellido, aux.servicios,
-                                                          aux.domicilio, aux.correo, aux.telefono) != EOF) {
-
-        // Verificar si el DNI es válido
-        if (aux.DNI <= 0 || aux.DNI == INFINITO || aux.DNI > INFINITO) {
-            printf("DNI inválido encontrado: %d. Se omitira este registro.\n", aux.DNI);
-            continue;
-        }
-
-
-
-             LSO_Alta(LSO, aux, &exito);
-
-            if (exito == 1) {
-                prestadorescargados++;
-            }
-            else {
-                dniduplicado = 0;
-                for (i = 0; i < CantElemLSO; i++) {
-                    if (exito==2) {
-                        dniduplicado = 1;
-                        duplicados++;
-                        printf("DNI duplicado encontrado: %d. Se omitira este registro.\n", aux.DNI);
-                        break;
-
-                    }
-                }
-            }
-    }
-
-    }
-
-    // Cerrar el archivo
-    fclose(fp);
-
-    // Mostrar un resumen de la carga
-    printf("\nResumen de la carga:\n");
-    printf("Cantidad de prestadores cargados: %d\n", prestadorescargados);
-    if (duplicados > 0) {
-        printf("Se omitieron %d prestadores debido a DNIs duplicados.\n", duplicados);
-    }
-
-    return 1;
 }
 
 
