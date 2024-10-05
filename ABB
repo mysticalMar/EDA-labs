@@ -109,26 +109,26 @@ void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito) {
 int Baja_ABB(Arbol *a, PrestadorABB prestador) {
     int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
 
-
+    // Localizar el nodo a eliminar
     Localizar_ABB(a, prestador.DNI, &exitoLocalizar, &comparaciones);
 
     if (!exitoLocalizar) {
-        return 0;
+        return 0;  // Prestador no encontrado
     }
 
     Nodo *nodoeliminar = a->cur;
 
-    // Confirmar la baja comparando la nupla completa (todos los campos)
+    // Confirmar la baja comparando la tupla completa (todos los campos)
     if (nodoeliminar->datos.DNI != prestador.DNI ||
         strcmp(nodoeliminar->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
         strcmp(nodoeliminar->datos.servicios, prestador.servicios) != 0 ||
         strcmp(nodoeliminar->datos.domicilio, prestador.domicilio) != 0 ||
         strcmp(nodoeliminar->datos.correo, prestador.correo) != 0 ||
         strcmp(nodoeliminar->datos.telefono, prestador.telefono) != 0) {
-        return 0;  // La nupla no coincide, no se realiza la baja
+        return 0;  // La tupla no coincide, no se realiza la baja
     }
 
-    /// Caso 1: Nodo hoja (sin hijos)
+    // Caso 1: Nodo hoja (sin hijos)
     if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
         if (a->padre == NULL) {
             a->raiz = NULL;
@@ -140,7 +140,7 @@ int Baja_ABB(Arbol *a, PrestadorABB prestador) {
         free(nodoeliminar);
         actualizaciones++;
     }
-    /// Caso 2: Nodo con un hijo
+    // Caso 2: Nodo con un hijo
     else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
         Nodo *hijo = (nodoeliminar->izq != NULL) ? nodoeliminar->izq : nodoeliminar->der;
         if (a->padre == NULL) {
@@ -153,7 +153,7 @@ int Baja_ABB(Arbol *a, PrestadorABB prestador) {
         free(nodoeliminar);
         actualizaciones++;
     }
-    /// Caso 3: Nodo con dos hijos
+    // Caso 3: Nodo con dos hijos
     else {
         Nodo *padreMayorMenores = nodoeliminar;
         Nodo *mayorMenor = nodoeliminar->izq;
@@ -164,16 +164,7 @@ int Baja_ABB(Arbol *a, PrestadorABB prestador) {
             mayorMenor = mayorMenor->der;
         }
 
-        // Verificar si la nupla del mayor de los menores coincide antes de reemplazar
-        if (mayorMenor->datos.DNI != prestador.DNI ||
-            strcmp(mayorMenor->datos.nombreyapellido, prestador.nombreyapellido) != 0 ||
-            strcmp(mayorMenor->datos.servicios, prestador.servicios) != 0 ||
-            strcmp(mayorMenor->datos.domicilio, prestador.domicilio) != 0 ||
-            strcmp(mayorMenor->datos.correo, prestador.correo) != 0 ||
-            strcmp(mayorMenor->datos.telefono, prestador.telefono) != 0) {
-            return 0;
-        }
-
+        // No es necesario comparar toda la tupla, ya que solo necesitas realizar el reemplazo
         nodoeliminar->datos = mayorMenor->datos;
 
         // Elimina el nodo que contenía el mayor de los menores
@@ -199,7 +190,6 @@ int Baja_ABB(Arbol *a, PrestadorABB prestador) {
 
     return 1;  // Baja exitosa
 }
-
 
 void MostrarEstructura_ABB(Arbol *a) {
     if (a->raiz == NULL) {
