@@ -17,7 +17,7 @@ typedef struct {
 
 int CantElemLSO = 0;
 //variables de costos
-int LSO_evocacion_NE=0, LSO_max_evocacion_NE=0, LSO_Altas=0, LSO_total_Alta=0, LSO_corr_Alta=0, LSO_max_Alta=0, LSO_Bajas=0, LSO_total_Baja=0, LSO_corr_Baja=0, LSO_max_Baja=0, LSO_total_Local=0, LSO_cant_local=0, LSO_max_local=0, LSO_local=0;
+int LSO_max_local_EE=0, LSO_evocacion_NE=0, LSO_max_evocacion_NE=0, LSO_Altas=0, LSO_total_Alta=0, LSO_corr_Alta=0, LSO_max_Alta=0, LSO_Bajas=0, LSO_total_Baja=0, LSO_corr_Baja=0, LSO_max_Baja=0, LSO_total_Local=0, LSO_cant_local=0, LSO_max_local=0, LSO_local=0;
 float LSO_medio_Alta=0, LSO_medio_Baja=0, LSO_medio_local=0;
 
 void inicializarLSO(Prestador l[]) {
@@ -153,8 +153,8 @@ void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSO_local++;
-         if (LSO_cant_local>LSO_max_local){
-            LSO_max_local=LSO_cant_local;
+         if (LSO_cant_local>LSO_max_local_EE){
+            LSO_max_local_EE=LSO_cant_local;
         }
           LSO_total_Local+=LSO_cant_local;
     }else{
@@ -165,6 +165,9 @@ void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         }
           LSO_total_Local+=LSO_cant_local;
     }
+    printf("evocaciones exitosas lso: %d \n", LSO_local);
+     printf("evocaciones no exitosas lso: %d \n", LSO_evocacion_NE);
+
 
 
      LSO_cant_local=0;
