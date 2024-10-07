@@ -31,7 +31,7 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                 if (opcion==1){
                     if (DNI<INFINITO){
                       // Inserta en LSO
-                    LSO_Alta(LSO, aux, &exitoLSO);
+                    LSO_Alta(LSO, aux, &exitoLSO, opcion);
                     }
                 // Inserta en LSOBB
                 LSOBB_Alta(LSOBB, aux, &exitoLSOBB, opcion);
@@ -49,14 +49,14 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                 else{
                     DNI=aux.DNI;
                     if (DNI<INFINITO){
-                    LSO_Baja(LSO, DNI, &exitoLSO, aux);
+                    LSO_Baja(LSO, DNI, &exitoLSO, aux, opcion);
                     }
                     LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux, opcion);
                     Baja_ABB(arbol, a);
                 }
             } else if (opcion==3){
                 if (DNI<INFINITO){
-                LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
+                LSO_Evocar(LSO, &aux, DNI, &exitoLSO, opcion);
                 }
                 LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB, opcion);
                 Evocar_ABB(arbol, DNI, &exito, &a);
