@@ -29,10 +29,12 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                 fscanf(fp, " %[^\n]", &aux.correo);
                 fscanf(fp, " %[^\n]", &aux.telefono);
                 if (opcion==1){
-                  // Inserta en LSO
-                LSO_Alta(LSO, aux, &exitoLSO);
+                    if (DNI<INFINITO){
+                      // Inserta en LSO
+                    LSO_Alta(LSO, aux, &exitoLSO);
+                    }
                 // Inserta en LSOBB
-                LSOBB_Alta(LSOBB, aux, &exitoLSOBB);
+                LSOBB_Alta(LSOBB, aux, &exitoLSOBB, opcion);
                 // Convierte los datos de Prestador a PrestadorABB antes de insertarlo en el ABB
                 a.DNI = aux.DNI;
                 strcpy(a.nombreyapellido, aux.nombreyapellido);
@@ -46,13 +48,17 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
             }
                 else{
                     DNI=aux.DNI;
+                    if (DNI<INFINITO){
                     LSO_Baja(LSO, DNI, &exitoLSO, aux);
-                    LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
+                    }
+                    LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux, opcion);
                     Baja_ABB(arbol, a);
                 }
             } else if (opcion==3){
+                if (DNI<INFINITO){
                 LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
-                LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB);
+                }
+                LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB, opcion);
                 Evocar_ABB(arbol, DNI, &exito, &a);
             }
             opcion=0;
