@@ -25,6 +25,7 @@ l[0].DNI=INFINITO;
 CantElemLSO = 0;
 }
 void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
+
     int i = 0;
     while  (l[i].DNI < dni) {
         i++;
@@ -38,7 +39,6 @@ void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
     } else {
         *exito = 0; // No se encontr� el DNI
     }
-
 }
 
 void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
@@ -147,7 +147,6 @@ void MostrarEstructura(Prestador l[]) {
 
 void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     int pos, exitoLocalizar;
-    printf("dni: %d \n", DNI);
     LSO_Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
     if(exitoLocalizar&&DNI<INFINITO){
