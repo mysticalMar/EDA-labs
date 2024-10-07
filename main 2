@@ -48,7 +48,7 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                     DNI=aux.DNI;
                     LSO_Baja(LSO, DNI, &exitoLSO, aux);
                     LSOBB_Baja(LSOBB, DNI, &exitoLSOBB, aux);
-                    Baja_ABB(arbol, DNI);
+                    Baja_ABB(arbol, a);
                 }
             } else if (opcion==3){
                 LSO_Evocar(LSO, &aux, DNI, &exitoLSO);
@@ -79,13 +79,15 @@ int main()
        float costo_medio_alta_ABB = 0, costo_medio_baja_ABB = 0, costo_medio_evocar_ABB = 0;
 
         do{
+              printf("--------------------BIENVENIDO-------------------\n");
+                printf("------------------ MENU PRINCIPAL----------------\n");
                 printf("1: Comparar estructuras \n");
                 printf("2: Mostrar: ABB \n");
                 printf("3: Mostrar: LSO \n");
                 printf("4: Mostrar: LSOBB \n");
                 printf("5: Salir \n");
+                printf("-------------------------------------------------\n");
                 scanf("%d", &opcion);
-
             switch(opcion){
             case 1: lectura_operaciones(LSO, LSOBB, &arbol);
                 //costes LSO
