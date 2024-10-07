@@ -1,3 +1,4 @@
+
 #ifndef LSOBB_H_INCLUDED
 #define LSOBB_H_INCLUDED
 
@@ -13,7 +14,8 @@
 //variables de costos
 int LSOBB_Altas=0, LSOBB_total_Alta, LSOBB_corr_Alta=0, LSOBB_max_Alta=0,
 LSOBB_Bajas=0, LSOBB_total_Baja=0, LSOBB_corr_Baja=0, LSOBB_max_Baja=0,
-LSOBB_local=0, LSOBB_total_local=0, LSOBB_cant_local=0, LSOBB_max_local=0;
+LSOBB_local=0, LSOBB_total_local=0, LSOBB_cant_local=0, LSOBB_max_local=0,
+LSOBB_evocacion_NE=0, LSOBB_max_evocacion_NE=0;
 float LSOBB_medio_Alta=0, LSOBB_medio_Baja=0, LSOBB_medio_local=0;
 //Explicacion de variables:
 //LSOBB_Altas: total de altas exitosas en la lista
@@ -144,23 +146,30 @@ void LSOBB_MostrarEstructura(Prestador l[]) {
 }
 
 void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
-    int pos, exitoLocalizar=0;
+    int pos, exitoLocalizar;
+    printf("dni: %d \n", DNI);
     LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
-    if(exitoLocalizar){
+    if(exitoLocalizar&&DNI<INFINITO){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
-
         LSOBB_local++;
-    }else{
-        *exito=0;
-    }
-      if (LSOBB_cant_local>LSOBB_max_local){
+         if (LSOBB_cant_local>LSOBB_max_local){
             LSOBB_max_local=LSOBB_cant_local;
         }
           LSOBB_total_local+=LSOBB_cant_local;
+    }else{
+        *exito=0;
+        LSOBB_evocacion_NE++;
+         if (LSOBB_cant_local>LSOBB_max_evocacion_NE){
+            LSOBB_max_evocacion_NE=LSOBB_cant_local;
+        }
+          LSOBB_total_local+=LSOBB_cant_local;
+    }
 
-        LSOBB_cant_local=0;
+
+     LSOBB_cant_local=0;
+
 }
 
 
