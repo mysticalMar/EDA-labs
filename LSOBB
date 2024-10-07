@@ -24,14 +24,19 @@ float LSOBB_medio_Alta=0, LSOBB_medio_Baja=0, LSOBB_medio_local=0;
 //LSOBB_max_Alta: cantidad de corrimientos más alto en el alta.
 //LSOBB_medio_Alta: coste medio del alta.
 int CantElem=0;
-void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
+void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos, int opcion) {
      int li,ls,m;
      li=0;
      ls=CantElem;
      m =(li+ls)/2;
-    LSOBB_cant_local++;
+     if (opcion==3){
+         LSOBB_cant_local++;
+     }
+
 	 while ((li<ls)&&(l[m].DNI!=dni)){
-     LSOBB_cant_local++;
+      if (opcion==3){
+         LSOBB_cant_local++;
+     }
      if (l[m].DNI<dni) {
             li = m+1;
     }
@@ -50,10 +55,10 @@ void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos) {
             }
 }
 
-void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
+void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito, int *opcion) {
     int pos, exitoLocalizar = 0, i;
 
-    LSOBB_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
+    LSOBB_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos, opcion);
 
 
     if (!exitoLocalizar) {
@@ -85,10 +90,10 @@ void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     LSOBB_corr_Alta=0;
 }
 
-void LSOBB_Baja(Prestador l[], int DNI, int *exito, Prestador e){
+void LSOBB_Baja(Prestador l[], int DNI, int *exito, Prestador e, int *opcion){
 int pos, exitoLocalizar=0, i;
 
-LSOBB_Localizar(l, DNI,  &exitoLocalizar, &pos);
+LSOBB_Localizar(l, DNI,  &exitoLocalizar, &pos, opcion);
 
 if(exitoLocalizar){
 
@@ -145,11 +150,11 @@ void LSOBB_MostrarEstructura(Prestador l[]) {
     }
 }
 
-void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
+void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito, int opcion){
     int pos, exitoLocalizar;
-    LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos);
+    LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos, &opcion);
 
-    if(exitoLocalizar&&DNI<INFINITO){
+    if(exitoLocalizar){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSOBB_local++;
@@ -165,8 +170,6 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         }
           LSOBB_total_local+=LSOBB_cant_local;
     }
-printf("evocaciones exitosas lsobb: %d \n", LSOBB_local);
-     printf("evocaciones no exitosas lsobb: %d \n", LSOBB_evocacion_NE);
 
 
 
