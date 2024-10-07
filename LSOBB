@@ -15,7 +15,7 @@
 int LSOBB_Altas=0, LSOBB_total_Alta, LSOBB_corr_Alta=0, LSOBB_max_Alta=0,
 LSOBB_Bajas=0, LSOBB_total_Baja=0, LSOBB_corr_Baja=0, LSOBB_max_Baja=0,
 LSOBB_local=0, LSOBB_total_local=0, LSOBB_cant_local=0, LSOBB_max_local=0,
-LSOBB_evocacion_NE=0, LSOBB_max_evocacion_NE=0;
+LSOBB_evocacion_NE=0, LSOBB_max_evocacion_NE=0,  LSOBB_max_local_EE=0;
 float LSOBB_medio_Alta=0, LSOBB_medio_Baja=0, LSOBB_medio_local=0;
 //Explicacion de variables:
 //LSOBB_Altas: total de altas exitosas en la lista
@@ -153,8 +153,8 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSOBB_local++;
-         if (LSOBB_cant_local>LSOBB_max_local){
-            LSOBB_max_local=LSOBB_cant_local;
+         if (LSOBB_cant_local>LSOBB_max_local_EE){
+            LSOBB_max_local_EE=LSOBB_cant_local;
         }
           LSOBB_total_local+=LSOBB_cant_local;
     }else{
@@ -165,6 +165,9 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         }
           LSOBB_total_local+=LSOBB_cant_local;
     }
+printf("evocaciones exitosas lsobb: %d \n", LSOBB_local);
+     printf("evocaciones no exitosas lsobb: %d \n", LSOBB_evocacion_NE);
+
 
 
      LSOBB_cant_local=0;
