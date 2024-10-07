@@ -147,7 +147,6 @@ void LSOBB_MostrarEstructura(Prestador l[]) {
 
 void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
     int pos, exitoLocalizar;
-    printf("dni: %d \n", DNI);
     LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos);
 
     if(exitoLocalizar&&DNI<INFINITO){
