@@ -103,13 +103,13 @@ int main()
                     LSO_medio_Baja=LSO_total_Baja/LSO_Bajas;
                     printf("Coste medio de Baja en LSO: %f \n", LSO_medio_Baja);
                 }
-                    printf("Coste maximo de Baja en LSO: %f \n", LSO_max_Baja);
+                    printf("Coste maximo de Baja en LSO: %d \n", LSO_max_Baja);
 
                 if (LSO_local>0){
                     LSO_medio_local=LSO_total_Local/LSO_local;
                     printf("Coste medio de evocacion exitosa en LSO: %f \n", LSO_medio_local);
                 }
-                    printf("Coste maximo de evocacion exitosa en LSO: %f \n", LSO_max_local);
+                    printf("Coste maximo de evocacion exitosa en LSO: %d \n", LSO_max_local);
                 if (LSO_local>0){
                     LSO_medio_local=LSO_total_Local/LSO_evocacion_NE;
                     printf("Coste medio de evocacion no exitosa en LSO: %f \n", LSO_medio_local);
@@ -159,12 +159,16 @@ int main()
                      printf("Costo maximo de Baja en ABB: %d\n", MaxBaja);
 
                     // Costo total y medio de evocación en ABB
-                    if (cantEvocaciones > 0) {
-                        costo_medio_evocar_ABB = (comparacionesEvocar * 1.0) / cantEvocaciones;
-                        printf("Costo medio de Evocacion en ABB: %f\n", costo_medio_evocar_ABB);
-
-                    }
-                     printf("Maximo de comparaciones en una Evocacion en ABB: %d\n", MaxComparaciones);
+                    if (LSOBB_local>0){
+                    LSOBB_medio_local=LSOBB_total_local/LSOBB_local;
+                    printf("Coste medio de evocacion exitosa en LSO: %f \n", LSOBB_medio_local);
+                }
+                    printf("Coste maximo de evocacion exitosa en LSO: %f \n", LSOBB_max_local);
+                if (LSOBB_local>0){
+                    LSOBB_medio_local=LSO_total_Local/LSOBB_evocacion_NE;
+                    printf("Coste medio de evocacion no exitosa en LSO: %f \n", LSOBB_medio_local);
+                }
+                 printf("Coste maximo de evocacion no exitosa en LSO: %f \n", LSOBB_max_evocacion_NE);
                    printf("___________________________________________________\n");
             break;
             case 2: MostrarEstructura_ABB(&arbol);
