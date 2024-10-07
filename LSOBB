@@ -55,7 +55,7 @@ void LSOBB_Localizar(Prestador l[], int dni, int *exito, int *pos, int opcion) {
             }
 }
 
-void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito, int *opcion) {
+void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito, int opcion) {
     int pos, exitoLocalizar = 0, i;
 
     LSOBB_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos, opcion);
@@ -90,7 +90,7 @@ void LSOBB_Alta(Prestador l[], Prestador ElementoAlta, int *exito, int *opcion) 
     LSOBB_corr_Alta=0;
 }
 
-void LSOBB_Baja(Prestador l[], int DNI, int *exito, Prestador e, int *opcion){
+void LSOBB_Baja(Prestador l[], int DNI, int *exito, Prestador e, int opcion){
 int pos, exitoLocalizar=0, i;
 
 LSOBB_Localizar(l, DNI,  &exitoLocalizar, &pos, opcion);
@@ -152,9 +152,9 @@ void LSOBB_MostrarEstructura(Prestador l[]) {
 
 void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito, int opcion){
     int pos, exitoLocalizar;
-    LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos, &opcion);
+    LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos, opcion);
 
-    if(exitoLocalizar){
+    if(exitoLocalizar&&DNI<INFINITO){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSOBB_local++;
