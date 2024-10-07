@@ -107,9 +107,15 @@ int main()
 
                 if (LSO_local>0){
                     LSO_medio_local=LSO_total_Local/LSO_local;
-                    printf("Coste medio de evocacion en LSO: %f \n", LSO_medio_local);
+                    printf("Coste medio de evocacion exitosa en LSO: %f \n", LSO_medio_local);
                 }
-                    printf("Coste maximo de evocacion en LSO: %f \n", LSO_max_local);
+                    printf("Coste maximo de evocacion exitosa en LSO: %f \n", LSO_max_local);
+                if (LSO_local>0){
+                    LSO_medio_local=LSO_total_Local/LSO_evocacion_NE;
+                    printf("Coste medio de evocacion no exitosa en LSO: %f \n", LSO_medio_local);
+                }
+                 printf("Coste maximo de evocacion no exitosa en LSO: %f \n", LSO_max_evocacion_NE);
+
 
                 //costes LSOBB
                 printf("___________________________________________________ \n");
