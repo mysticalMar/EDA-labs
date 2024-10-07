@@ -24,13 +24,14 @@ void inicializarLSO(Prestador l[]) {
 l[0].DNI=INFINITO;
 CantElemLSO = 0;
 }
-void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
-
+void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos, int opcion) {
     int i = 0;
     while  (l[i].DNI < dni) {
         i++;
     }
+    if (opcion==3){
     LSO_cant_local=i+1;
+    }
     *pos = i;
 
     if (l[i].DNI == dni) {
@@ -41,9 +42,9 @@ void LSO_Localizar(Prestador l[], int dni, int *exito, int *pos) {
     }
 }
 
-void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
+void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito, int opcion) {
     int pos, exitoLocalizar = 0, i;
-    LSO_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos);
+    LSO_Localizar(l, ElementoAlta.DNI, &exitoLocalizar, &pos, opcion);
 
 
     if (!exitoLocalizar) {
@@ -74,13 +75,13 @@ void LSO_Alta(Prestador l[], Prestador ElementoAlta, int *exito) {
     LSO_corr_Alta=0;
 }
 
-void LSO_Baja(Prestador l[], int DNI, int *exito, Prestador e){ //e se recibe por parámetro para comparar el elemento obtenido en la posición que coincida con el dni (confirmación automática)
+void LSO_Baja(Prestador l[], int DNI, int *exito, Prestador e, int opcion){ //e se recibe por parámetro para comparar el elemento obtenido en la posición que coincida con el dni (confirmación automática)
 int pos, exitoLocalizar=0, i;
 
-LSO_Localizar(l, DNI,  &exitoLocalizar, &pos);
+LSO_Localizar(l, DNI,  &exitoLocalizar, &pos, opcion);
 if(exitoLocalizar){
 
-   if(confirma(l, pos, e)==1&&DNI<INFINITO){
+   if(confirma(l, pos, e)==1){
     for(i=pos; i < CantElemLSO; i++){
         l[i] = l[i+1];
        LSO_corr_Baja++;
@@ -145,12 +146,12 @@ void MostrarEstructura(Prestador l[]) {
 }
 
 
-void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
+void LSO_Evocar(Prestador l[], Prestador *Elem, int DNI, int *exito, int opcion){
     int pos, exitoLocalizar;
-    LSO_Localizar(LSO, DNI, &exitoLocalizar, &pos);
+    LSO_Localizar(l, DNI, &exitoLocalizar, &pos, opcion);
 
-    if(exitoLocalizar&&DNI<INFINITO){
-        *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
+    if(exitoLocalizar){
+        *Elem = l[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSO_local++;
          if (LSO_cant_local>LSO_max_local_EE){
@@ -165,12 +166,11 @@ void LSO_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito){
         }
           LSO_total_Local+=LSO_cant_local;
     }
-    printf("evocaciones exitosas lso: %d \n", LSO_local);
-     printf("evocaciones no exitosas lso: %d \n", LSO_evocacion_NE);
 
 
 
      LSO_cant_local=0;
+
 
 }
 
