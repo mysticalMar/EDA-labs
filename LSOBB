@@ -154,7 +154,7 @@ void LSOBB_Evocar(Prestador LSO[], Prestador *Elem, int DNI, int *exito, int opc
     int pos, exitoLocalizar;
     LSOBB_Localizar(LSO, DNI, &exitoLocalizar, &pos, opcion);
 
-    if(exitoLocalizar&&DNI<INFINITO){
+    if(exitoLocalizar){
         *Elem = LSO[pos]; //Copiamos la informacion del prestador encontrado
         *exito = 1;//Evocacion exitosa
         LSOBB_local++;
