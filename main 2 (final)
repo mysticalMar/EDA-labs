@@ -10,7 +10,7 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
     inicializarLSO(LSO);  // Inicializa las listas secuenciales
     int opcion = 0, exitoLSO = 0, exitoLSOBB = 0, exito = 0;
     int DNI, prestadorescargadosLSO = 0, prestadorescargadosLSOBB = 0;
-    Prestador aux;
+    Prestador aux, aux2;
     PrestadorABB a;  // Variable para almacenar datos en ABB
     FILE *fp = fopen("OperacionesPrestadores.txt", "r");
 
@@ -55,10 +55,11 @@ int lectura_operaciones(Prestador LSO[], Prestador LSOBB[], Arbol *arbol) {
                     Baja_ABB(arbol, a);
                 }
             } else if (opcion==3){
+                 DNI=aux.DNI;
                 if (DNI<INFINITO){
-                LSO_Evocar(LSO, &aux, DNI, &exitoLSO, opcion);
+                LSO_Evocar(LSO, &aux2, DNI, &exitoLSO, opcion);
                 }
-                LSOBB_Evocar(LSOBB, &aux, DNI, &exitoLSOBB, opcion);
+                LSOBB_Evocar(LSOBB, &aux2, DNI, &exitoLSOBB, opcion);
                 Evocar_ABB(arbol, DNI, &exito, &a);
             }
             opcion=0;
@@ -116,11 +117,11 @@ int main()
                     printf("Coste medio de evocacion exitosa en LSO: %f \n", LSO_medio_local);
                 }
                     printf("Coste maximo de evocacion exitosa en LSO: %d \n", LSO_max_local_EE);
-                if (LSO_local>0){
+                if (LSO_evocacion_NE>0){
                     LSO_medio_local=LSO_total_Local/LSO_evocacion_NE;
                     printf("Coste medio de evocacion no exitosa en LSO: %f \n", LSO_medio_local);
                 }
-                 printf("Coste maximo de evocacion no exitosa en LSO: %f \n", LSO_max_evocacion_NE);
+                 printf("Coste maximo de evocacion no exitosa en LSO: %d \n", LSO_max_evocacion_NE);
 
 
                 //costes LSOBB
@@ -136,14 +137,14 @@ int main()
                     LSOBB_medio_Baja=LSOBB_total_Baja/LSOBB_Bajas;
                     printf("Coste medio de Baja en LSOBB: %f \n", LSOBB_medio_Baja);
                 }
-                    printf("Coste maximo de Baja en LSOBB: %f \n", LSOBB_max_Baja);
+                    printf("Coste maximo de Baja en LSOBB: %d \n", LSOBB_max_Baja);
 
                         if (LSOBB_local>0){
                     LSOBB_medio_local=LSOBB_total_local/LSOBB_local;
                     printf("Coste medio de evocacion exitosa en LSOBB: %f \n", LSOBB_medio_local);
                 }
                     printf("Coste maximo de evocacion exitosa en LSOBB: %d \n", LSOBB_max_local_EE);
-                if (LSOBB_local>0){
+                if (LSOBB_evocacion_NE>0){
                     LSOBB_medio_local=LSO_total_Local/LSOBB_evocacion_NE;
                     printf("Coste medio de evocacion no exitosa en LSOBB: %f \n", LSOBB_medio_local);
                 }
@@ -178,6 +179,8 @@ int main()
                      printf("Maximo de comparaciones en una Evocacion en ABB: %d\n", MaxComparaciones);
 
                    printf("___________________________________________________\n");
+                    printf("__________________ANÁLISIS DE DATOS_____________________\n");
+                    printf("Se puede observar que la estructura mas eficiente y menos costosa es el ABB. A el le sigue la LSOBB, y por ultimo, la estructura con mayores costos es la LSO. Esto se debe a la forma de buscar de la LSO, ya que busca secuencialmente. En conclusion, la estructura del ABB permite obtener costos considerablemente menores por su forma de ordenar los datos, y la LSOBB mejora los costos de busqueda en una lista gracias a la busqueda binaria. \n");
             break;
             case 2: MostrarEstructura_ABB(&arbol);
             break;
