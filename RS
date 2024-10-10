@@ -1,0 +1,119 @@
+#ifndef RS_H_INCLUDED
+#define RS_H_INCLUDED
+
+// M= 110/1.74 = 63 ---> prox primo es:67
+#define PRE_RS 67
+
+  typedef struct {
+    int DNI;
+    char nombreyapellido[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+    }PrestadorRS;
+
+   typedef struct celdaRS {
+      PrestadorRS datos;
+      struct celdaRS *psig;
+   } CeldaRS;
+
+   typedef struct {
+      CeldaRS a[PRE_RS];
+      CeldaRS *anterior;
+      CeldaRS *actual;
+      int cant;
+   } RS;
+
+    int hashing_RS(char* x,int M){
+    int longitud,i;
+    int contador = 0;
+    longitud = strlen(x);
+    for(i=0;i < longitud; i++)
+        contador +=((int)x[i])*(i + 1) ;
+    return (contador % M);
+     }
+
+    void init_RS(RS *tabla){
+    int i;
+    tabla->cant = 0;
+    for(i=0; i<PRE_RS; i++){
+        tabla->a[i].psig = NULL; //Inicializamos a los punteros de cada balde como NULL
+    }
+    tabla->actual = NULL;
+    tabla->anterior = NULL;
+
+    }
+
+
+   CeldaRS* nuevacelda(PrestadorRS prestador){
+    CeldaRS *nuevo = (CeldaRS*)malloc(sizeof(CeldaRS));
+
+    if(nuevo == NULL){
+        return NULL;
+    }
+    nuevo->datos = prestador;
+    nuevo->psig = NULL;
+    return nuevo;
+
+   }
+   int Localizar_RS(RS *tabla, int DNI, CeldaRS *resultado){
+   int pos = hashing_RS(DNI, PRE_RS);
+   CeldaRS *actual = tabla->a[pos].psig;
+    while(actual != NULL && actual->datos.DNI != DNI){
+        if(actual->datos.DNI == DNI){
+            tabla->anterior = actual;
+            actual = *resultado;
+            return 1; /// Exitosa
+        }
+        actual = actual->psig;
+    }
+    return 0; /// No Exitosa
+   }
+
+   int Alta_RS(RS *tabla, PrestadorRS prestador){
+    CeldaRS *existe = NULL;
+    if(Localizar_RS(tabla, prestador.DNI, &existe)){
+        return 0; /// El prestador ya existe
+    }
+    int pos = hashing_RS(prestador.DNI, PRE_RS);
+    CeldaRS *nuevo = nuevacelda(prestador);
+
+    if(nuevo == NULL){
+        return -1; ///No hay mas Memoria
+    }else{
+    nuevo->psig = tabla->a[pos].psig;
+    tabla->a[pos].psig = nuevo;
+    tabla->cant = tabla->cant+1;
+    return 1;
+    }
+
+      }
+   int Baja_RS(RS *tabla, int DNI){
+     int pos = hashing_RS(DNI, PRE_RS);
+     CeldaRS *actual = tabla->a[pos].psig;
+     CeldaRS *anterior = NULL;
+     if(!Localizar_RS(tabla, prestador.DNI, &existe)){
+        return 0; /// El prestador no existe
+    }
+     while(actual != NULL){
+        if(actual->datos.DNI == DNI){
+            if(anterior == NULL){
+                tabla->a[pos].psig = actual->psig;
+            }else {
+             anterior->psig = actual->psig;
+            }
+            free(void*(actual));
+            tabla->cant = tabla->cant-1;
+            return 1; /// Baja Exitosa
+
+        }
+        anterior = actual;
+        actual = actual->psig;
+     }
+      return 0; ///Baja No Exitosa
+   }
+
+
+
+#endif // RS_H_INCLUDED
