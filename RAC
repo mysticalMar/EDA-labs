@@ -1,1 +1,96 @@
+#ifndef RAC_H_INCLUDED
+#define RAC_H_INCLUDED
+#include <stdio.h>
+#include <stdlib.h>
+/// M : N / ρ --> 110 / 0,86 --> M = 127
+#define MRAC 127
 
+
+  typedef struct {
+    int DNI;
+    char nombreyapellido[80];
+    char servicios[120];
+    char domicilio[80];
+    char correo[50];
+    char telefono[30];
+    }PrestadorRAC;
+   typedef struct {
+   char estado;
+   PrestadorRAC prestador;
+  } CeldaRAC;
+  typedef struct{
+   CeldaRAC celda[MRAC];
+  } RAC;
+
+
+     int CantElem=0;
+     int hashing_RAC (int dni) {
+     char x[10];
+     int longitud , i ;
+     int contador=0;
+     sprintf(x,"%d" , dni );
+     longitud=strlen(x);
+     for (i=0; i< longitud; i++)
+     contador+=((int)x[i]) * (i+1);
+      return (contador % MRAC);
+    }
+    void init_RAC(RAC *tabla){
+     int i;
+    for(i=0; i<MRAC; i++){
+    tabla->celda[i]; = "*";///Inicializamos todas las celdas como virgenes
+  }
+ }
+
+  int Localizar_RAC(RAC *tabla, int dni, int cargados, int *pos, int *costo) {
+    *pos = hashing(dni);
+    int i = *pos;
+    int aux = -1;
+    int contador = 0;
+    int k = 1;
+
+    *costo = 0;
+
+
+    if (cargados == 0) {
+        return 0;
+    }
+
+
+    while (contador < MRAC && tabla->celdas[i].estado != "*" &&
+           tabla->celdas[i].prestador.DNI != dni) {
+
+
+        if (aux == -1 && tabla->celdas[i].estado == "+") {
+            aux = i;
+        }
+        // Calculamos la siguiente posición usando exploración cuadrática
+        i = (i + k) % MRAC;
+        k++;
+        contador++;
+        (*costo)++;
+    }
+
+    // Caso 1: Prestador encontrado
+    if (tabla->celdas[i].prestador.DNI == dni) {
+        *pos = i;
+        return 1;  // Encontrado
+    }
+
+    // Caso 2: No encontrado, pero se puede dar de alta
+    if (tabla->celdas[i].estado == "+") {
+        if (aux != -1) {
+       *pos = aux;
+       } else {
+       *pos = i;
+           }
+        return 0;
+    }
+
+    // Caso 3: No encontrado y no se puede insertar
+    if (aux != -1) {
+        *pos = aux;
+        return 0;
+    }
+
+    return -1;
+}
