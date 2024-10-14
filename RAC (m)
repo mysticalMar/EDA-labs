@@ -5,16 +5,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "RAL.h"
-#define MRAC 133
-int CantElemRAC=0;
-void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
+#define MRAC 127
+int CantElemRAC=0, RAC_c=0, RAC_t=0, RAC_max=0, RAC_medio=0, RAC_evocar_E=0, RAC_evocar_F=0, RAC_max_F=0;
+void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos, int opcion) {
     int i = hashing(dni), c=0, posf, j=hashing(dni);
+    if (opcion==3){
+        RAC_c++;
+    }
     while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){//controlar no recorrer los M baldes
             if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
              posf=i;
             }
         i=i+(j-1)%MRAC;
         c++;
+        if (opcion==3){
+        RAC_c++;
+        }
     }
     if (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){
         *pos=i;
@@ -28,9 +34,9 @@ void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
                 else *pos=i;
     }
 }
-void Alta_RAC(Prestador r[], Prestador nuevo,  int dni, int *exito){
+void Alta_RAC(Prestador r[], Prestador nuevo,  int dni, int *exito, int opcion){
 int exitoLocalizar, pos;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
     if (!exitoLocalizar){
         if (CantElem<MAXPRESTADORES){
         r[pos]=nuevo;
@@ -42,9 +48,9 @@ int exitoLocalizar, pos;
         else *exito=2;
 }
 
-void Baja_RAC(Prestador r[], int dni, int *exito, Prestador e){
+void Baja_RAC(Prestador r[], int dni, int *exito, Prestador e, int opcion){
     int exitoLocalizar, pos;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
     if (exitoLocalizar&&confirma(r, pos, e)){
         r[pos].DNI=-2; //-2: marca de celda libre
         *exito=1;
@@ -52,14 +58,28 @@ void Baja_RAC(Prestador r[], int dni, int *exito, Prestador e){
     }
     else *exito=0;
 }
-void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito){
+void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito, int opcion){
     int exitoLocalizar, pos;
-     Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+     Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
      if(exitoLocalizar){
         *e=r[pos];
         *exito=1;
+        RAC_evocar_E++;
+        if (RAC_c>RAC_max){
+            RAC_max=RAC_c;
+        }
+        RAC_t+=RAC_c;
+        RAC_c=0;
      }
-     else *exito=0;
+     else {
+            *exito=0;
+     RAC_evocar_F++;
+     if (RAC_c>RAC_max_F){
+            RAC_max_F=RAC_c;
+        }
+        RAC_t+=RAC_c;
+        RAC_c=0;
+     }
 }
 
 
