@@ -26,21 +26,21 @@ int lectura_operaciones(Prestador RAL[], Prestador RAC[]) {
                 fscanf(fp, " %[^\n]", &aux.telefono);
                 if (opcion==1){
                     if (CantElem<MAXPRESTADORES){
-                    Alta_RAL(RAL, aux, aux.DNI, &exito);
+                    Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
                     }
                     if (CantElemRAC<MAXPRESTADORES){
-                    Alta_RAC(RAC, aux, aux.DNI, &exito);
+                    Alta_RAC(RAC, aux, aux.DNI, &exito, opcion);
                     }
                 }
 
                 else{
                     DNI=aux.DNI;
-                    Baja_RAL(RAL, DNI, &exito, aux);
-                    Baja_RAC(RAC, DNI, &exito, aux);
+                    Baja_RAL(RAL, DNI, &exito, aux, opcion);
+                    Baja_RAC(RAC, DNI, &exito, aux, opcion);
                 }
             } else if (opcion==3){
-                Evocar_RAL(RAL, &aux, aux.DNI, &exito);
-                Evocar_RAC(RAC, &aux, aux.DNI, &exito);
+                Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
+                Evocar_RAC(RAC, &aux, aux.DNI, &exito, opcion);
             }
             opcion=0;
         }
@@ -67,6 +67,30 @@ int main()
             case 1: lectura_operaciones(RAL, RAC);
             printf("Cant RAL: %d \n", CantElem);
             printf("Cant RAC: %d \n", CantElemRAC);
+            printf("________________________Costos_________________________________\n");
+            printf("Rebalse Abierto Lineal \n");
+            printf("Maximo de evocacion exitosa: %d \n", RAL_max_E);
+            if (RAL_evocar_E>0){
+                RAL_medio=RAL_t_E/RAL_evocar_E;
+                printf("Medio de evocacion exitosa: %f \n", RAL_medio);
+            }
+            printf("Maximo de evocacion no exitosa: %d \n", RAL_max_F);
+            if (RAL_evocar_F>0){
+                RAL_medio=RAL_t_F/RAL_evocar_F;
+                printf("Medio de evocacion no exitosa: %f \n", RAL_medio);
+            }
+            printf("___________________________________________________ \n");
+                        printf("Rebalse Abierto Cuadratico \n");
+            printf("Maximo de evocacion exitosa: %d \n", RAC_max_E);
+            if (RAC_evocar_E>0){
+                RAC_medio=RAC_t_E/RAC_evocar_E;
+                printf("Medio de evocacion exitosa: %f \n", RAC_medio);
+            }
+            printf("Maximo de evocacion no exitosa: %d \n", RAC_max_F);
+            if (RAC_evocar_F>0){
+                RAC_medio=RAC_t_F/RAC_evocar_F;
+                printf("Medio de evocacion no exitosa: %f \n", RAC_medio);
+            }
             break;
             case 2: MostrarEstructura(RAL);
             break;
