@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "RAL.h"
-
-int lectura_operaciones(Prestador RAL[]) {
+#include "RAC.h"
+int lectura_operaciones(Prestador RAL[], Prestador RAC[]) {
     Prestador aux;
-    inicializarRAL(RAL);
+    inicializar(RAL);
+    inicializar(RAC);
     int opcion=0, exito, pos;
     int DNI;
     FILE *fp = fopen("OperacionesPrestadores.txt", "r");
@@ -24,19 +25,24 @@ int lectura_operaciones(Prestador RAL[]) {
                 fscanf(fp, " %[^\n]", &aux.correo);
                 fscanf(fp, " %[^\n]", &aux.telefono);
                 if (opcion==1){
-                Alta_RAL(RAL, aux, aux.DNI, &exito);
+                    if (CantElem<MAXPRESTADORES){
+                    Alta(RAL, aux, aux.DNI, &exito);
+                    }
+                    if (CantElemRAC<MAXPRESTADORES){
+                    Alta(RAC, aux, aux.DNI, &exito);
+                    }
+                }
 
-
-            }
                 else{
                     DNI=aux.DNI;
-                    Baja_RAL(RAL, DNI, &exito, aux);
+                    Baja(RAL, DNI, &exito, aux);
+                    Baja(RAC, DNI, &exito, aux);
                 }
             } else if (opcion==3){
                 Evocar_RAL(RAL, &aux, aux.DNI, &exito);
+                Evocar_RAC(RAC, &aux, aux.DNI, &exito);
             }
             opcion=0;
-
         }
         fclose(fp);
         return 1;
@@ -46,7 +52,7 @@ int lectura_operaciones(Prestador RAL[]) {
 int main()
 {
         int opcion;
-        Prestador RAL[MRAL];
+        Prestador RAL[MRAL], RAC[MRAC];
 
         do{
               printf("--------------------BIENVENIDO-------------------\n");
@@ -58,7 +64,7 @@ int main()
                 printf("-------------------------------------------------\n");
                 scanf("%d", &opcion);
             switch(opcion){
-            case 1: lectura_operaciones(RAL);
+            case 1: lectura_operaciones(RAL, RAC);
             break;
             case 2: MostrarEstructura(RAL);
             break;
