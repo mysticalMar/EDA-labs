@@ -26,17 +26,17 @@ int lectura_operaciones(Prestador RAL[], Prestador RAC[]) {
                 fscanf(fp, " %[^\n]", &aux.telefono);
                 if (opcion==1){
                     if (CantElem<MAXPRESTADORES){
-                    Alta(RAL, aux, aux.DNI, &exito);
+                    Alta_RAL(RAL, aux, aux.DNI, &exito);
                     }
                     if (CantElemRAC<MAXPRESTADORES){
-                    Alta(RAC, aux, aux.DNI, &exito);
+                    Alta_RAC(RAC, aux, aux.DNI, &exito);
                     }
                 }
 
                 else{
                     DNI=aux.DNI;
-                    Baja(RAL, DNI, &exito, aux);
-                    Baja(RAC, DNI, &exito, aux);
+                    Baja_RAL(RAL, DNI, &exito, aux);
+                    Baja_RAC(RAC, DNI, &exito, aux);
                 }
             } else if (opcion==3){
                 Evocar_RAL(RAL, &aux, aux.DNI, &exito);
@@ -59,16 +59,20 @@ int main()
                 printf("------------------ MENU PRINCIPAL----------------\n");
                 printf("1: Comparar estructuras \n");
                 printf("2: Mostrar: RAL \n");
-
+                printf("3: Mostrar: RAC \n");
                 printf("5: Salir \n");
                 printf("-------------------------------------------------\n");
                 scanf("%d", &opcion);
             switch(opcion){
             case 1: lectura_operaciones(RAL, RAC);
+            printf("Cant RAL: %d \n", CantElem);
+            printf("Cant RAC: %d \n", CantElemRAC);
             break;
             case 2: MostrarEstructura(RAL);
             break;
+            case 3: MostrarEstructura(RAC);
+            break;
             }
-        }while (opcion<3);
+        }while (opcion<4);
 
 }
