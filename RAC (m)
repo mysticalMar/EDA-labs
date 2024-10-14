@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "RAL.h"
-#define MRAC 137
+#define MRAC 133
 int CantElemRAC=0;
 void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
     int i = hashing(dni), c=0, posf, j=hashing(dni);
@@ -13,7 +13,7 @@ void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
             if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
              posf=i;
             }
-        i=i+(j-1)%MRAL;
+        i=i+(j-1)%MRAC;
         c++;
     }
     if (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){
@@ -27,6 +27,30 @@ void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
             }
                 else *pos=i;
     }
+}
+void Alta_RAC(Prestador r[], Prestador nuevo,  int dni, int *exito){
+int exitoLocalizar, pos;
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+    if (!exitoLocalizar){
+        if (CantElem<MAXPRESTADORES){
+        r[pos]=nuevo;
+        *exito=1;
+        CantElemRAC++;
+        }
+        else *exito=-1;
+    }
+        else *exito=2;
+}
+
+void Baja_RAC(Prestador r[], int dni, int *exito, Prestador e){
+    int exitoLocalizar, pos;
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+    if (exitoLocalizar&&confirma(r, pos, e)){
+        r[pos].DNI=-2; //-2: marca de celda libre
+        *exito=1;
+        CantElemRAC--;
+    }
+    else *exito=0;
 }
 void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito){
     int exitoLocalizar, pos;
