@@ -6,13 +6,15 @@
 #include <stdlib.h>
 #include "RAL.h"
 #define MRAC 127
-int CantElemRAC=0, RAC_c=0, RAC_t=0, RAC_max=0, RAC_medio=0, RAC_evocar_E=0, RAC_evocar_F=0, RAC_max_F=0;
+int CantElemRAC=0, RAC_c=0, RAC_t_E=0, RAC_t_F=0, RAC_max_E=0, RAC_max_F=0, RAC_evocar_E=0, RAC_evocar_F=0;
+float RAC_medio=0;
+
 void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos, int opcion) {
     int i = hashing(dni), c=0, posf, j=hashing(dni);
     if (opcion==3){
         RAC_c++;
     }
-    while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){//controlar no recorrer los M baldes
+    while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAC){//controlar no recorrer los M baldes
             if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
              posf=i;
             }
@@ -22,7 +24,7 @@ void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos, int opcion) {
         RAC_c++;
         }
     }
-    if (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){
+    if (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAC){
         *pos=i;
         *exito=1;
     }
@@ -65,10 +67,10 @@ void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito, int opcion){
         *e=r[pos];
         *exito=1;
         RAC_evocar_E++;
-        if (RAC_c>RAC_max){
-            RAC_max=RAC_c;
+        if (RAC_c>RAC_max_E){
+            RAC_max_E=RAC_c;
         }
-        RAC_t+=RAC_c;
+        RAC_t_E+=RAC_c;
         RAC_c=0;
      }
      else {
@@ -77,7 +79,7 @@ void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito, int opcion){
      if (RAC_c>RAC_max_F){
             RAC_max_F=RAC_c;
         }
-        RAC_t+=RAC_c;
+        RAC_t_F+=RAC_c;
         RAC_c=0;
      }
 }
