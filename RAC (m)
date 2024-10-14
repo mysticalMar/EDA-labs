@@ -1,0 +1,42 @@
+#ifndef RAC_H_INCLUDED
+#define RAC_H_INCLUDED
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "RAL.h"
+#define MRAC 137
+int CantElemRAC=0;
+void Localizar_RAC(Prestador l[], int dni, int *exito, int *pos) {
+    int i = hashing(dni), c=0, posf, j=hashing(dni);
+    while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){//controlar no recorrer los M baldes
+            if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
+             posf=i;
+            }
+        i=i+(j-1)%MRAL;
+        c++;
+    }
+    if (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){
+        *pos=i;
+        *exito=1;
+    }
+        else {
+            *exito=0;
+            if (l[i].DNI==-2){
+            *pos=posf;
+            }
+                else *pos=i;
+    }
+}
+void Evocar_RAC(Prestador r[], Prestador *e, int dni, int *exito){
+    int exitoLocalizar, pos;
+     Localizar_RAL(r, dni, &exitoLocalizar, &pos);
+     if(exitoLocalizar){
+        *e=r[pos];
+        *exito=1;
+     }
+     else *exito=0;
+}
+
+
+#endif // RAC_H_INCLUDED
