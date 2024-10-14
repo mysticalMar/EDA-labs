@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#define MRAL 127
+#define MRAL 133
 #define MAXPRESTADORES 110
 
 typedef struct {
