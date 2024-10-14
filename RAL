@@ -14,7 +14,8 @@ typedef struct {
     char correo[50];
     char telefono[30];
 } Prestador;
-int CantElem=0, RAL_c=0, RAL_t=0, RAL_max=0, RAL_medio=0, RAL_evocar_E=0, RAL_evocar_F=0, RAL_max_F=0;
+int CantElem=0, RAL_c=0, RAL_t_E=0, RAL_t_F=0, RAL_max_E=0, RAL_max_F=0, RAL_evocar_E=0, RAL_evocar_F=0;
+float RAL_medio=0;
 int hashing (int dni) {
  char x[10];
  int longitud , i ;
@@ -90,10 +91,10 @@ void Evocar_RAL(Prestador r[], Prestador *e, int dni, int *exito, int opcion){ /
         *e=r[pos];
         *exito=1;
         RAL_evocar_E++;
-           if (RAL_c>RAL_max){
-            RAL_max=RAL_c;
+           if (RAL_c>RAL_max_E){
+            RAL_max_E=RAL_c;
         }
-        RAL_t+=RAL_c;
+        RAL_t_E+=RAL_c;
         RAL_c=0;
      }
      else {
@@ -102,7 +103,7 @@ void Evocar_RAL(Prestador r[], Prestador *e, int dni, int *exito, int opcion){ /
            if (RAL_c>RAL_max_F){
             RAL_max_F=RAL_c;
         }
-        RAL_t+=RAL_c;
+        RAL_t_F+=RAL_c;
         RAL_c=0;
      }
 }
