@@ -1,102 +1,136 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "RAL.h"
+#include "RS.h"
 #include "RAC.h"
-int lectura_operaciones(Prestador RAL[], Prestador RAC[]) {
-    Prestador aux;
-    inicializar(RAL);
-    inicializar(RAC);
-    int opcion=0, exito, pos;
-    int DNI;
-    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
+#include "RAL.h"
 
+
+int lectura_operaciones(PrestadorRAL RAL[], RAC *tablaRAC, RS *tablaRS) {
+    PrestadorRAL aux;
+    PrestadorRAC auxRAC;
+    PrestadorRS auxRS;
+    inicializar(RAL);
+    init_RAC(tablaRAC);
+    init_RS(tablaRS);
+
+    int opcion = 0, exito, pos;
+    int costo = 0;
+    int DNI;
+
+    FILE *fp = fopen("Operaciones-Prestadores.txt", "r");
     if (fp == NULL) {
         printf("No se puede abrir el archivo\n");
         return 0;
     }
-    else {
-      while (!feof(fp)){
-            fscanf(fp, "%d", &opcion);
-            fscanf(fp, "%d", &aux.DNI);
-            if (opcion==1||opcion==2){
-                fscanf(fp, " %[^\n]", aux.nombreyapellido);
-                fscanf(fp, " %[^\n]", aux.servicios);
-                fscanf(fp, " %[^\n]", aux.domicilio);
-                fscanf(fp, " %[^\n]", &aux.correo);
-                fscanf(fp, " %[^\n]", &aux.telefono);
-                if (opcion==1){
-                    if (CantElem<MAXPRESTADORES){
-                    Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
-                    }
-                    if (CantElemRAC<MAXPRESTADORES){
-                    Alta_RAC(RAC, aux, aux.DNI, &exito, opcion);
-                    }
-                }
 
-                else{
-                    DNI=aux.DNI;
-                    Baja_RAL(RAL, DNI, &exito, aux, opcion);
-                    Baja_RAC(RAC, DNI, &exito, aux, opcion);
+    while (!feof(fp)) {
+        fscanf(fp, "%d", &opcion);
+        fscanf(fp, "%d", &aux.DNI);
+
+        if (opcion == 1 || opcion == 2) {
+            fscanf(fp, " %[^\n]", aux.nombreyapellido);
+            fscanf(fp, " %[^\n]", aux.servicios);
+            fscanf(fp, " %[^\n]", aux.domicilio);
+            fscanf(fp, " %[^\n]", aux.correo);
+            fscanf(fp, " %[^\n]", aux.telefono);
+
+            // Copiar los datos de 'aux' a 'auxRS' para RS
+            auxRS.DNI = aux.DNI;
+            strcpy(auxRS.nombreyapellido, aux.nombreyapellido);
+            strcpy(auxRS.servicios, aux.servicios);
+            strcpy(auxRS.domicilio, aux.domicilio);
+            strcpy(auxRS.correo, aux.correo);
+            strcpy(auxRS.telefono, aux.telefono);
+
+            if (opcion == 1) {  // Alta
+                if (CantElem < MRAL) {
+                    Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
+                    Alta_RAC(tablaRAC, auxRAC, &costo);
+                    Alta_RS(tablaRS, auxRS, &costo);  // Insertamos 'auxRS' en la estructura RS
                 }
-            } else if (opcion==3){
-                Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
-                Evocar_RAC(RAC, &aux, aux.DNI, &exito, opcion);
+            } else {  // Baja
+                DNI = aux.DNI;
+                Baja_RAL(RAL, DNI, &exito, aux, opcion);
+                Baja_RAC(tablaRAC, DNI, &costo);
+                Baja_RS(tablaRS, DNI, &costo);
             }
-            opcion=0;
+        } else if (opcion == 3) {  // Evocar
+            Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
+            Evocar_RAC(tablaRAC, aux.DNI, &costo);
+            Evocar_RS(tablaRS, aux.DNI, &costo);
         }
-        fclose(fp);
-        return 1;
     }
 
+    fclose(fp);
+    return 1;
 }
+
 int main()
 {
-        int opcion;
-        Prestador RAL[MRAL], RAC[MRAC];
+    RS tablaRS;
+    int opcion;
+    PrestadorRAL RAL[MRAL];  // Ajuste de tipo de prestadores
+    RAC tablaRAC;
 
-        do{
-              printf("--------------------BIENVENIDO-------------------\n");
-                printf("------------------ MENU PRINCIPAL----------------\n");
-                printf("1: Comparar estructuras \n");
-                printf("2: Mostrar: RAL \n");
-                printf("3: Mostrar: RAC \n");
-                printf("5: Salir \n");
-                printf("-------------------------------------------------\n");
-                scanf("%d", &opcion);
-            switch(opcion){
-            case 1: lectura_operaciones(RAL, RAC);
-            printf("Cant RAL: %d \n", CantElem);
-            printf("Cant RAC: %d \n", CantElemRAC);
-            printf("________________________Costos_________________________________\n");
-            printf("Rebalse Abierto Lineal \n");
-            printf("Maximo de evocacion exitosa: %d \n", RAL_max_E);
-            if (RAL_evocar_E>0){
-                RAL_medio=RAL_t_E/RAL_evocar_E;
-                printf("Medio de evocacion exitosa: %f \n", RAL_medio);
-            }
-            printf("Maximo de evocacion no exitosa: %d \n", RAL_max_F);
-            if (RAL_evocar_F>0){
-                RAL_medio=RAL_t_F/RAL_evocar_F;
-                printf("Medio de evocacion no exitosa: %f \n", RAL_medio);
-            }
-            printf("___________________________________________________ \n");
-                        printf("Rebalse Abierto Cuadratico \n");
-            printf("Maximo de evocacion exitosa: %d \n", RAC_max_E);
-            if (RAC_evocar_E>0){
-                RAC_medio=RAC_t_E/RAC_evocar_E;
-                printf("Medio de evocacion exitosa: %f \n", RAC_medio);
-            }
-            printf("Maximo de evocacion no exitosa: %d \n", RAC_max_F);
-            if (RAC_evocar_F>0){
-                RAC_medio=RAC_t_F/RAC_evocar_F;
-                printf("Medio de evocacion no exitosa: %f \n", RAC_medio);
-            }
-            break;
-            case 2: MostrarEstructura(RAL);
-            break;
-            case 3: MostrarEstructura(RAC);
-            break;
-            }
-        }while (opcion<4);
+    do {
+        printf("--------------------BIENVENIDO-------------------\n");
+        printf("------------------ MENU PRINCIPAL----------------\n");
+        printf("1: Comparar estructuras \n");
+        printf("2: Mostrar: RAL \n");
+        printf("3: Mostrar: RAC \n");
+        printf("4: Mostrar: RS \n");
+        printf("5: Salir \n");
+        printf("-------------------------------------------------\n");
+        scanf("%d", &opcion);
 
+        switch (opcion) {
+            case 1:  // Lectura y comparación de operaciones
+                lectura_operaciones(RAL, &tablaRAC, &tablaRS);
+                printf("________________________Costos_________________________________\n");
+
+                // Costos RAL
+                printf("Rebalse Abierto Lineal \n");
+                printf("Maximo de evocacion exitosa: %d \n", RAL_max_E);
+                if (RAL_evocar_E > 0) {
+                    float RAL_medio = RAL_t_E / (float)RAL_evocar_E;
+                    printf("Medio de evocacion exitosa: %f \n", RAL_medio);
+                }
+                printf("Maximo de evocacion no exitosa: %d \n", RAL_max_F);
+                if (RAL_evocar_F > 0) {
+                    float RAL_medio = RAL_t_F / (float)RAL_evocar_F;
+                    printf("Medio de evocacion no exitosa: %f \n", RAL_medio);
+                }
+
+                // Costos RAC
+                printf("___________________________________________________ \n");
+                printf("Rebalse Abierto Cuadratico \n");
+
+                //Costos RS
+                printf("___________________________________________________ \n");
+                printf("Rebalse Separado \n");
+                // Aquí se pueden añadir los costos de RS si es necesario
+
+                break;
+
+            case 2:  // Mostrar RAL
+                MostrarEstructura_RAL(RAL);
+                break;
+
+            case 3:  // Mostrar RAC
+                MostrarEstructura_RAC(&tablaRAC);
+                break;
+
+            case 4:  // Mostrar RS
+                MostrarEstructura_RS(&tablaRS);
+                break;
+            case 5:
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Error eliga una opcion valida. \n");
+                break;
+        }
+    } while (opcion != 5);
+
+    return 0;
 }
