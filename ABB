@@ -4,6 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #define PAUSA_PRESTADORES 5
+#define MAXPRESTADORES 110
+
+//Variables de costo
+int maxAltaExitosa = 0, cantActPtrosAltaExitosa = 0, cantAltasExitosas = 0;
+int maxBajaExitosa = 0, cantActPtrosBajaExitosa = 0, cantBajasExitosas = 0;
+int maxEvocExitosa = 0, cantComparacionesEvocExitosa = 0, cantEvocacionesExitosas = 0;
+int maxEvocNoExitosa = 0, cantComparacionesEvocNoExitosa = 0, cantEvocacionesNoExitosas = 0;
+
+
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -31,18 +40,6 @@ void init_ABB(Arbol *a) {
     a->padre = NULL;
 }
 
-// Variables globales para el costo de las operaciones
-int cantActPtrosAlta = 0;   // Acumula cuántas actualizaciones de punteros se hacen en cada alta.
-int MaxAlta = 0;            // Guarda el valor más grande en actualizaciones de punteros en una alta.
-int cantAltas = 0;          // Cuenta la cantidad de altas exitosas.
-
-int cantActPtrosBaja = 0;   // Acumula cuántas actualizaciones de punteros se hacen en cada baja.
-int MaxBaja = 0;            // Guarda el valor más grande en actualizaciones de punteros en una baja.
-int cantBajas = 0;          // Cuenta la cantidad de bajas exitosas.
-
-int comparacionesEvocar = 0; // Acumula la cantidad de comparaciones en evocaciones.
-int cantEvocaciones = 0;     // Cuenta la cantidad de evocaciones.
-int MaxComparaciones = 0;    // Guarda la máxima cantidad de comparaciones en una evocación.
 
 void Localizar_ABB(Arbol *a, int dni, int *exito, int *comparaciones) {
     *comparaciones = 0;
@@ -66,7 +63,8 @@ void Localizar_ABB(Arbol *a, int dni, int *exito, int *comparaciones) {
 }
 
 void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito) {
-    int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
+    int exitoLocalizar = 0, comparaciones = 0;
+    int actualizacionestemp = 0;
     Localizar_ABB(a, nuevoPrestador.DNI, &exitoLocalizar, &comparaciones);
 
     Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
@@ -80,34 +78,34 @@ void Alta_ABB(Arbol *a, PrestadorABB nuevoPrestador, int *exito) {
 
     if (a->raiz == NULL) {
         a->raiz = nuevoNodo;  // El árbol estaba vacío
-        actualizaciones++;     // Actualización de puntero
+        actualizacionestemp++;  // Actualización de puntero
         *exito = 1;
     } else if (exitoLocalizar) {
         *exito = 2;  // DNI duplicado
-        free(nuevoNodo);  // Liberar el nodo asignado si es duplicado
+        free((void *)nuevoNodo);  // Liberar el nodo asignado si es duplicado
     } else {
         if (nuevoPrestador.DNI < a->padre->datos.DNI) {
             a->padre->izq = nuevoNodo;
         } else {
             a->padre->der = nuevoNodo;
         }
-        actualizaciones++;  // Actualización de puntero
+        actualizacionestemp++;  // Actualización de puntero
         *exito = 1;
     }
 
-    // Actualización de costos
-    cantActPtrosAlta += actualizaciones;
-    if (actualizaciones > MaxAlta) {
-        MaxAlta = actualizaciones;
-    }
-
     if (*exito == 1) {
-        cantAltas++;  // Incrementa el contador de altas solo si fue exitosa
+        cantAltasExitosas++;  // Incrementar el número de altas exitosas
+        cantActPtrosAltaExitosa += actualizacionestemp * 0.5;  // Sumar costo por actualizaciones de punteros
+        if (actualizacionestemp > maxAltaExitosa) {
+            maxAltaExitosa = actualizacionestemp;  // Actualizar el máximo de actualizaciones
+        }
     }
 }
 
 int Baja_ABB(Arbol *a, PrestadorABB prestador) {
-    int exitoLocalizar = 0, comparaciones = 0, actualizaciones = 0;
+    int exitoLocalizar = 0;
+    int comparaciones = 0;
+    int actualizacionestemp = 0;
 
     // Localizar el nodo a eliminar
     Localizar_ABB(a, prestador.DNI, &exitoLocalizar, &comparaciones);
@@ -131,65 +129,75 @@ int Baja_ABB(Arbol *a, PrestadorABB prestador) {
     // Caso 1: Nodo hoja (sin hijos)
     if (nodoeliminar->izq == NULL && nodoeliminar->der == NULL) {
         if (a->padre == NULL) {
-            a->raiz = NULL;
+            a->raiz = NULL;  // El nodo a eliminar era la raíz
         } else if (a->padre->izq == nodoeliminar) {
             a->padre->izq = NULL;
         } else {
             a->padre->der = NULL;
         }
-        free(nodoeliminar);
-        actualizaciones++;
+        free((void *)nodoeliminar);  // Liberar memoria del nodo eliminado
+        actualizacionestemp++;
     }
-    // Caso 2: Nodo con un hijo
+    // Caso 2: Nodo con un solo hijo
     else if (nodoeliminar->izq == NULL || nodoeliminar->der == NULL) {
-        Nodo *hijo = (nodoeliminar->izq != NULL) ? nodoeliminar->izq : nodoeliminar->der;
+
+       Nodo *hijo = (Nodo*)malloc(sizeof(Nodo));
+       if (nodoeliminar->izq != NULL) {
+       hijo = nodoeliminar->izq;  // El hijo es el subárbol izquierdo.
+      } else {
+      hijo = nodoeliminar->der;  // El hijo es el subárbol derecho.
+}
+
+
         if (a->padre == NULL) {
-            a->raiz = hijo;
+            a->raiz = hijo;  // El nodo a eliminar era la raíz
         } else if (a->padre->izq == nodoeliminar) {
             a->padre->izq = hijo;
         } else {
             a->padre->der = hijo;
         }
-        free(nodoeliminar);
-        actualizaciones++;
+        free((void *)nodoeliminar);  // Liberar memoria del nodo eliminado
+        actualizacionestemp++;
     }
     // Caso 3: Nodo con dos hijos
     else {
         Nodo *padreMayorMenores = nodoeliminar;
         Nodo *mayorMenor = nodoeliminar->izq;
 
-        // Encuentra el mayor de los menores (el más grande en el subárbol izquierdo)
+        // Encontrar el mayor de los menores (el nodo más a la derecha del subárbol izquierdo)
         while (mayorMenor->der != NULL) {
             padreMayorMenores = mayorMenor;
             mayorMenor = mayorMenor->der;
         }
 
-        // No es necesario comparar toda la tupla, ya que solo necesitas realizar el reemplazo
+        // Copiar los datos del mayor de los menores al nodo a eliminar
         nodoeliminar->datos = mayorMenor->datos;
 
-        // Elimina el nodo que contenía el mayor de los menores
+        // Eliminar el nodo que contenía el mayor de los menores
         if (padreMayorMenores->izq == mayorMenor) {
             padreMayorMenores->izq = mayorMenor->izq;
         } else {
             padreMayorMenores->der = mayorMenor->izq;
         }
-
-        free(mayorMenor);
-        actualizaciones++;
+        free((void *)mayorMenor);  // Liberar memoria del nodo eliminado
+        actualizacionestemp += 2;  // Actualización de punteros + copia de datos
     }
 
-    // Actualización de costos
-    cantActPtrosBaja += actualizaciones;
-    if (actualizaciones > MaxBaja) {
-        MaxBaja = actualizaciones;
-    }
+    // Calcular costos de baja
+    cantBajasExitosas++;  // Incrementar el número de bajas exitosas
+    cantActPtrosBajaExitosa += actualizacionestemp * 0.5;  // Sumar costo por actualizaciones de punteros
 
-    if (exitoLocalizar) {
-        cantBajas++;  // Incrementa el contador de bajas exitosas
+    if (actualizacionestemp > maxBajaExitosa) {
+        maxBajaExitosa = actualizacionestemp;  // Actualizar el máximo de actualizaciones
     }
 
     return 1;  // Baja exitosa
 }
+
+
+
+
+
 
 void MostrarEstructura_ABB(Arbol *a) {
     if (a->raiz == NULL) {
@@ -197,7 +205,7 @@ void MostrarEstructura_ABB(Arbol *a) {
         return;
     }
 
-    Nodo *pila[110];  // Pila para manejar hasta 110 prestadores
+    Nodo *pila[MAXPRESTADORES];  // Pila para manejar hasta 110 prestadores
     int tope = -1;
     int contador = 0;
 
@@ -205,7 +213,7 @@ void MostrarEstructura_ABB(Arbol *a) {
     pila[++tope] = a->raiz;
 
     // Mientras haya nodos en la pila
-    while (tope != -1) {
+    while (tope != -1 && contador < MAXPRESTADORES) {
         Nodo *actual = pila[tope--];  // Pop de la pila
 
         // Mostrar la información del prestador
@@ -235,12 +243,6 @@ void MostrarEstructura_ABB(Arbol *a) {
             printf("Presione Enter para continuar...\n");
             getchar();
         }
-
-        /// Verificar límite de 110 prestadores
-        if (contador >= 110) {
-            break;
-        }
-
         /// Primero empujamos el hijo derecho, luego el izquierdo para procesarlos en orden preorden
         if (actual->der != NULL) {
             pila[++tope] = actual->der;
@@ -251,24 +253,34 @@ void MostrarEstructura_ABB(Arbol *a) {
     }
 }
 
-void Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado) {
-    int exitoLocalizar = 0;
-    int comparaciones = 0;
+ int Evocar_ABB(Arbol *a, int dni, int *exito, PrestadorABB *prestadorEncontrado) {
+    int comparacionestemp = 0;
 
-    Localizar_ABB(a, dni, &exitoLocalizar, &comparaciones);
+    // Localizar el nodo por DNI
+    Localizar_ABB(a, dni, exito, &comparacionestemp);
 
-    if (exitoLocalizar) {
+    if (*exito) {
         *prestadorEncontrado = a->cur->datos;
-        *exito = 1;
+
+        // Actualizar costos de evocación exitosa
+        cantComparacionesEvocExitosa += comparacionestemp;
+        if (comparacionestemp > maxEvocExitosa) {
+            maxEvocExitosa = comparacionestemp;
+        }
+        cantEvocacionesExitosas++;
+
+        return 1;  // Evocación exitosa
     } else {
-        *exito = 0;
-    }
-    cantEvocaciones++;
-    comparacionesEvocar += comparaciones;
-    if (comparaciones > MaxComparaciones) {
-        MaxComparaciones = comparaciones;
+        cantComparacionesEvocNoExitosa += comparacionestemp;
+        if (comparacionestemp > maxEvocNoExitosa) {
+            maxEvocNoExitosa = comparacionestemp;
+        }
+        cantEvocacionesNoExitosas++;
+
+        return 0;  // Evocación no exitosa
     }
 }
+
 //Funcion para que no sea sensible a mayuscula y minuscula
 int confirma_ABB(PrestadorABB prestador1, PrestadorABB prestador2) {
     int c = 1;
@@ -289,8 +301,6 @@ int confirma_ABB(PrestadorABB prestador1, PrestadorABB prestador2) {
         c = 0;
     }
 
-
-}
-
+    }
 
 #endif // ABB_H_INCLUDED
