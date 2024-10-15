@@ -1,90 +1,97 @@
 #ifndef RS_H_INCLUDED
 #define RS_H_INCLUDED
 
-// M= 110/1.74 = 63 ---> prox primo es:67
-#define PRE_RS 67
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-  typedef struct {
+#define PAUSA_PRESTADORES 5
+#define PRE_RS 67  // M calculado como 67 (primo)
+
+typedef struct {
     int DNI;
     char nombreyapellido[80];
     char servicios[120];
     char domicilio[80];
     char correo[50];
     char telefono[30];
-    }PrestadorRS;
+} PrestadorRS;
 
-   typedef struct celdaRS {
-      PrestadorRS datos; /// Prestador de "cabecera" en cada balde
-      struct celdaRS *psig;
-   } CeldaRS;
+typedef struct celdaRS {
+    PrestadorRS datos; // Prestador de cabecera
+    struct celdaRS *psig;
+} CeldaRS;
 
-   typedef struct {
-      CeldaRS a[PRE_RS];
-      CeldaRS *anterior;
-      CeldaRS *actual;
-      int cant;
-   } RS;
+typedef struct {
+    CeldaRS a[PRE_RS];
+    CeldaRS *anterior;
+    CeldaRS *actual;
+    int cant;
+} RS;
 
-    int hashing_RS(char* x,int M){
-    int longitud,i;
+// Función hashing para calcular la posición
+int hashing_RS(int dni, int M) {
+    char x[10];
+    int longitud, i;
     int contador = 0;
+    sprintf(x, "%d", dni);
     longitud = strlen(x);
-    for(i=0;i < longitud; i++)
-        contador +=((int)x[i])*(i + 1) ;
+    for (i = 0; i < longitud; i++)
+        contador += ((int)x[i]) * (i + 1);
     return (contador % M);
-     }
+}
 
-    void init_RS(RS *tabla){
+// Inicializar la estructura RS
+void init_RS(RS *tabla) {
     int i;
     tabla->cant = 0;
-    for(i=0; i<PRE_RS; i++){
-        tabla->a[i].psig = NULL; ///Inicializamos a los punteros de cada balde como NULL
+    for (i = 0; i < PRE_RS; i++) {
+        tabla->a[i].psig = NULL;
     }
     tabla->actual = NULL;
     tabla->anterior = NULL;
+}
 
-    }
-
-
-   CeldaRS* nuevacelda(PrestadorRS prestador){
+// Crear una nueva celda para la lista enlazada
+CeldaRS* nuevacelda(PrestadorRS prestador) {
     CeldaRS *nuevo = (CeldaRS*)malloc(sizeof(CeldaRS));
-
-    if(nuevo == NULL){
-        return NULL;
-    }
+    if (nuevo == NULL) return NULL;
     nuevo->datos = prestador;
     nuevo->psig = NULL;
     return nuevo;
+}
 
-   }
-   int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, float *costo) {
+// Localizar prestador por DNI
+int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
     int pos = hashing_RS(DNI, PRE_RS);
-    float c = 0;
+    int c = 0;
     CeldaRS *actual = tabla->a[pos].psig;
     while (actual != NULL) {
         c++;  // Cada consulta a un nodo aumenta el costo
         if (actual->datos.DNI == DNI) {
-            *resultado = actual;  // Devuelvo el nodo encontrado
-            *costo = c;  // Actualizamos el costo
+            *resultado = actual;
+            *costo = c;
             return 1;  // Evocación exitosa
         }
+        tabla->anterior = actual;
         actual = actual->psig;
     }
-    *costo = c;  // Actualizamos el costo aunque no se encuentre
-    return 0;  // No se encontró el prestador
+    *costo = c;
+    return 0;  // No se encontró el DNI
 }
 
-int Alta_RS(RS *tabla, PrestadorRS prestador, float *costo) {
+// Insertar un prestador (alta)
+int Alta_RS(RS *tabla, PrestadorRS prestador, int *costo) {
     CeldaRS *existe = NULL;
-    float c = 0;
+    int c = 0;
     int e = Localizar_RS(tabla, prestador.DNI, &existe, &c);
-    if (e == 1) {
-        return 0;  // El prestador ya existe
-    }
-
     int pos = hashing_RS(prestador.DNI, PRE_RS);
     c++;  // Consultar la posición del balde también tiene un costo
     *costo = c;
+
+    if (e) {
+        return 0;  // Prestador duplicado
+    }
 
     CeldaRS *nuevo = nuevacelda(prestador);
     if (nuevo == NULL) {
@@ -94,13 +101,14 @@ int Alta_RS(RS *tabla, PrestadorRS prestador, float *costo) {
     // Insertamos al inicio de la lista enlazada
     nuevo->psig = tabla->a[pos].psig;
     tabla->a[pos].psig = nuevo;
-    tabla->cant++;
+    tabla->cant = tabla->cant + 1;
     return 1;  // Alta exitosa
 }
 
-int Baja_RS(RS *tabla, int DNI, float *costo) {
+// Eliminar un prestador (baja)
+int Baja_RS(RS *tabla, int DNI, int *costo) {
     int pos = hashing_RS(DNI, PRE_RS);
-    float c = 0;
+    int c = 0;
     CeldaRS *actual = tabla->a[pos].psig;
     CeldaRS *anterior = NULL;
     CeldaRS *existe = NULL;
@@ -108,10 +116,9 @@ int Baja_RS(RS *tabla, int DNI, float *costo) {
     int e = Localizar_RS(tabla, DNI, &existe, &c);
     if (e == 0) {
         *costo = c;
-        return 0;  // El prestador no existe
+        return 0;  // Prestador no existe
     }
 
-    // Buscamos y eliminamos el prestador
     while (actual != NULL) {
         if (actual->datos.DNI == DNI) {
             if (anterior == NULL) {
@@ -119,80 +126,63 @@ int Baja_RS(RS *tabla, int DNI, float *costo) {
             } else {
                 anterior->psig = actual->psig;
             }
-            free(actual);
-            tabla->cant--;
+            free((void *)actual);
+            tabla->cant = tabla->cant - 1;
             *costo = c;
             return 1;  // Baja exitosa
         }
         anterior = actual;
         actual = actual->psig;
-        c++;  // Incrementamos el costo por cada nodo consultado
+        c++;  // Incrementar el costo por cada nodo
     }
-
     *costo = c;
     return 0;  // Baja no exitosa
 }
 
-void Mostrar_RS(RS *tabla) {
-    int i, counta = 0;
-    char seguir;
-    CeldaRS *actual;
-
-    for (i = 0; i < PRE_RS; i++) {
-        printf("---------------------\n");
-        printf("Balde %d:\n", i);
-
-        ///Si esta Vacio
-        if (tabla->a[i].datos.DNI == 0 && tabla->a[i].psig == NULL) {
-            printf("  [VACÍO]\n");
-        } else {
-            actual = tabla->a[i].psig;
-            while (actual != NULL) {
-                printf("     DNI: %d\n", actual->datos.DNI);
-                printf("     Nombre y Apellido: %s\n", actual->datos.nombreyapellido);
-                printf("     Servicios: %s\n", actual->datos.servicios);
-                printf("     Domicilio: %s\n", actual->datos.domicilio);
-                printf("     Correo: %s\n", actual->datos.correo);
-                printf("     Telefono: %s\n", actual->datos.telefono);
-                actual = actual->psig;
-            }
-        }
-        printf("---------------------\n");
-        counta++;
-
-        // Paginación: después de mostrar 5 baldes, preguntar si continuar
-        if (counta % 5 == 0) {
-            printf("¿Desea continuar mostrando más baldes? (s/n): ");
-            scanf(" %c", &seguir);
-            if (seguir == 'n' || seguir == 'N') {
-                break;  // Si el usuario elige no continuar, se termina la función
-            }
-        }
-    }
-}
-
-
-   int Evocar_RS(RS *tabla, int DNI, float *costo) {
+// Evocar un prestador
+int Evocar_RS(RS *tabla, int DNI, int *costo) {
     CeldaRS *prestador = NULL;
-    float c;
-    int e = Localizar_RS(tabla, DNI, &prestador);  // Buscar el prestador con el DNI
+    int c;
+    int e = Localizar_RS(tabla, DNI, &prestador, &c);
     *costo = c;
-    if (e == 0) {
-        printf("El prestador con DNI %d no se encuentra en la tabla.\n", DNI);
-        return 0; // Prestador no encontrado
-    }
-
-    // Mostrar la información del prestador
-    printf("Prestador encontrado:\n");
-    printf("DNI: %d\n", prestador->datos.DNI);
-    printf("Nombre y Apellido: %s\n", prestador->datos.nombreyapellido);
-    printf("Servicios: %s\n", prestador->datos.servicios);
-    printf("Domicilio: %s\n", prestador->datos.domicilio);
-    printf("Correo: %s\n", prestador->datos.correo);
-    printf("Telefono: %s\n", prestador->datos.telefono);
-    return 1; // Evocación exitosa
+    return e;  // 1 si lo encontró, 0 si no
 }
 
+// Función para mostrar un prestador
+void MostrarPrestador(PrestadorRS p) {
+    printf("--------- Listado de Prestadores ---------\n");
+    printf("DNI: %d\n", p.DNI);
+    printf("Nombre y Apellido: %s\n", p.nombreyapellido);
+    printf("Servicios: %s\n", p.servicios);
+    printf("Domicilio: %s\n", p.domicilio);
+    printf("Correo: %s\n", p.correo);
+    printf("Telefono: %s\n", p.telefono);
+}
 
+// Mostrar la estructura con paginación
+void MostrarEstructura_RS(RS *rs) {
+    int i, contador = 0;
+    for (i = 0; i < PRE_RS; i++) {
+        printf("Posicion %d: ", i);
+        if (rs->a[i].psig == NULL) {
+            printf("*VACIA*\n");
+        } else {
+            printf("\n");
+        }
 
+        CeldaRS *actual = rs->a[i].psig;
+        while (actual != NULL) {
+            MostrarPrestador(actual->datos);
+            printf("------------------------------------------\n");
+            actual = actual->psig;
+            contador++;
+
+            if (contador % PAUSA_PRESTADORES == 0) {
+                printf("Presione Enter para continuar...\n");
+                getchar();  // Pausa tras cada 5 prestadores
+            }
+        }
+    }
+}
 #endif // RS_H_INCLUDED
+
