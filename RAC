@@ -20,10 +20,11 @@
   } CeldaRAC;
   typedef struct{
    CeldaRAC celda[MRAC];
+   int cant;
   } RAC;
 
-
      int CantElem=0;
+
      int hashing_RAC (int dni) {
      char x[10];
      int longitud , i ;
@@ -37,11 +38,12 @@
     void init_RAC(RAC *tabla){
      int i;
     for(i=0; i<MRAC; i++){
-    tabla->celda[i]; = "*";///Inicializamos todas las celdas como virgenes
+    tabla->celda[i].estado = '*';///Inicializamos todas las celdas como virgenes
   }
+   tabla->cant = 0;
  }
 
-  int Localizar_RAC(RAC *tabla, int dni, int cargados, int *pos, int *costo) {
+  int Localizar_RAC(RAC *tabla, int dni, int *pos, int *costo) {
     *pos = hashing(dni);
     int i = *pos;
     int aux = -1;
@@ -50,17 +52,11 @@
 
     *costo = 0;
 
-
-    if (cargados == 0) {
-        return 0;
-    }
+    while (contador < MRAC && tabla->celda[i].estado != '*'&&
+           tabla->celda[i].prestador.DNI != dni) {
 
 
-    while (contador < MRAC && tabla->celdas[i].estado != "*" &&
-           tabla->celdas[i].prestador.DNI != dni) {
-
-
-        if (aux == -1 && tabla->celdas[i].estado == "+") {
+        if (tabla->celda[i].estado == '+') {
             aux = i;
         }
         // Calculamos la siguiente posición usando exploración cuadrática
@@ -71,55 +67,46 @@
     }
 
     // Caso 1: Prestador encontrado
-    if (tabla->celdas[i].prestador.DNI == dni) {
+    if (tabla->celda[i].prestador.DNI == dni) {
         *pos = i;
         return 1;  // Encontrado
     }
 
     // Caso 2: No encontrado, pero se puede dar de alta
-    if (tabla->celdas[i].estado == "+") {
-        if (aux != -1) {
+    if (tabla->celda[i].estado == '+' && aux != -1) {
        *pos = aux;
        } else {
        *pos = i;
            }
-        return 0;
-    }
 
-    // Caso 3: No encontrado y no se puede insertar
-    if (aux != -1) {
-        *pos = aux;
-        return 0;
-    }
+    return 0;
 
-    return -1;
 }
-
-  int Alta_RAC(RAC *tabla, int *cargados, PrestadorRAC prestador, int *costo) {
+int Alta_RAC(RAC *tabla, PrestadorRAC prestador, int *costo) {
     int pos = 0;
-    int resultado = Localizar_RAC(tabla, prestador.DNI, *cargados, &pos, costo);
+    int resultado = Localizar_RAC(tabla, prestador.DNI, &pos, costo);
 
-    if (*cargados >= MRAC) {
+    if (tabla->cant >= MRAC) {
         return -1;  // No hay espacio disponible
     }
 
     if (resultado == 1) {
         return 0;  // Fallo en el alta: el prestador ya existe
-    } else if (resultado == -1) {
-        return -1;  // No se puede insertar (tabla llena)
     } else {
-        // Insertamos el prestador
-        tabla->celdas[pos].prestador = prestador;
-        (*cargados)++;
+        // Insertamos el prestador en la posición encontrada
+        tabla->celda[pos].prestador = prestador;
+        tabla->celda[pos].estado = 'O';  // Marcamos la celda como ocupada
+        tabla->cant++;
         return 1;  // Alta exitosa
     }
 }
 
- int Baja_RAC(RAC *tabla, int dni, int *cargados, int *costo) {
-    int pos = 0;
-    int encontrado = Localizar_RAC(tabla, dni, *cargados, &pos, costo);
 
-    if (*cargados == 0) {
+ int Baja_RAC(RAC *tabla, int dni, int *costo) {
+    int pos = 0;
+    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
+
+    if (tabla->cant == 0) {
         return -1;
     }
 
@@ -128,17 +115,16 @@
     }
 
 
-    tabla->celdas[pos].estado = "+";
-    (*cargados)--;
-
+    tabla->celda[pos].estado = '+';
+    tabla->cant--;
     return 1;  // Baja exitosa
 }
 
- int Evocar_RAC(RAC *tabla, int dni, int *cargados, int *costo) {
+ int Evocar_RAC(RAC *tabla, int dni, int *costo) {
     int pos = 0, pos_h = hashing_RAC(dni);  // Posición original según hash
-    int encontrado = Localizar_RAC(tabla, dni, *cargados, &pos, costo);
+    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
 
-    if (*cargados == 0) {
+    if (tabla->cant == 0) {
 
         return -1;  // Estructura vacía
     }
@@ -148,31 +134,21 @@
         return 0;  // Evocación no exitosa
     }
 
-    // Mostrar información del prestador encontrado
-    PrestadorRAC p = tabla->celdas[pos].prestador;
-    printf("Prestador encontrado:\n");
-    printf("DNI: %d\n", p.DNI);
-    printf("Nombre: %s\n", p.nombreyapellido);
-    printf("Servicios: %s\n", p.servicios);
-    printf("Domicilio: %s\n", p.domicilio);
-    printf("Correo: %s\n", p.correo);
-    printf("Teléfono: %s\n", p.telefono);
 
     return 1;  // Evocación exitosa
 }
- void Mostrar_RAC(RAC *tabla, int cargados) {
+void MostrarEstructura_RAC(RAC *tabla) {
     int counta = 0;  // Contador para la paginación
-    char continuar;
+    int i;
+    char cont;
 
-    printf("Mostrando estructura RAC:\n");
-
-    for (int i = 0; i < MRAC; i++) {
+    for (i = 0; i < MRAC; i++) {
         // Mostrar estado de la celda
         if (tabla->celda[i].estado == '*') {
             printf("Celda %d: Virgen (nunca usada)\n", i);
         } else if (tabla->celda[i].estado == '+') {
             printf("Celda %d: Libre (usada previamente)\n", i);
-        } else {
+        } else if (tabla->celda[i].estado == 'O') {
             // Mostrar datos del prestador en celdas ocupadas
             PrestadorRAC p = tabla->celda[i].prestador;
             printf("Celda %d: Ocupada\n", i);
@@ -181,20 +157,23 @@
             printf("  Servicios: %s\n", p.servicios);
             printf("  Domicilio: %s\n", p.domicilio);
             printf("  Correo: %s\n", p.correo);
-            printf("  Teléfono: %s\n", p.telefono);
+            printf("  Telefono: %s\n", p.telefono);
         }
 
-        /// Paginación
+        // Paginación
         counta++;
         if (counta % 5 == 0) {
-            printf("¿Desea continuar mostrando más celdas? (s/n): ");
-            scanf(" %c", &continuar);
-            if (continuar == 'n' || continuar == 'N') {
-                break;  // Terminar la visualización
+            printf("\nPresione 's' para continuar o cualquier otra tecla para salir...\n");
+            scanf(" %c", &cont);  // Usa scanf para capturar correctamente la entrada
+            if (cont != 's' && cont != 'S') {
+                break;  // Terminar la visualización si no se presiona 's'
             }
         }
     }
 }
+
+
+
 
 
 
