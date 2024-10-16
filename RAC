@@ -5,6 +5,12 @@
 /// M : N / ρ --> 110 / 0,86 --> M = 127
 #define MRAC 127
 
+///Variables Globales Costos
+int maxEvocExitosa_RAC = 0, maxEvocNoExitosa_RAC = 0;
+int totalEvocExitosa_RAC = 0, totalEvocNoExitosa_RAC = 0;
+int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
+
+
 
   typedef struct {
     int DNI;
@@ -44,7 +50,7 @@
  }
 
   int Localizar_RAC(RAC *tabla, int dni, int *pos, int *costo) {
-    *pos = hashing(dni);
+    *pos = hashing_RAC(dni);
     int i = *pos;
     int aux = -1;
     int contador = 0;
@@ -119,24 +125,33 @@ int Alta_RAC(RAC *tabla, PrestadorRAC prestador, int *costo) {
     tabla->cant--;
     return 1;  // Baja exitosa
 }
-
- int Evocar_RAC(RAC *tabla, int dni, int *costo) {
-    int pos = 0, pos_h = hashing_RAC(dni);  // Posición original según hash
+int Evocar_RAC(RAC *tabla, int dni, int *costo) {
+    int pos = 0;
     int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
 
     if (tabla->cant == 0) {
-
         return -1;  // Estructura vacía
     }
 
-    if (encontrado == 0) {
-
+    if (encontrado == 1) {
+        // Evocación exitosa
+        totalEvocExitosa_RAC += *costo;
+        cantEvocExitosa_RAC++;
+        if (*costo > maxEvocExitosa_RAC) {
+            maxEvocExitosa_RAC = *costo;
+        }
+        return 1;  // Evocación exitosa
+    } else {
+        // Evocación no exitosa
+        totalEvocNoExitosa_RAC += *costo;
+        cantEvocNoExitosa_RAC++;
+        if (*costo > maxEvocNoExitosa_RAC) {
+            maxEvocNoExitosa_RAC = *costo;
+        }
         return 0;  // Evocación no exitosa
     }
-
-
-    return 1;  // Evocación exitosa
 }
+
 void MostrarEstructura_RAC(RAC *tabla) {
     int counta = 0;  // Contador para la paginación
     int i;
