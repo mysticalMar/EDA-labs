@@ -4,11 +4,11 @@
 #include "RAC.h"
 #include "RAL.h"
 
-int lectura_operaciones(PrestadorRAL RAL[], RAC *tablaRAC, RS *tablaRS) {
-    PrestadorRAL aux;
+int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
+    Prestador aux;
     PrestadorRAC auxRAC;
     PrestadorRS auxRS;
-    inicializar(RAL);
+    RAL_inicializar(RAL);
     init_RAC(tablaRAC);
     init_RS(tablaRS);
 
@@ -16,7 +16,7 @@ int lectura_operaciones(PrestadorRAL RAL[], RAC *tablaRAC, RS *tablaRS) {
     int costo = 0;
     int DNI;
 
-    FILE *fp = fopen("Operaciones-Prestadores.txt", "r");
+    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
     if (fp == NULL) {
         printf("No se puede abrir el archivo\n");
         return 0;
@@ -53,16 +53,16 @@ int lectura_operaciones(PrestadorRAL RAL[], RAC *tablaRAC, RS *tablaRS) {
                 if (CantElem < MRAL) {
                     Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
                     Alta_RAC(tablaRAC, auxRAC, &costo);
-                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
+                    Alta_RS(tablaRS, auxRS, &costo);  // Insertamos 'auxRS' en la estructura RS
                 }
             } else {  // Baja
                 DNI = aux.DNI;
                 Baja_RAL(RAL, DNI, &exito, aux, opcion);
                 Baja_RAC(tablaRAC, DNI, &costo);
-                Baja_RS(tablaRS, DNI);
+                Baja_RS(tablaRS, DNI, &costo);
             }
         } else if (opcion == 3) {  // Evocar
-            Evocar_RAL(RAL, &aux, aux.DNI, &exito, &costo);
+            Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
             Evocar_RAC(tablaRAC, aux.DNI, &costo);
             Evocar_RS(tablaRS, aux.DNI, &costo);
         }
@@ -77,7 +77,7 @@ int main()
 {
     RS tablaRS;
     int opcion;
-    PrestadorRAL RAL[MRAL];  // Ajuste de tipo de prestadores
+    Prestador RAL[MRAL];  // Ajuste de tipo de prestadores
     RAC tablaRAC;
 
     do {
@@ -98,23 +98,15 @@ int main()
                 printf("________________________Costos_________________________________\n");
                 printf("Rebalse Abierto Lineal \n");
                 // Costos de evocaciones exitosas
-                if (cantEvocExitosa_RAL > 0) {
-                    float promedioEvocExitosa_RAL = totalEvocExitosa_RAL / (float)cantEvocExitosa_RAL;
-                    printf("Costo maximo de evocacion exitosa en RAL: %d\n", maxEvocExitosa_RAL);
-                    printf("Costo medio de evocacion exitosa en RAL: %.2f\n", promedioEvocExitosa_RAL);
-                } else {
-                    printf("No hubo evocaciones exitosas en RAL\n");
-                }
-
-                // Costos de evocaciones no exitosas
-                if (cantEvocNoExitosa_RAL > 0) {
-                    float promedioEvocNoExitosa_RAL = totalEvocNoExitosa_RAL / (float)cantEvocNoExitosa_RAL;
-                    printf("Costo maximo de evocacion no exitosa en RAL: %d\n", maxEvocNoExitosa_RAL);
-                    printf("Costo medio de evocacion no exitosa en RAL: %.2f\n", promedioEvocNoExitosa_RAL);
-                } else {
-                    printf("No hubo evocaciones no exitosas en RAL\n");
-                }
-
+               if (RAL_evocar_E>0){
+                RAL_medio=RAL_t_E/RAL_evocar_E;
+                printf("Medio de evocacion exitosa: %f \n", RAL_medio);
+            } else printf("No hubo evocaciones exitosas \n");
+            printf("Maximo de evocacion no exitosa: %d \n", RAL_max_F);
+            if (RAL_evocar_F>0){
+                RAL_medio=RAL_t_F/RAL_evocar_F;
+                printf("Medio de evocacion no exitosa: %f \n", RAL_medio);
+            } else printf("No hubo evocaciones no exitosas \n");
 
                 // Costos RAC
                 printf("___________________________________________________ \n");
@@ -159,11 +151,27 @@ int main()
                     printf("No hubo evocaciones no exitosas en RS\n");
                 }
 
+                      printf("___________________________________________________ \n");
+                      printf("Analisis de resultados \n");
+                      printf("Rebalse Abierto Lineal \n");
+                      printf("Evocacion exitosa: el peor caso en el rebalse abierto lineal es examinar 133 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", RAL_max_E);
+                      printf("Evocacion no exitosa: el peor caso en el rebalse abierto lineal es examinar 134 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", RAL_max_F);
+                       printf("___________________________________________________ \n");
+                       printf("Rebalse Abierto Cuadratico \n");
+                       printf("Evocacion exitosa: El peor caso en el rebalse abierto cuadratico es examinar 127 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", maxEvocExitosa_RAC);
+                       printf("Evocacion exitosa: El peor caso en el rebalse abierto cuadratico es examinar 128 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", maxEvocNoExitosa_RAC);
+                       printf("___________________________________________________ \n");
+                       printf("Rebalse Separado \n");
+                       printf("Evocacion exitosa: el peor caso en el rebalse separado es examinar 67 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", maxEvocExitosa_RS);
+                       printf("Evocacion no exitosa: el peor caso en el rebalse separado es examinar 68 baldes. El maximo obtenido en esta ejecucion fue de: %d \n", maxEvocNoExitosa_RS);
+                       printf("___________________________________________________ \n");
+                        printf("Como conclusion, podemos observar que la estructura mas eficiente a la hora de evocar un elemento es el Rebalse Separado, teniendo los menores costos maximos y medios. \n");
+
 
                 break;
 
             case 2:  // Mostrar RAL
-                MostrarEstructura_RAL(RAL);
+                RAL_MostrarEstructura(RAL);
                 break;
 
             case 3:  // Mostrar RAC
@@ -177,7 +185,7 @@ int main()
                 printf("Saliendo...\n");
                 break;
             default:
-                printf("Error eliga una opcion valida. \n");
+                printf("Error elija una opcion valida. \n");
                 break;
         }
     } while (opcion != 5);
