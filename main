@@ -53,16 +53,16 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
                 if (CantElem < MRAL) {
                     Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
                     Alta_RAC(tablaRAC, auxRAC, &costo);
-                    Alta_RS(tablaRS, auxRS, &costo);  // Insertamos 'auxRS' en la estructura RS
+                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
                 }
             } else {  // Baja
                 DNI = aux.DNI;
                 Baja_RAL(RAL, DNI, &exito, aux, opcion);
                 Baja_RAC(tablaRAC, DNI, &costo);
-                Baja_RS(tablaRS, DNI, &costo);
+                Baja_RS(tablaRS, DNI);
             }
         } else if (opcion == 3) {  // Evocar
-            Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
+            Evocar_RAL(RAL, &aux, aux.DNI, &exito, costo);
             Evocar_RAC(tablaRAC, aux.DNI, &costo);
             Evocar_RS(tablaRS, aux.DNI, &costo);
         }
@@ -94,6 +94,9 @@ int main()
         switch (opcion) {
             case 1:  // Lectura y comparación de operaciones
                 lectura_operaciones(RAL, &tablaRAC, &tablaRS);
+
+
+
                 // Costos RAL
                 printf("________________________Costos_________________________________\n");
                 printf("Rebalse Abierto Lineal \n");
