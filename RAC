@@ -49,6 +49,17 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
    tabla->cant = 0;
  }
 
+  int CompararPrestadores(PrestadorRAC *p1, PrestadorRAC *p2) {
+    // Comparación insensible a mayúsculas/minúsculas con strcasecmp
+    return (p1->DNI == p2->DNI &&
+            strcasecmp(p1->nombreyapellido, p2->nombreyapellido) == 0 &&
+            strcasecmp(p1->servicios, p2->servicios) == 0 &&
+            strcasecmp(p1->domicilio, p2->domicilio) == 0 &&
+            strcasecmp(p1->correo, p2->correo) == 0 &&
+            strcasecmp(p1->telefono, p2->telefono) == 0);
+}
+
+
   int Localizar_RAC(RAC *tabla, int dni, int *pos, int *costo) {
     *pos = hashing_RAC(dni);
     int i = *pos;
