@@ -50,6 +50,15 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
    tabla->cant = 0;
  }
 
+  int CompararPrestadores(PrestadorRAC *p1, PrestadorRAC *p2) {
+    // Comparación insensible a mayúsculas/minúsculas con strcasecmp
+    return (p1->DNI == p2->DNI &&
+            strcasecmp(p1->nombreyapellido, p2->nombreyapellido) == 0 &&
+            strcasecmp(p1->servicios, p2->servicios) == 0 &&
+            strcasecmp(p1->domicilio, p2->domicilio) == 0 &&
+            strcasecmp(p1->correo, p2->correo) == 0 &&
+            strcasecmp(p1->telefono, p2->telefono) == 0);
+}
 
 
   int Localizar_RAC(RAC *tabla, int dni, int *pos, int *costo) {
@@ -158,10 +167,27 @@ int Evocar_RAC(RAC *tabla, int dni, int *costo) {
 void MostrarEstructura_RAC(RAC *tabla) {
     int counta = 0;  // Contador para la paginación
     int i;
-    char cont;
+    int lista_vacia = 1;  // Bandera para verificar si la lista está vacía
+    int totalPrestadoresMostrados = 0;  // Contador total de prestadores mostrados
 
+    // Verificar si la lista está vacía
     for (i = 0; i < MRAC; i++) {
+        if (tabla->celda[i].estado == 'O') {
+            lista_vacia = 0;  // Hay al menos un prestador
+            break;
+        }
+    }
+
+    if (lista_vacia) {
+        printf("La lista de prestadores esta vacia.\n");
+        getchar();  // Esperar a que el usuario presione ENTER
+        return;  // Salir de la función
+    }
+
+    // Mostrar las celdas si no está vacía
+    for (i = 0; i < MRAC && totalPrestadoresMostrados < 110; i++) {
         // Mostrar estado de la celda
+
         if (tabla->celda[i].estado == '*') {
             printf("Celda %d: Virgen (nunca usada)\n", i);
         } else if (tabla->celda[i].estado == '+') {
@@ -176,22 +202,35 @@ void MostrarEstructura_RAC(RAC *tabla) {
             printf("  Domicilio: %s\n", p.domicilio);
             printf("  Correo: %s\n", p.correo);
             printf("  Telefono: %s\n", p.telefono);
+
+            totalPrestadoresMostrados++;  // Incrementar el contador
         }
 
-        // Paginación
+
+
+
+        // Paginación: detener cada 5 celdas
         counta++;
         if (counta % 5 == 0) {
-            printf("\nPresione 's' para continuar o cualquier otra tecla para salir...\n");
-            scanf(" %c", &cont);  // Usa scanf para capturar correctamente la entrada
-            if (cont != 's' && cont != 'S') {
-                break;  // Terminar la visualización si no se presiona 's'
+            printf("\nPresione ENTER para continuar o cualquier otra tecla para salir...\n");
+            char cont = getchar();  // Captura la tecla presionada
+
+            // Si no es ENTER, terminar la visualización
+            if (cont != '\n') {
+                break;
             }
         }
-    }
+
+
 }
+    // Pausa final si quedaron elementos sin mostrar
+    if (counta % 5 != 0) {
+        printf("Presione ENTER para volver al menu principal...\n");
+        getchar();
+    }
 
 
-
+}
 
 
 
