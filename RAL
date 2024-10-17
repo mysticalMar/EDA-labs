@@ -6,13 +6,6 @@
 #define MRAL 133
 #define MAXPRESTADORES 110
 
-///Variables Globales de Costo
-int maxEvocExitosa_RAL = 0, maxEvocNoExitosa_RAL = 0;
-int totalEvocExitosa_RAL = 0, totalEvocNoExitosa_RAL = 0;
-int cantEvocExitosa_RAL = 0, cantEvocNoExitosa_RAL = 0;
-
-
-
 typedef struct {
     int DNI;
     char nombreyapellido[80];
@@ -20,8 +13,9 @@ typedef struct {
     char domicilio[80];
     char correo[50];
     char telefono[30];
-} PrestadorRAL;
-
+} Prestador;
+int CantElemRAL=0, RAL_c=0, RAL_t_E=0, RAL_t_F=0, RAL_max_E=0, RAL_max_F=0, RAL_evocar_E=0, RAL_evocar_F=0;
+float RAL_medio=0;
 int hashing (int dni) {
  char x[10];
  int longitud , i ;
@@ -32,92 +26,88 @@ int hashing (int dni) {
  contador+=((int)x[i]) * (i+1);
  return (contador %MRAL );
  }
- void inicializar(PrestadorRAL r[]){
+ void RAL_inicializar(Prestador r[]){
  int i;
      for (i=0; i<MRAL; i++){
         r[i].DNI=-1;//marca de celda virgen
      }
  }
-void Localizar_RAL(PrestadorRAL l[], int dni, int *exito, int *pos, int *costo, int opcion) {
-    int i = hashing(dni), c = 0, posf = -1;
-    *costo = 1;  // Iniciamos el costo en 1 porque ya consultamos la primera celda
-
-    while (l[i].DNI != -1 && l[i].DNI != dni && c < MRAL) {  // Recorremos hasta encontrar el DNI o un espacio vacío
-        if (l[i].DNI == -2) {
-            posf = i;  // Guardamos la posición de una celda libre (borrada) si la encontramos
-        }
-        i = (i + 1) % MRAL;  // Siguiente celda (exploración lineal)
+void Localizar_RAL(Prestador l[], int dni, int *exito, int *pos, int opcion) {
+    int i = hashing(dni), c=0, posf;
+    if (opcion==3){
+        RAL_c++;
+    }
+    while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){//controlar no recorrer los M baldes
+            if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
+             posf=i;
+            }
+        i=(i+1)%MRAL;
         c++;
-        (*costo)++;  // Incrementamos el costo por cada consulta
-    }
-
-    if (l[i].DNI == dni) {
-        *pos = i;
-        *exito = 1;  // Encontrado
-    } else {
-        *exito = 0;
-        if (l[i].DNI == -2) {
-            *pos = posf;  // Retornamos la posición de una celda libre si se encontró
-        } else {
-            *pos = i;  // Si no se encontró, retornamos la posición de la celda virgen
+        if (opcion==3){
+        RAL_c++;
         }
     }
+    if (l[i].DNI==dni){
+        *pos=i;
+        *exito=1;
+    }
+        else {
+            *exito=0;
+            if (l[i].DNI==-2){
+            *pos=posf;
+            }
+                else *pos=i;
+    }
+
 }
-
-
-void Alta_RAL(PrestadorRAL r[], PrestadorRAL nuevo,  int dni, int *exito, int opcion){
+void Alta_RAL(Prestador r[], Prestador nuevo,  int dni, int *exito, int opcion){
 int exitoLocalizar, pos;
-int costo=0;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos,&costo, opcion);
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
     if (!exitoLocalizar){
-        if (CantElem<MAXPRESTADORES){
+        if (CantElemRAL<MAXPRESTADORES){
         r[pos]=nuevo;
         *exito=1;
-        CantElem++;
+        CantElemRAL++;
         }
         else *exito=-1;
     }
         else *exito=2;
 }
 
-void Baja_RAL(PrestadorRAL r[], int dni, int *exito, PrestadorRAL e, int opcion){
+void Baja_RAL(Prestador r[], int dni, int *exito, Prestador e, int opcion){
     int exitoLocalizar, pos;
-    int costo = 0;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos,&costo, opcion);
+    Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
     if (exitoLocalizar&&confirma(r, pos, e)){
         r[pos].DNI=-2; //-2: marca de celda libre
         *exito=1;
-        CantElem--;
+        CantElemRAL--;
     }
     else *exito=0;
 }
-void Evocar_RAL(PrestadorRAL r[], PrestadorRAL *e, int dni, int *exito, int *costo) {
+void Evocar_RAL(Prestador r[], Prestador *e, int dni, int *exito, int opcion){ //agregar parámetro de costo
     int exitoLocalizar, pos;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos, costo, 3);  // Buscar prestador y obtener costo
-
-    if (exitoLocalizar) {
-        *e = r[pos];
-        *exito = 1;
-
-        // Actualizar costos de evocación exitosa
-        totalEvocExitosa_RAL += *costo;
-        cantEvocExitosa_RAL++;
-        if (*costo > maxEvocExitosa_RAL) {
-            maxEvocExitosa_RAL = *costo;
+     Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
+     if(exitoLocalizar){
+        *e=r[pos];
+        *exito=1;
+        RAL_evocar_E++;
+           if (RAL_c>RAL_max_E){
+            RAL_max_E=RAL_c;
         }
-    } else {
-        *exito = 0;
-
-        // Actualizar costos de evocación no exitosa
-        totalEvocNoExitosa_RAL += *costo;
-        cantEvocNoExitosa_RAL++;
-        if (*costo > maxEvocNoExitosa_RAL) {
-            maxEvocNoExitosa_RAL = *costo;
+        RAL_t_E+=RAL_c;
+        RAL_c=0;
+     }
+     else {
+        *exito=0;
+        RAL_evocar_F++;
+           if (RAL_c>RAL_max_F){
+            RAL_max_F=RAL_c;
         }
-    }
+        RAL_t_F+=RAL_c;
+        RAL_c=0;
+     }
 }
-
-int confirma(PrestadorRAL l[], int pos, PrestadorRAL elemento){
+int confirma(Prestador l[], int pos, Prestador elemento){
     int c;
    if (strcasecmp(l[pos].nombreyapellido, elemento.nombreyapellido) == 0 &&
     strcasecmp(l[pos].servicios, elemento.servicios) == 0 &&
@@ -130,17 +120,24 @@ int confirma(PrestadorRAL l[], int pos, PrestadorRAL elemento){
 }
 return c;
 }
-void MostrarEstructura_RAL(PrestadorRAL l[]) {
+void MostrarEstructura_RAL(Prestador l[]) {
     system("cls");
     int i, c=0;
 
-    if (CantElem == 0) {
-        printf("La lista de prestadores esta vacia.\n");
+    if (CantElemRAL == 0) {
+        printf("La lista de prestadores est� vac�a.\n");
         return;
     }
     for (i = 0; i < MRAL; i++) {
+               printf("Celda: %d \n", i);
+        if (l[i].DNI==-1){
+            printf("Estado: virgen \n");
+        }
+        if (l[i].DNI==-2){
+            printf("Estado: Libre \n");
+        }
         if (l[i].DNI!=-1&&l[i].DNI!=-2){
-        printf("--------- Listado de Prestadores ---------\n");
+        printf("Estado: Ocupada. Datos del prestador: \n");
         printf("Prestador %d:\n", i + 1);
         printf("DNI: %d\n", l[i].DNI);
         printf("Nombre y Apellido: %s\n", l[i].nombreyapellido);
