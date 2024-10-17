@@ -98,10 +98,12 @@ int main()
                 printf("________________________Costos_________________________________\n");
                 printf("Rebalse Abierto Lineal \n");
                 // Costos de evocaciones exitosas
+                  printf("Maximo de evocacion exitosa: %d \n", RAL_max_E);
                if (RAL_evocar_E>0){
                 RAL_medio=RAL_t_E/RAL_evocar_E;
                 printf("Medio de evocacion exitosa: %f \n", RAL_medio);
             } else printf("No hubo evocaciones exitosas \n");
+            //Costos de evocaciones no exitosas
             printf("Maximo de evocacion no exitosa: %d \n", RAL_max_F);
             if (RAL_evocar_F>0){
                 RAL_medio=RAL_t_F/RAL_evocar_F;
@@ -171,7 +173,7 @@ int main()
                 break;
 
             case 2:  // Mostrar RAL
-                RAL_MostrarEstructura(RAL);
+                MostrarEstructura_RAL(RAL);
                 break;
 
             case 3:  // Mostrar RAC
