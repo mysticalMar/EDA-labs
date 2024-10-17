@@ -68,15 +68,6 @@ CeldaRS* nuevacelda(PrestadorRS prestador) {
     return nuevo;
 }
 
-    int CompararPrestadores(PrestadorRS *p1, PrestadorRS *p2) {
-    return (p1->DNI == p2->DNI &&
-            strcasecmp(p1->nombreyapellido, p2->nombreyapellido) == 0 &&
-            strcasecmp(p1->servicios, p2->servicios) == 0 &&
-            strcasecmp(p1->domicilio, p2->domicilio) == 0 &&
-            strcasecmp(p1->correo, p2->correo) == 0 &&
-            strcasecmp(p1->telefono, p2->telefono) == 0);
-}
-
 
 // Localizar prestador por DNI
 int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
@@ -187,8 +178,10 @@ void MostrarPrestador(PrestadorRS p) {
 }
 
 void MostrarEstructura_RS(RS *rs) {
-    int i, contador = 0;  // Contador para la paginación
+    int i;
     int lista_vacia = 1;  // Bandera para verificar si la lista está vacía
+    int totaldeprestadores = 0;
+    int contador;
 
     // Verificar si hay algún prestador en la estructura
     for (i = 0; i < PRE_RS; i++) {
@@ -205,7 +198,8 @@ void MostrarEstructura_RS(RS *rs) {
 
 
     // Si la lista no está vacía, mostrar los prestadores con paginación
-    for (i = 0; i < PRE_RS; i++) {
+
+    for (i = 0; i < PRE_RS ; i++) {
         CeldaRS *actual = rs->a[i].psig;
 
         printf("Posicion %d: ", i);
@@ -218,12 +212,12 @@ void MostrarEstructura_RS(RS *rs) {
         }
 
         // Mostrar todos los prestadores en esta posición
-        while (actual != NULL) {
+        while (actual != NULL && totaldeprestadores < 110) {
             MostrarPrestador(actual->datos);
             printf("------------------------------------------\n");
             actual = actual->psig;
 
-            contador++;  // Aumentamos el contador de prestadores mostrados
+         totaldeprestadores ++;
 
             // Pausa cada 5 prestadores
             if (contador % 5 == 0) {
@@ -233,13 +227,13 @@ void MostrarEstructura_RS(RS *rs) {
         }
     }
 
+
     // En caso de que queden menos de 5 prestadores para mostrar, hacer una pausa al final
     if (contador % 5 != 0) {
         printf("Presione Enter para volver al menú principal...\n");
         getchar();
     }
 }
-
 
 
 
