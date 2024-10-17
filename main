@@ -53,13 +53,13 @@ int lectura_operaciones(PrestadorRAL RAL[], RAC *tablaRAC, RS *tablaRS) {
                 if (CantElem < MRAL) {
                     Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
                     Alta_RAC(tablaRAC, auxRAC, &costo);
-                    Alta_RS(tablaRS, auxRS, &costo);  // Insertamos 'auxRS' en la estructura RS
+                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
                 }
             } else {  // Baja
                 DNI = aux.DNI;
                 Baja_RAL(RAL, DNI, &exito, aux, opcion);
                 Baja_RAC(tablaRAC, DNI, &costo);
-                Baja_RS(tablaRS, DNI, &costo);
+                Baja_RS(tablaRS, DNI);
             }
         } else if (opcion == 3) {  // Evocar
             Evocar_RAL(RAL, &aux, aux.DNI, &exito, &costo);
@@ -101,7 +101,7 @@ int main()
                 if (cantEvocExitosa_RAL > 0) {
                     float promedioEvocExitosa_RAL = totalEvocExitosa_RAL / (float)cantEvocExitosa_RAL;
                     printf("Costo maximo de evocacion exitosa en RAL: %d\n", maxEvocExitosa_RAL);
-                    printf("Costo medio de evocación exitosa en RAL: %.2f\n", promedioEvocExitosa_RAL);
+                    printf("Costo medio de evocacion exitosa en RAL: %.2f\n", promedioEvocExitosa_RAL);
                 } else {
                     printf("No hubo evocaciones exitosas en RAL\n");
                 }
