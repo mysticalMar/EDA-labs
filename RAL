@@ -1,3 +1,4 @@
+
 #ifndef RAL_H_INCLUDED
 #define RAL_H_INCLUDED
 
@@ -33,12 +34,13 @@ int hashing (int dni) {
      }
  }
 void Localizar_RAL(Prestador l[], int dni, int *exito, int *pos, int opcion) {
-    int i = hashing(dni), c=0, posf;
+    int i = hashing(dni), c=0, posf, flag=0;
     if (opcion==3){
         RAL_c++;
     }
-    while (l[i].DNI!=-1&&l[i].DNI!=dni&&c<MRAL){//controlar no recorrer los M baldes
-            if (l[i].DNI==-2){ // controlar que si pasé por una libre guarde esa posición para retornar posteriormente
+    while (c<MRAL&&l[i].DNI!=-1&&l[i].DNI!=dni){//controlar no recorrer los M baldes
+            if (l[i].DNI==-2&&flag==0){
+             flag=1;
              posf=i;
             }
         i=(i+1)%MRAL;
@@ -62,16 +64,16 @@ void Localizar_RAL(Prestador l[], int dni, int *exito, int *pos, int opcion) {
 }
 void Alta_RAL(Prestador r[], Prestador nuevo,  int dni, int *exito, int opcion){
 int exitoLocalizar, pos;
-    Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
-    if (!exitoLocalizar){
-        if (CantElemRAL<MAXPRESTADORES){
-        r[pos]=nuevo;
-        *exito=1;
-        CantElemRAL++;
-        }
-        else *exito=-1;
-    }
-        else *exito=2;
+        if (CantElem<MAXPRESTADORES){
+        Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
+        if (!exitoLocalizar){
+            r[pos]=nuevo;
+            *exito=1;
+            CantElemRAL++;
+
+        } else *exito=2;
+
+    } else *exito=-1;
 }
 
 void Baja_RAL(Prestador r[], int dni, int *exito, Prestador e, int opcion){
@@ -128,7 +130,7 @@ void MostrarEstructura_RAL(Prestador l[]) {
         printf("La lista de prestadores est� vac�a.\n");
         return;
     }
-    for (i = 0; i < MRAL; i++) {
+    for (i = 0; i < CantElemRAL; i++) {
                printf("Celda: %d \n", i);
         if (l[i].DNI==-1){
             printf("Estado: virgen \n");
