@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define MAXPRESTADORES 110
 #define PAUSA_PRESTADORES 5
-#define PRE_RS 67  // M calculado como 67 (primo)
+#define PRE_RS 64 // MRS
 ///Varibles globales de costo
 int maxEvocExitosa_RS = 0, maxEvocNoExitosa_RS = 0;
 int totalEvocExitosa_RS = 0, totalEvocNoExitosa_RS = 0;
@@ -29,12 +29,12 @@ typedef struct celdaRS {
     struct celdaRS *psig;
 } CeldaRS;
 
-typedef struct {
+typedef struct RS{
     CeldaRS a[PRE_RS];
     CeldaRS *anterior;
     CeldaRS *actual;
     int cant;
-} RS;
+}RS;
 
 // Función hashing para calcular la posición
 int hashing_RS(int dni, int M) {
@@ -68,8 +68,6 @@ CeldaRS* nuevacelda(PrestadorRS prestador) {
     return nuevo;
 }
 
-
-// Localizar prestador por DNI
 int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
     int pos = hashing_RS(DNI, PRE_RS);
     int c = 0;
@@ -88,87 +86,92 @@ int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
     return 0;  // No se encontró el DNI
 }
 
-// Insertar un prestador (alta)
+
 int Alta_RS(RS *tabla, PrestadorRS prestador) {
     CeldaRS *existe = NULL;
-    int c = 0;
-    int e = Localizar_RS(tabla, prestador.DNI, &existe, &c);
-    int pos = hashing_RS(prestador.DNI, PRE_RS);
+    int costo = 0, pos = 0;
 
+    int encontrado = Localizar_RS(tabla, prestador.DNI, &existe, &costo);
 
-    if (e) {
+    if (encontrado) {
         return 0;  // Prestador duplicado
     }
 
-    CeldaRS *nuevo = nuevacelda(prestador);
-    if (nuevo == NULL) {
-        return -1;  // No hay más memoria
+    if (tabla->a[pos].datos.DNI == 0) {
+        // Insertar en la cabecera si está vacía
+        tabla->a[pos].datos = prestador;
+    } else {
+        // Insertar en la lista de colisiones
+        CeldaRS *nuevo = nuevacelda(prestador);
+        if (!nuevo) return -1; // Error de memoria
+        nuevo->psig = tabla->a[pos].psig;
+        tabla->a[pos].psig = nuevo;
     }
 
-    // Insertamos al inicio de la lista enlazada
-    nuevo->psig = tabla->a[pos].psig;
-    tabla->a[pos].psig = nuevo;
-    tabla->cant = tabla->cant + 1;
+    tabla->cant = tabla->cant +1;
     return 1;  // Alta exitosa
 }
 
-// Eliminar un prestador (baja)
 int Baja_RS(RS *tabla, int DNI) {
-    int pos = hashing_RS(DNI, PRE_RS);
-    int c = 0;
-    CeldaRS *actual = tabla->a[pos].psig;
-    CeldaRS *anterior = NULL;
     CeldaRS *existe = NULL;
+    int costo = 0, pos = 0;
 
-    int e = Localizar_RS(tabla, DNI, &existe, &c);
-    if (e == 0) {
+    int encontrado = Localizar_RS(tabla, DNI, &existe, &costo);
 
-        return 0;  // Prestador no existe
+    if (!encontrado) {
+        return 0;  // Baja no exitosa
     }
 
-    while (actual != NULL) {
-        if (actual->datos.DNI == DNI) {
-            if (anterior == NULL) {
-                tabla->a[pos].psig = actual->psig;
-            } else {
-                anterior->psig = actual->psig;
-            }
-            free((void *)actual);
-            tabla->cant = tabla->cant - 1;
-            return 1;  // Baja exitosa
+    // Verificar si el prestador está en la cabecera
+    if (&tabla->a[pos] == existe) {
+        if (tabla->a[pos].psig) {
+            CeldaRS *temp = tabla->a[pos].psig;
+            tabla->a[pos].datos = temp->datos;
+            tabla->a[pos].psig = temp->psig;
+            free((void *)temp);
+        } else {
+            tabla->a[pos].datos.DNI = 0; // Marca la cabecera como vacía
         }
-        anterior = actual;
-        actual = actual->psig;
-
+    } else {
+        tabla->anterior->psig = existe->psig;
+        free((void *)existe);
     }
-    return 0;  // Baja no exitosa
+
+    tabla->cant = tabla->cant-1;
+    return 1;  // Baja exitosa
 }
 
-// Evocar un prestador
-int Evocar_RS(RS *tabla, int DNI, int *costo) {
+    void Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo, int *exito) {
     CeldaRS *prestador = NULL;
-    int c;
-    int e = Localizar_RS(tabla, DNI, &prestador, &c);  // Buscar el prestador con el DNI
-    *costo = c;
+    *costo = 1;  // Comienza el conteo del costo con el primer balde consultado
 
-    if (e == 1) {  // Evocación exitosa
-        totalEvocExitosa_RS += c;
+    *exito = Localizar_RS(tabla, DNI, &prestador, costo);
+
+    if (*exito == 1) {
+        // Evocación exitosa
+        *resultado = prestador->datos;  // Devolver la tupla completa
+        totalEvocExitosa_RS += *costo;
         cantEvocExitosa_RS++;
-        if (c > maxEvocExitosa_RS) {
-            maxEvocExitosa_RS = c;
+
+        if (*costo > maxEvocExitosa_RS) {
+            maxEvocExitosa_RS = *costo;
         }
-    } else {  // Evocación no exitosa
-        totalEvocNoExitosa_RS += c;
+    } else {
+        // Evocación no exitosa
+        *exito = 0;
+        totalEvocNoExitosa_RS += *costo;
         cantEvocNoExitosa_RS++;
-        if (c > maxEvocNoExitosa_RS) {
-            maxEvocNoExitosa_RS = c;
+
+        if (*costo > maxEvocNoExitosa_RS) {
+            maxEvocNoExitosa_RS = *costo;
         }
     }
-
-    return e;  // Retorna 1 si se encontró, 0 si no
 }
+
+
 void MostrarPrestador(PrestadorRS p) {
     printf("--------- Listado de Prestadores ---------\n");
+
     printf("DNI: %d\n", p.DNI);
     printf("Nombre y Apellido: %s\n", p.nombreyapellido);
     printf("Servicios: %s\n", p.servicios);
@@ -189,7 +192,7 @@ void MostrarEstructura_RS(RS *rs) {
             lista_vacia = 0;  // Si hay al menos un prestador, la lista no está vacía
             break;
         }
-        if (rs->a[i].psig == NULL && lista_vacia == 1) {
+        if ( lista_vacia ) {
         printf("La lista de prestadores esta vacia.\n");
         getchar();
         return;
@@ -212,7 +215,7 @@ void MostrarEstructura_RS(RS *rs) {
         }
 
         // Mostrar todos los prestadores en esta posición
-        while (actual != NULL && totaldeprestadores < 110) {
+        while (actual != NULL && totaldeprestadores < MAXPRESTADORES) {
             MostrarPrestador(actual->datos);
             printf("------------------------------------------\n");
             actual = actual->psig;
@@ -234,6 +237,9 @@ void MostrarEstructura_RS(RS *rs) {
         getchar();
     }
 }
+
+
+
 
 
 
