@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "RS.h"
@@ -50,11 +51,14 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
             strcpy(auxRS.telefono, aux.telefono);
 
             if (opcion == 1) {  // Alta
-                if (CantElem < MRAL) {
+                if (CantElemRAL < MRAL) {
                     Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
-                    Alta_RAC(tablaRAC, auxRAC, &costo);
-                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
                 }
+                if (CantElem<MRAC){
+                    Alta_RAC(tablaRAC, auxRAC, &costo);
+                }
+
+                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
             } else {  // Baja
                 DNI = aux.DNI;
                 Baja_RAL(RAL, DNI, &exito, aux, opcion);
