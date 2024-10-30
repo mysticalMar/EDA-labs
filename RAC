@@ -1,10 +1,11 @@
 
+
 #ifndef RAC_H_INCLUDED
 #define RAC_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
-/// M : N / ρ --> 110 / 0,86 --> M = 127
-#define MRAC 127
+/// M : N / ρ --> 110 / 0,86 --> M = 127.9, primo mas cercano 131.
+#define MRAC 131
 
 ///Variables Globales Costos
 int maxEvocExitosa_RAC = 0, maxEvocNoExitosa_RAC = 0;
@@ -50,16 +51,6 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
    tabla->cant = 0;
  }
 
-  int CompararPrestadores(PrestadorRAC *p1, PrestadorRAC *p2) {
-    // Comparación insensible a mayúsculas/minúsculas con strcasecmp
-    return (p1->DNI == p2->DNI &&
-            strcasecmp(p1->nombreyapellido, p2->nombreyapellido) == 0 &&
-            strcasecmp(p1->servicios, p2->servicios) == 0 &&
-            strcasecmp(p1->domicilio, p2->domicilio) == 0 &&
-            strcasecmp(p1->correo, p2->correo) == 0 &&
-            strcasecmp(p1->telefono, p2->telefono) == 0);
-}
-
 
   int Localizar_RAC(RAC *tabla, int dni, int *pos, int *costo) {
     *pos = hashing_RAC(dni);
@@ -67,6 +58,7 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
     int aux = -1;
     int contador = 0;
     int k = 1;
+    int flag=0;
 
     *costo = 0;
 
@@ -74,8 +66,9 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
            tabla->celda[i].prestador.DNI != dni) {
 
 
-        if (tabla->celda[i].estado == '+') {
+        if (tabla->celda[i].estado == '+'&&flag==0) {
             aux = i;
+            flag=1;
         }
         // Calculamos la siguiente posición usando exploración cuadrática
         i = (i + k) % MRAC;
@@ -85,11 +78,11 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
     }
 
     // Caso 1: Prestador encontrado
-    if (tabla->celda[i].prestador.DNI == dni) {
+    if (tabla->celda[i].prestador.DNI == dni&&tabla->celda[i].estado=='O') {
         *pos = i;
         return 1;  // Encontrado
     }
-
+    else {
     // Caso 2: No encontrado, pero se puede dar de alta
     if (tabla->celda[i].estado == '+' && aux != -1) {
        *pos = aux;
@@ -98,6 +91,7 @@ int cantEvocExitosa_RAC = 0, cantEvocNoExitosa_RAC = 0;
            }
 
     return 0;
+    }
 
 }
 int Alta_RAC(RAC *tabla, PrestadorRAC prestador, int *costo) {
@@ -122,30 +116,35 @@ int Alta_RAC(RAC *tabla, PrestadorRAC prestador, int *costo) {
 
  int Baja_RAC(RAC *tabla, int dni, int *costo) {
     int pos = 0;
-    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
-
     if (tabla->cant == 0) {
         return -1;
     }
+    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
+
+
 
     if (encontrado == 0) {
         return 0;
     }
 
-
+    if (confirmaRAC(tabla->celda, pos, tabla->celda[pos].prestador)==1){ //confirmación
     tabla->celda[pos].estado = '+';
     tabla->cant--;
     return 1;  // Baja exitosa
-}
-int Evocar_RAC(RAC *tabla, int dni, int *costo) {
-    int pos = 0;
-    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
 
-    if (tabla->cant == 0) {
+    }
+    else return 0;
+}
+int Evocar_RAC(RAC *tabla, int dni, int *costo, PrestadorRAC *c) {
+    int pos = 0;
+     if (tabla->cant == 0) {
         return -1;  // Estructura vacía
     }
+    int encontrado = Localizar_RAC(tabla, dni, &pos, costo);
+
 
     if (encontrado == 1) {
+        *c=tabla->celda[pos].prestador;
         // Evocación exitosa
         totalEvocExitosa_RAC += *costo;
         cantEvocExitosa_RAC++;
@@ -231,7 +230,19 @@ void MostrarEstructura_RAC(RAC *tabla) {
 
 
 }
-
+int confirmaRAC(CeldaRAC l[], int pos, PrestadorRAC elemento){
+    int c;
+   if ((l[pos].estado== 'O')&&strcasecmp(l[pos].prestador.nombreyapellido, elemento.nombreyapellido) == 0 &&
+    strcasecmp(l[pos].prestador.servicios, elemento.servicios) == 0 &&
+    strcasecmp(l[pos].prestador.domicilio, elemento.domicilio) == 0 &&
+    strcasecmp(l[pos].prestador.correo, elemento.correo) == 0 &&
+    strcasecmp(l[pos].prestador.telefono, elemento.telefono) == 0) {
+    c = 1;
+} else {
+    c = 0;
+}
+return c;
+}
 
 
 
