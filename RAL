@@ -1,4 +1,5 @@
 
+
 #ifndef RAL_H_INCLUDED
 #define RAL_H_INCLUDED
 
@@ -64,7 +65,6 @@ void Localizar_RAL(Prestador l[], int dni, int *exito, int *pos, int opcion) {
 }
 void Alta_RAL(Prestador r[], Prestador nuevo,  int dni, int *exito, int opcion){
 int exitoLocalizar, pos;
-        if (CantElem<MAXPRESTADORES){
         Localizar_RAL(r, dni, &exitoLocalizar, &pos, opcion);
         if (!exitoLocalizar){
             r[pos]=nuevo;
@@ -73,7 +73,6 @@ int exitoLocalizar, pos;
 
         } else *exito=2;
 
-    } else *exito=-1;
 }
 
 void Baja_RAL(Prestador r[], int dni, int *exito, Prestador e, int opcion){
