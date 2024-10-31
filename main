@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "RS.h"
@@ -17,7 +16,7 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
     int costo = 0;
     int DNI;
 
-    FILE *fp = fopen("Operaciones-Prestadores.txt", "r");
+    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
     if (fp == NULL) {
         printf("No se puede abrir el archivo\n");
         return 0;
@@ -98,44 +97,6 @@ int main()
         switch (opcion) {
             case 1:  // Lectura y comparación de operaciones
                 lectura_operaciones(RAL, &tablaRAC, &tablaRS);
-                // Costos RAC
-                printf("___________________________________________________ \n");
-                printf("Rebalse Abierto Cuadratico \n");
-
-                if (cantEvocExitosa_RAC > 0) {
-                    float promedioEvocExitosa_RAC = totalEvocExitosa_RAC / (float)cantEvocExitosa_RAC;
-                    printf("Costo maximo de evocacion exitosa en RAC: %d\n", maxEvocExitosa_RAC);
-                    printf("Costo medio de evocacion exitosa en RAC: %.2f\n", promedioEvocExitosa_RAC);
-                } else {
-                    printf("No hubo evocaciones exitosas en RAC\n");
-                }
-
-                // Costos de evocaciones no exitosas
-                if (cantEvocNoExitosa_RAC > 0) {
-                    float promedioEvocNoExitosa_RAC = totalEvocNoExitosa_RAC / (float)cantEvocNoExitosa_RAC;
-                    printf("Costo maximo de evocacion no exitosa en RAC: %d\n", maxEvocNoExitosa_RAC);
-                    printf("Costo medio de evocacion no exitosa en RAC: %.2f\n", promedioEvocNoExitosa_RAC);
-                } else {
-                    printf("No hubo evocaciones no exitosas en RAC\n");
-                }
-                  printf("___________________________________________________ \n");
-                  printf("Rebalse Separado \n");
-                  if (cantEvocExitosa_RS > 0) {
-                   float promedioEvocExitosa_RS = totalEvocExitosa_RS / (float)cantEvocExitosa_RS;
-                   printf("Costo máximo de evocación exitosa en RS: %d\n", maxEvocExitosa_RS);
-                   printf("Costo medio de evocación exitosa en RS: %.2f\n", promedioEvocExitosa_RS);
-                   } else {
-                   printf("No hubo evocaciones exitosas en RS\n");
-                   }
-
-                if (cantEvocNoExitosa_RS > 0) {
-                 float promedioEvocNoExitosa_RS = totalEvocNoExitosa_RS / (float)cantEvocNoExitosa_RS;
-                 printf("Costo máximo de evocación no exitosa en RS: %d\n", maxEvocNoExitosa_RS);
-                 printf("Costo medio de evocación no exitosa en RS: %.2f\n", promedioEvocNoExitosa_RS);
-                   }  else {
-                 printf("No hubo evocaciones no exitosas en RS\n");
-               }
-
                 break;
 
             case 2:  // Mostrar RAL
@@ -158,11 +119,29 @@ int main()
         }
     } while (opcion != 5);
     //ANALISIS DE RESULTADOS: RAL
-    //EVOCACION EXITOSA: se obtiene una media de 4, y un maximo de 121.
-    //Estos valores contrastan considerablemente con los de las evocaciones no exitosas,
-    //para las cuales el valor máximo es de 134 y el medio es de 107.
-    //Sin embargo, estos resultados son razonables, ya que, una vez que la estructura se encuentre más llena,
-    //cada evocación no exitosa analizará varias veces 134 celdas, es decir, toda la estructura.
-    //Entonces, como conclusión, se puede afirmar que los valores obtenidos son razonables respecto a la estructura, y su forma de localización.
+//Maximo de evocacion exitosa: 121
+//Medio de evocacion exitosa: 4
+//Maximo de evocacion no exitosa: 134
+//Medio de evocacion no exitosa: 107
+//Viendo los valores de la evocación exitosa, contrastan considerablemente con los de las evocaciones no exitosas,
+//para las cuales el valor máximo es de 134 y el medio es de 107.
+//Sin embargo, estos resultados son razonables, ya que, una vez que la estructura se encuentre más llena,
+//cada evocación no exitosa analizará varias veces 134 celdas, es decir, toda la estructura.
+//Entonces, como conclusión, se puede afirmar que los valores obtenidos son razonables respecto a la estructura, y su forma de localización.
+
+//ANALISIS DE RESULTADOS: RAC
+//Costo maximo de evocacion exitosa en RAC: 60
+//Costo medio de evocacion exitosa en RAC: 2.15
+//Costo maximo de evocacion no exitosa en RAC: 131
+//Costo medio de evocacion no exitosa en RAC: 12.14
+//En el RAC podemos observar una disminución considerable respecto al RAL, debido a la manera de localizar, mostrando que esta es mucho más eficiente que la anterior. 
+
+//ANALISIS DE RESULTADOS: RS
+//Costo maximo de evocacion exitosa en RS: 7
+//Costo medio de evocacion exitosa en RS: 1.58
+//Costo maximo de evocacion no exitosa en RS: 4
+//Costo medio de evocacion no exitosa en RS: 0.76
+//El rebalse separado presenta el menor costo para ambos resultados, permitiendo llegar a la conclusión de que la estructura más eficiente
+//respecto a celdas consultadas es el Rebalse Separado. 
     return 0;
 }
