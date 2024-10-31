@@ -4,7 +4,6 @@
 #define MAXPRESTADORES 110
 #define PAUSA_PRESTADORES 5
 #define PRE_RS 64 // MRS
-#define LIBRE 0
 ///Varibles globales de costo
 int maxEvocExitosa_RS = 0, maxEvocNoExitosa_RS = 0;
 int totalEvocExitosa_RS = 0, totalEvocNoExitosa_RS = 0;
@@ -86,62 +85,86 @@ int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo, int *pos) 
     return 0;  // No se encontró el DNI
 }
 
+// Insertar un prestador (alta)
 int Alta_RS(RS *tabla, PrestadorRS prestador) {
     CeldaRS *existe = NULL;
-    int costo = 0, pos = 0;
+    int c = 0;
+    int pos;
+    int encontrado = Localizar_RS(tabla, prestador.DNI, &existe, &c, &pos);
 
-    // Localizar para obtener posición y existencia
-    int encontrado = Localizar_RS(tabla, prestador.DNI, &existe, &costo, &pos);
+
 
     if (encontrado) {
-        return 0;  // El prestador ya existe
+        return 0;  // Prestador duplicado
     }
 
     CeldaRS *nuevo = nuevacelda(prestador);
     if (nuevo == NULL) {
-        return -1;  // No hay memoria
+        return -1;  // No hay más memoria
     }
 
-    // Insertar en la cabecera si está vacía, o en la lista enlazada
-    if (tabla->a[pos].psig == NULL) {
-        tabla->a[pos].psig = nuevo;  // Insertar en la cabecera
-    } else {
-        nuevo->psig = tabla->a[pos].psig;
-        tabla->a[pos].psig = nuevo;  // Insertar en la lista enlazada
+    if(tabla->a[pos].psig == NULL){
+        tabla->a[pos].psig = nuevo; ///Guardamos directamente en la celda de cabecera
+    }else{
+    ///Si hay prestadores entonces insertamos al inicio de la lista enlazada
+    nuevo->psig = tabla->a[pos].psig;
+    tabla->a[pos].psig = nuevo;
     }
-
     tabla->cant++;
-    return 1;  // Alta exitosa
+    return 1; ///Alta exitosa
+
 }
+
 
 int Baja_RS(RS *tabla, int DNI) {
     CeldaRS *existe = NULL;
-    int costo = 0, pos = 0;
+    int c = 0;
+    int pos;
+    int encontrado = Localizar_RS(tabla, DNI, &existe, &c, &pos);
 
-    // Localizar para obtener posición y existencia
-    int encontrado = Localizar_RS(tabla, DNI, &existe, &costo, &pos);
-
-    if (!encontrado) {
-        return 0;  // No se encontró
+    if(!encontrado){
+        return;
     }
 
-    // Eliminar de la cabecera o de la lista enlazada
-    if (tabla->a[pos].psig == existe) {
-        CeldaRS *temp = tabla->a[pos].psig;
-        tabla->a[pos].psig = temp->psig;
-        free(temp);
-    } else {
-        tabla->anterior->psig = tabla->actual->psig;
-        free(tabla->actual);
-    }
+    CeldaRS *actual = tabla->a[pos].psig;
+    CeldaRS *anterior = NULL;
 
-    tabla->cant--;
-    return 1;  // Baja exitosa
+    while(actual != NULL){
+        if(actual->datos.DNI == DNI){
+            ///Verificar si el nodo a eliminar es el primero(el de cabecera)
+            if(anterior == NULL){
+                tabla->a[pos].psig = actual->psig; ///Actualizar la cabecera
+            }else{
+               anterior->psig = actual->psig; ///Saltar el nodo a eliminar
+            }
+            free((void *)actual);
+            tabla->cant--;
+            return 1; ///Baja exitosa
+        }
+        ///Avanzar en la lista
+        anterior = actual;
+        actual = actual->psig;
+    }
+    return 0;
 }
+   void Borrar_RS(RS *tabla){
+     int i;
+     for(i=0; i<PRE_RS-1; i++){///Recorre M-1 baldes
+        CeldaRS *actual = tabla->a[i].psig;
+        CeldaRS *temp;
 
+        while(actual != NULL){
+            actual = temp;
+            actual = actual->psig;
+            free((void *)temp);
+        }
+        tabla->a[i].psig = NULL;
+     }
 
+   tabla->cant = 0;
 
-int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
+   }
+   int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
     CeldaRS *prestador = NULL;
     int c;
     int pos;
@@ -155,7 +178,7 @@ int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
             maxEvocExitosa_RS = c;
         }
         // Devolver los datos del prestador encontrado
-        *resultado = prestador->datos; ///Devuelve la nupla exitosa
+        *resultado = prestador->datos;
     } else {  // Evocación no exitosa
         totalEvocNoExitosa_RS += c;
         cantEvocNoExitosa_RS++;
@@ -166,8 +189,6 @@ int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
 
     return e;  // Retorna 1 si se encontró, 0 si no
 }
-
-
 
 
 void MostrarPrestador(PrestadorRS p) {
