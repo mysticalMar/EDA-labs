@@ -143,15 +143,30 @@ int Baja_RS(RS *tabla, int DNI) {
 
 int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
     CeldaRS *prestador = NULL;
+    int c;
     int pos;
-    int encontrado = Localizar_RS(tabla, DNI, &prestador, costo, &pos);
+    int e = Localizar_RS(tabla, DNI, &prestador, &c, &pos);  // Buscar el prestador con el DNI
+    *costo = c;
 
-    if (encontrado) {
-        *resultado = prestador->datos;  // Devolver el prestador encontrado
+    if (e == 1) {  // Evocación exitosa
+        totalEvocExitosa_RS += c;
+        cantEvocExitosa_RS++;
+        if (c > maxEvocExitosa_RS) {
+            maxEvocExitosa_RS = c;
+        }
+        // Devolver los datos del prestador encontrado
+        *resultado = prestador->datos; ///Devuelve la nupla exitosa
+    } else {  // Evocación no exitosa
+        totalEvocNoExitosa_RS += c;
+        cantEvocNoExitosa_RS++;
+        if (c > maxEvocNoExitosa_RS) {
+            maxEvocNoExitosa_RS = c;
+        }
     }
 
-    return encontrado;  // Retorna 1 si se encontró, 0 si no
+    return e;  // Retorna 1 si se encontró, 0 si no
 }
+
 
 
 
