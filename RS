@@ -1,12 +1,10 @@
 #ifndef RS_H_INCLUDED
 #define RS_H_INCLUDED
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #define MAXPRESTADORES 110
 #define PAUSA_PRESTADORES 5
 #define PRE_RS 64 // MRS
+#define LIBRE 0
 ///Varibles globales de costo
 int maxEvocExitosa_RS = 0, maxEvocNoExitosa_RS = 0;
 int totalEvocExitosa_RS = 0, totalEvocNoExitosa_RS = 0;
@@ -29,12 +27,12 @@ typedef struct celdaRS {
     struct celdaRS *psig;
 } CeldaRS;
 
-typedef struct RS{
+typedef struct {
     CeldaRS a[PRE_RS];
     CeldaRS *anterior;
     CeldaRS *actual;
     int cant;
-}RS;
+} RS;
 
 // Función hashing para calcular la posición
 int hashing_RS(int dni, int M) {
@@ -68,10 +66,12 @@ CeldaRS* nuevacelda(PrestadorRS prestador) {
     return nuevo;
 }
 
-int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
-    int pos = hashing_RS(DNI, PRE_RS);
+
+// Localizar prestador por DNI
+int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo, int *pos) {
+    *pos = hashing_RS(DNI, PRE_RS);
     int c = 0;
-    CeldaRS *actual = tabla->a[pos].psig;
+    CeldaRS *actual = tabla->a[*pos].psig;
     while (actual != NULL) {
         c++;  // Cada consulta a un nodo aumenta el costo
         if (actual->datos.DNI == DNI) {
@@ -86,29 +86,31 @@ int Localizar_RS(RS *tabla, int DNI, CeldaRS **resultado, int *costo) {
     return 0;  // No se encontró el DNI
 }
 
-
 int Alta_RS(RS *tabla, PrestadorRS prestador) {
     CeldaRS *existe = NULL;
     int costo = 0, pos = 0;
 
-    int encontrado = Localizar_RS(tabla, prestador.DNI, &existe, &costo);
+    // Localizar para obtener posición y existencia
+    int encontrado = Localizar_RS(tabla, prestador.DNI, &existe, &costo, &pos);
 
     if (encontrado) {
-        return 0;  // Prestador duplicado
+        return 0;  // El prestador ya existe
     }
 
-    if (tabla->a[pos].datos.DNI == 0) {
-        // Insertar en la cabecera si está vacía
-        tabla->a[pos].datos = prestador;
+    CeldaRS *nuevo = nuevacelda(prestador);
+    if (nuevo == NULL) {
+        return -1;  // No hay memoria
+    }
+
+    // Insertar en la cabecera si está vacía, o en la lista enlazada
+    if (tabla->a[pos].psig == NULL) {
+        tabla->a[pos].psig = nuevo;  // Insertar en la cabecera
     } else {
-        // Insertar en la lista de colisiones
-        CeldaRS *nuevo = nuevacelda(prestador);
-        if (!nuevo) return -1; // Error de memoria
         nuevo->psig = tabla->a[pos].psig;
-        tabla->a[pos].psig = nuevo;
+        tabla->a[pos].psig = nuevo;  // Insertar en la lista enlazada
     }
 
-    tabla->cant = tabla->cant +1;
+    tabla->cant++;
     return 1;  // Alta exitosa
 }
 
@@ -116,57 +118,41 @@ int Baja_RS(RS *tabla, int DNI) {
     CeldaRS *existe = NULL;
     int costo = 0, pos = 0;
 
-    int encontrado = Localizar_RS(tabla, DNI, &existe, &costo);
+    // Localizar para obtener posición y existencia
+    int encontrado = Localizar_RS(tabla, DNI, &existe, &costo, &pos);
 
     if (!encontrado) {
-        return 0;  // Baja no exitosa
+        return 0;  // No se encontró
     }
 
-    // Verificar si el prestador está en la cabecera
-    if (&tabla->a[pos] == existe) {
-        if (tabla->a[pos].psig) {
-            CeldaRS *temp = tabla->a[pos].psig;
-            tabla->a[pos].datos = temp->datos;
-            tabla->a[pos].psig = temp->psig;
-            free((void *)temp);
-        } else {
-            tabla->a[pos].datos.DNI = 0; // Marca la cabecera como vacía
-        }
+    // Eliminar de la cabecera o de la lista enlazada
+    if (tabla->a[pos].psig == existe) {
+        CeldaRS *temp = tabla->a[pos].psig;
+        tabla->a[pos].psig = temp->psig;
+        free(temp);
     } else {
-        tabla->anterior->psig = existe->psig;
-        free((void *)existe);
+        tabla->anterior->psig = tabla->actual->psig;
+        free(tabla->actual);
     }
 
-    tabla->cant = tabla->cant-1;
+    tabla->cant--;
     return 1;  // Baja exitosa
 }
 
-    void Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo, int *exito) {
+
+
+int Evocar_RS(RS *tabla, int DNI, PrestadorRS *resultado, int *costo) {
     CeldaRS *prestador = NULL;
-    *costo = 1;  // Comienza el conteo del costo con el primer balde consultado
+    int pos;
+    int encontrado = Localizar_RS(tabla, DNI, &prestador, costo, &pos);
 
-    *exito = Localizar_RS(tabla, DNI, &prestador, costo);
-
-    if (*exito == 1) {
-        // Evocación exitosa
-        *resultado = prestador->datos;  // Devolver la tupla completa
-        totalEvocExitosa_RS += *costo;
-        cantEvocExitosa_RS++;
-
-        if (*costo > maxEvocExitosa_RS) {
-            maxEvocExitosa_RS = *costo;
-        }
-    } else {
-        // Evocación no exitosa
-        *exito = 0;
-        totalEvocNoExitosa_RS += *costo;
-        cantEvocNoExitosa_RS++;
-
-        if (*costo > maxEvocNoExitosa_RS) {
-            maxEvocNoExitosa_RS = *costo;
-        }
+    if (encontrado) {
+        *resultado = prestador->datos;  // Devolver el prestador encontrado
     }
+
+    return encontrado;  // Retorna 1 si se encontró, 0 si no
 }
+
 
 
 void MostrarPrestador(PrestadorRS p) {
@@ -192,7 +178,7 @@ void MostrarEstructura_RS(RS *rs) {
             lista_vacia = 0;  // Si hay al menos un prestador, la lista no está vacía
             break;
         }
-        if ( lista_vacia ) {
+        if (rs->a[i].psig == NULL && lista_vacia == 1) {
         printf("La lista de prestadores esta vacia.\n");
         getchar();
         return;
@@ -237,11 +223,6 @@ void MostrarEstructura_RS(RS *rs) {
         getchar();
     }
 }
-
-
-
-
-
 
 
 #endif // RS_H_INCLUDED
