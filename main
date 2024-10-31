@@ -17,7 +17,7 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
     int costo = 0;
     int DNI;
 
-    FILE *fp = fopen("OperacionesPrestadores.txt", "r");
+    FILE *fp = fopen("Operaciones-Prestadores.txt", "r");
     if (fp == NULL) {
         printf("No se puede abrir el archivo\n");
         return 0;
@@ -54,11 +54,10 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
                 if (CantElemRAL < MRAL) {
                     Alta_RAL(RAL, aux, aux.DNI, &exito, opcion);
                 }
-                if (CantElem<MRAC){
+                if (CantElem < MRAC) {
                     Alta_RAC(tablaRAC, auxRAC, &costo);
                 }
-
-                    Alta_RS(tablaRS, auxRS);  // Insertamos 'auxRS' en la estructura RS
+                Alta_RS(tablaRS, auxRS);
             } else {  // Baja
                 DNI = aux.DNI;
                 Baja_RAL(RAL, DNI, &exito, aux, opcion);
@@ -66,9 +65,10 @@ int lectura_operaciones(Prestador RAL[], RAC *tablaRAC, RS *tablaRS) {
                 Baja_RS(tablaRS, DNI);
             }
         } else if (opcion == 3) {  // Evocar
+
             Evocar_RAL(RAL, &aux, aux.DNI, &exito, opcion);
             Evocar_RAC(tablaRAC, aux.DNI, &costo, &auxRAC);
-            Evocar_RS(tablaRS, aux.DNI, &costo);
+             Evocar_RS(tablaRS, aux.DNI, &auxRS, &costo);
         }
     }
 
@@ -118,6 +118,24 @@ int main()
                 } else {
                     printf("No hubo evocaciones no exitosas en RAC\n");
                 }
+                  printf("___________________________________________________ \n");
+                  printf("Rebalse Separado \n");
+                  if (cantEvocExitosa_RS > 0) {
+                   float promedioEvocExitosa_RS = totalEvocExitosa_RS / (float)cantEvocExitosa_RS;
+                   printf("Costo máximo de evocación exitosa en RS: %d\n", maxEvocExitosa_RS);
+                   printf("Costo medio de evocación exitosa en RS: %.2f\n", promedioEvocExitosa_RS);
+                   } else {
+                   printf("No hubo evocaciones exitosas en RS\n");
+                   }
+
+                if (cantEvocNoExitosa_RS > 0) {
+                 float promedioEvocNoExitosa_RS = totalEvocNoExitosa_RS / (float)cantEvocNoExitosa_RS;
+                 printf("Costo máximo de evocación no exitosa en RS: %d\n", maxEvocNoExitosa_RS);
+                 printf("Costo medio de evocación no exitosa en RS: %.2f\n", promedioEvocNoExitosa_RS);
+                   }  else {
+                 printf("No hubo evocaciones no exitosas en RS\n");
+               }
+
                 break;
 
             case 2:  // Mostrar RAL
